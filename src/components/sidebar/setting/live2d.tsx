@@ -11,6 +11,7 @@ import { Field } from '@/components/ui/field';
 import { useState, useEffect, useContext } from 'react';
 import { L2DContext, ModelInfo } from '@/context/l2d-context';
 import { settingStyles } from './setting-styles';
+import { Switch } from "@/components/ui/switch";
 
 interface Live2dProps {
   onSave?: (callback: () => void) => (() => void);
@@ -138,6 +139,18 @@ function Live2d({ onSave, onCancel }: Live2dProps) {
 
   return (
     <Stack {...settingStyles.live2d.container}>
+      <Field 
+        {...settingStyles.live2d.field} 
+        label={<Text {...settingStyles.live2d.fieldLabel}>Pointer Interactive</Text>}
+      >
+        <Switch
+          {...settingStyles.live2d.switch}
+          checked={modelInfo.pointerInteractive ?? false}
+          onCheckedChange={(details) => handleInputChange('pointerInteractive', details.checked)}
+          value="pointer-interactive"
+        />
+      </Field>
+
       <Field 
         {...settingStyles.live2d.field} 
         label={<Text {...settingStyles.live2d.fieldLabel}>Model URL</Text>}

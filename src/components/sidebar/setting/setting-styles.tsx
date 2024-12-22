@@ -152,7 +152,7 @@ export const settingStyles = {
     },
     numberInput: {
       root: {
-        pattern: "[0-9-]*([.][0-9]*)?",
+        pattern: "[0-9]*\\.?[0-9]*",
         inputMode: "decimal" as const,
       },
       input: {
@@ -178,6 +178,11 @@ export const settingStyles = {
       deleteButton: {
         colorPalette: "red",
       },
+    },
+    switch: {
+      size: "md" as const,
+      colorPalette: "blue" as const,
+      variant: "solid" as const,
     },
   },
 }; 

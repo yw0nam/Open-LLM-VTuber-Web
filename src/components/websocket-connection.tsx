@@ -165,6 +165,15 @@ function WebSocketConnection({ children }: { children: React.ReactNode }) {
       sendMessage({
         type: "fetch-backgrounds"
       });
+      sendMessage({
+        type: "fetch-conf-info"
+      });
+      sendMessage({
+        type: "fetch-history-list"
+      });
+      sendMessage({
+        type: "create-new-history",
+      });
     },
     onClose: () => {
       console.log('WebSocket connection closed');

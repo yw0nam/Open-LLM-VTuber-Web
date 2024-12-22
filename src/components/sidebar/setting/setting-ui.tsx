@@ -66,9 +66,11 @@ function SettingUI({ open, onClose }: SettingUIProps) {
       <DrawerContent {...settingStyles.settingUI.drawerContent}>
         <DrawerHeader {...settingStyles.settingUI.drawerHeader}>
           <DrawerTitle {...settingStyles.settingUI.drawerTitle}>Settings</DrawerTitle>
-          <DrawerCloseTrigger {...settingStyles.settingUI.closeButton}>
-            <CloseButton size="sm" color="white" />
-          </DrawerCloseTrigger>
+          <div {...settingStyles.settingUI.closeButton}>
+            <DrawerCloseTrigger asChild onClick={handleCancel}>
+              <CloseButton size="sm" color="white" />
+            </DrawerCloseTrigger>
+          </div>
         </DrawerHeader>
 
         <DrawerBody>
@@ -108,7 +110,7 @@ function SettingUI({ open, onClose }: SettingUIProps) {
                 LLM
               </Tabs.Trigger>
               <Tabs.Trigger
-                value="input"
+                value="about"
                 {...settingStyles.settingUI.tabs.trigger}
               >
                 About
@@ -138,7 +140,10 @@ function SettingUI({ open, onClose }: SettingUIProps) {
                 value="asr"
                 {...settingStyles.settingUI.tabs.content}
               >
-                <ASR />
+                <ASR 
+                  onSave={handleSaveCallback}
+                  onCancel={handleCancelCallback}
+                />
               </Tabs.Content>
               <Tabs.Content
                 value="tts"

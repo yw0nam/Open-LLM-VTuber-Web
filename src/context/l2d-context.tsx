@@ -13,6 +13,7 @@ export interface ModelInfo {
   emotionMap: {
     [key: string]: number | string; 
   };
+  pointerInteractive?: boolean; // 新增字段
 }
 interface L2DContextType {
   modelInfo?: ModelInfo;

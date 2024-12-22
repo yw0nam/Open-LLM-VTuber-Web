@@ -9,8 +9,6 @@ import { audioTaskQueue } from '@/utils/task-queue';
 import { WebSocketContext } from '@/context/websocket-context';
 import { useChatHistory } from '@/context/chat-history-context';
 
-const pointerInteractionEnabled = false;
-
 // function setExpression(model: Live2DModel, expressionIndex: number) {
 //   expressionIndex = parseInt(expressionIndex.toString());
 //   if (
@@ -134,7 +132,7 @@ export const Live2D: React.FC = () => {
 
       try {
         const options = {
-          autoInteract: pointerInteractionEnabled,
+          autoInteract: modelInfo.pointerInteractive ?? false,
           autoUpdate: true,
         };
 
