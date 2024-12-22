@@ -145,7 +145,12 @@ function WebSocketConnection({ children }: { children: React.ReactNode }) {
         clearResponse();
         break;
       case 'conversation-chain-end':
-        setAiState('idle');
+        audioTaskQueue.addTask(() => 
+          new Promise<void>((resolve) => {
+            setAiState('idle');
+            resolve();
+          })
+        );
         break;
       default:
         console.warn('Unknown control command:', controlText);
