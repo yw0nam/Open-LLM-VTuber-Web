@@ -14,7 +14,7 @@ import { toaster } from "@/components/ui/toaster";
 import { HistoryInfo } from '@/context/websocket-context';
 import { useVAD } from '@/context/vad-context';
 import { MessageEvent } from '@/services/websocket-service';
-
+import { ConfigFile } from '@/context/config-context';
 const wsUrl = "ws://127.0.0.1:12393/client-ws";
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
@@ -25,7 +25,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { clearResponse } = useContext(ResponseContext)!;
   const { addAudioTask } = useAudioTask();
   const bgUrlContext = useContext(BgUrlContext);
-  const { setConfName, setConfUid } = useConfig();
+  const { setConfName, setConfUid, setConfigFiles } = useConfig();
   const { setCurrentHistoryUid, setMessages, setHistoryList, appendHumanMessage } = useChatHistory();
   const { startMic, stopMic } = useVAD();
 
@@ -80,7 +80,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         break;
       case "set-model":
         console.log("set-model: ", message.model_info);
-        if (message.model_info) {
+        if (message.model_info && !message.model_info.url.startsWith("http")) {
           const modelUrl = wsUrl.replace("ws:", window.location.protocol).replace("/client-ws", "") + message.model_info.url;
           message.model_info.url = modelUrl;
         }
@@ -94,6 +94,28 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         }
         break;
       case 'config-files':
+        if (message.configs) {
+          const configFilesMap: { [key: string]: string } = {};
+          message.configs.forEach((config: ConfigFile) => {
+            const displayName = config.name.replace('.yaml', '');
+            configFilesMap[displayName] = config.name;
+          });
+          setConfigFiles(configFilesMap);
+        }
+        break;
+      case 'config-switched':
+        setAiState('idle');
+        startMic();
+        
+        toaster.create({
+          title: 'Character switched',
+          type: 'success',
+          duration: 2000,
+        });
+
+        wsService.sendMessage({ type: "fetch-conf-info" });
+        wsService.sendMessage({ type: "fetch-history-list" });
+        wsService.sendMessage({ type: "create-new-history" });
         break;
       case 'background-files':
         if (message.files) {
@@ -173,6 +195,13 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         if (message.text) {
           appendHumanMessage(message.text);
         }
+        break;
+      case 'error':
+        toaster.create({
+          title: message.message,
+          type: 'error',
+          duration: 2000,
+        });
         break;
       default:
         console.warn('Unknown message type:', message.type);

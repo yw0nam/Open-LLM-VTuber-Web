@@ -1,7 +1,5 @@
 import { 
   Input,
-  Button,
-  HStack,
   Text,
   Stack,
 } from '@chakra-ui/react';
@@ -17,6 +15,8 @@ import { useEffect, useState, useContext } from 'react';
 import { BgUrlContext } from '@/context/bgurl-context';
 import { settingStyles } from './setting-styles';
 import { createListCollection } from '@chakra-ui/react';
+import { useConfig } from '@/context/config-context';
+import { useSwitchCharacter } from '@/hooks/use-switch-character';
 
 interface GeneralProps {
   onSave?: (callback: () => void) => (() => void);
@@ -28,6 +28,7 @@ interface GeneralSettings {
   customBgUrl: string;
   selectedBgUrl: string[];
   backgroundUrl: string;
+  selectedCharacterPreset: string[];
 }
 
 interface SelectFieldProps {
@@ -67,20 +68,57 @@ function SelectField({ label, value, onChange, collection, placeholder }: Select
 
 function General({ onSave, onCancel }: GeneralProps) {
   const bgUrlContext = useContext(BgUrlContext);
+  const { configFiles, confName } = useConfig();
+  const { switchCharacter } = useSwitchCharacter();
+  
+  const getCurrentBgKey = () => {
+    if (!bgUrlContext?.backgroundUrl) return [];
+    const currentBgUrl = bgUrlContext.backgroundUrl;
+    if (currentBgUrl.startsWith('/bg/')) {
+      return [currentBgUrl]; 
+    }
+    return [];
+  };
   
   const [settings, setSettings] = useState<GeneralSettings>({
-    language: [],
-    customBgUrl: '',
-    selectedBgUrl: [],
-    backgroundUrl: bgUrlContext?.backgroundUrl || ''
+    language: ['en'],
+    customBgUrl: !bgUrlContext?.backgroundUrl?.startsWith('/bg/') ? bgUrlContext?.backgroundUrl || '' : '',
+    selectedBgUrl: getCurrentBgKey(),
+    backgroundUrl: bgUrlContext?.backgroundUrl || '',
+    selectedCharacterPreset: []
   });
 
   const [originalSettings, setOriginalSettings] = useState<GeneralSettings>({
-    language: [],
-    customBgUrl: '',
-    selectedBgUrl: [],
-    backgroundUrl: bgUrlContext?.backgroundUrl || ''
+    language: ["en"],
+    customBgUrl: !bgUrlContext?.backgroundUrl?.startsWith("/bg/")
+      ? bgUrlContext?.backgroundUrl || ""
+      : "",
+    selectedBgUrl: getCurrentBgKey(),
+    backgroundUrl: bgUrlContext?.backgroundUrl || "",
+    selectedCharacterPreset: [],
   });
+
+  useEffect(() => {
+    if (confName) {
+      const initialSettings = {
+        ...settings,
+        selectedCharacterPreset: [confName]
+      };
+      setSettings(initialSettings);
+      setOriginalSettings(initialSettings);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (confName) {
+      const newSettings = {
+        ...settings,
+        selectedCharacterPreset: [confName]
+      };
+      setSettings(newSettings);
+      setOriginalSettings(newSettings);
+    }
+  }, [confName]);
 
   const handleSave = () => {
     const newBgUrl = settings.customBgUrl || settings.selectedBgUrl[0];
@@ -141,12 +179,19 @@ function General({ onSave, onCancel }: GeneralProps) {
     })) || []
   });
 
-  const handleSwitchCharacter = () => {
-    
-  };
+  const characterPresetCollection = createListCollection({
+    items: Object.keys(configFiles).map(name => ({
+      label: name,
+      value: name,
+    }))
+  });
 
-  const handleSaveCharacter = () => {
-    
+  const handleCharacterPresetChange = (value: string[]) => {
+    const selectedPreset = value[0];
+    if (selectedPreset && selectedPreset !== confName) {
+      switchCharacter(selectedPreset);
+      handleSettingChange("selectedCharacterPreset", value);
+    }
   };
 
   return (
@@ -154,7 +199,7 @@ function General({ onSave, onCancel }: GeneralProps) {
       <SelectField
         label="Language"
         value={settings.language}
-        onChange={(value) => handleSettingChange('language', value)}
+        onChange={(value) => handleSettingChange("language", value)}
         collection={languages}
         placeholder="Select language"
       />
@@ -162,37 +207,34 @@ function General({ onSave, onCancel }: GeneralProps) {
       <SelectField
         label="Background Image"
         value={settings.selectedBgUrl}
-        onChange={(value) => handleSettingChange('selectedBgUrl', value)}
+        onChange={(value) => handleSettingChange("selectedBgUrl", value)}
         collection={backgroundCollection}
         placeholder="Select from available backgrounds"
       />
 
-      <Field 
+      <Field
         {...settingStyles.general.field}
-        label={<Text {...settingStyles.general.field.label}>Custom Background URL</Text>}
+        label={
+          <Text {...settingStyles.general.field.label}>
+            Or enter a custom background URL
+          </Text>
+        }
       >
         <Input
           {...settingStyles.general.input}
           placeholder="Enter image URL"
           value={settings.customBgUrl}
-          onChange={(e) => handleSettingChange('customBgUrl', e.target.value)}
+          onChange={(e) => handleSettingChange("customBgUrl", e.target.value)}
         />
       </Field>
 
-      <HStack {...settingStyles.general.buttonGroup}>
-        <Button
-          {...settingStyles.general.button}
-          onClick={handleSwitchCharacter}
-        >
-          Switch Character
-        </Button>
-        <Button
-          {...settingStyles.general.button}
-          onClick={handleSaveCharacter}
-        >
-          Save Character
-        </Button>
-      </HStack>
+      <SelectField
+        label="Character Preset"
+        value={settings.selectedCharacterPreset}
+        onChange={handleCharacterPresetChange}
+        collection={characterPresetCollection}
+        placeholder={confName || "Select character preset"}
+      />
     </Stack>
   );
 }

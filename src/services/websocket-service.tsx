@@ -2,6 +2,7 @@ import { ModelInfo } from "@/context/l2d-context";
 import { HistoryInfo } from "@/context/websocket-context";
 import { Message } from "@/types/message";
 import { Subject } from "rxjs";
+import { ConfigFile } from "@/context/config-context";
 
 interface BackgroundFile {
   name: string;
@@ -24,6 +25,8 @@ export interface MessageEvent {
   history_uid?: string;
   success?: boolean;
   histories?: HistoryInfo[];
+  configs?: ConfigFile[];
+  message?: string;
 }
 
 class WebSocketService {
@@ -47,6 +50,9 @@ class WebSocketService {
     this.sendMessage({
       type: "fetch-backgrounds"
     });
+     this.sendMessage({
+       type: "fetch-configs",
+     });
     this.sendMessage({
       type: "fetch-conf-info"
     });

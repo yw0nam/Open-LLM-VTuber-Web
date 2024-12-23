@@ -113,6 +113,7 @@ export const Live2D: React.FC = () => {
   // Load model
   useEffect(() => {
     const loadModel = async () => {
+      console.log("Loading model: " + modelInfo?.url);
       if (!modelInfo) return;
       if (!appRef.current || !modelInfo.url) return;
 
@@ -132,7 +133,8 @@ export const Live2D: React.FC = () => {
 
       try {
         const options = {
-          autoInteract: modelInfo.pointerInteractive ?? false,
+          autoHitTest: modelInfo.pointerInteractive ?? false,
+          autoFocus: modelInfo.pointerInteractive ?? false,
           autoUpdate: true,
         };
 
@@ -169,12 +171,6 @@ export const Live2D: React.FC = () => {
     resizeApp();
     loadModel();
   }, [modelInfo]);
-
-  useEffect(() => {
-    if (model2) {
-      console.log('L2dModel context updated:', model2);
-    }
-  }, [model2]);
 
   useEffect(() => {
     return () => {

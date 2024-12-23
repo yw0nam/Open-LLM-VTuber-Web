@@ -22,3 +22,11 @@ export const WebSocketContext = React.createContext<WebSocketContextProps>({
   wsState: 'CLOSED',
   reconnect: () => wsService.connect('ws://127.0.0.1:12393/client-ws'),
 });
+
+export function useWebSocket() {
+  const context = React.useContext(WebSocketContext);
+  if (!context) {
+    throw new Error('useWebSocket must be used within a WebSocketProvider');
+  }
+  return context;
+}

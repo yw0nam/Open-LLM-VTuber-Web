@@ -31,6 +31,7 @@ interface SettingUIProps {
 function SettingUI({ open, onClose }: SettingUIProps) {
   const [saveHandlers, setSaveHandlers] = useState<(() => void)[]>([]);
   const [cancelHandlers, setCancelHandlers] = useState<(() => void)[]>([]);
+  const [activeTab, setActiveTab] = useState('general');
 
   const handleSaveCallback = (handler: () => void) => {
     setSaveHandlers(prev => [...prev, handler]);
@@ -76,6 +77,8 @@ function SettingUI({ open, onClose }: SettingUIProps) {
         <DrawerBody>
           <Tabs.Root
             defaultValue="general"
+            value={activeTab}
+            onValueChange={(details) => setActiveTab(details.value)}
             {...settingStyles.settingUI.tabs.root}
           >
             <Tabs.List>
@@ -134,6 +137,7 @@ function SettingUI({ open, onClose }: SettingUIProps) {
                 <Live2d
                   onSave={handleSaveCallback}
                   onCancel={handleCancelCallback}
+                  activeTab={activeTab}
                 />
               </Tabs.Content>
               <Tabs.Content

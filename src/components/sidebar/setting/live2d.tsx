@@ -12,10 +12,12 @@ import { useState, useEffect, useContext } from 'react';
 import { L2DContext, ModelInfo } from '@/context/l2d-context';
 import { settingStyles } from './setting-styles';
 import { Switch } from "@/components/ui/switch";
+import { toaster } from '@/components/ui/toaster';
 
 interface Live2dProps {
   onSave?: (callback: () => void) => (() => void);
   onCancel?: (callback: () => void) => (() => void);
+  activeTab: string;
 }
 
 interface NumberFieldProps {
@@ -59,7 +61,7 @@ function NumberField({ label, value, onChange, step = 1 }: NumberFieldProps) {
   );
 }
 
-function Live2d({ onSave, onCancel }: Live2dProps) {
+function Live2d({ onSave, onCancel, activeTab }: Live2dProps) {
   const l2dContext = useContext(L2DContext);
   const [modelInfo, setModelInfoState] = useState<ModelInfo>(l2dContext?.modelInfo || {
     url: '',
@@ -77,6 +79,14 @@ function Live2d({ onSave, onCancel }: Live2dProps) {
     kXOffset: 1150,
     emotionMap: {}
   });
+  const [lastUpdateTime, setLastUpdateTime] = useState<number>(0);
+
+  useEffect(() => {
+    if (l2dContext?.modelInfo && activeTab != 'live2d') {
+      setOriginalModelInfo(l2dContext.modelInfo);
+      setModelInfoState(l2dContext.modelInfo);
+    }
+  }, [l2dContext?.modelInfo]);
 
   useEffect(() => {
     if (!onSave || !onCancel) return;
@@ -110,6 +120,18 @@ function Live2d({ onSave, onCancel }: Live2dProps) {
   };
 
   const handleInputChange = (key: keyof ModelInfo, value: ModelInfo[keyof ModelInfo]) => {
+    const now = Date.now();
+    if (now - lastUpdateTime < 200) {
+      toaster.create({
+        title: 'Please slow down',
+        description: 'Changes are being applied too quickly',
+        type: 'warning',
+        duration: 1000,
+      });
+      return;
+    }
+    
+    setLastUpdateTime(now);
     setModelInfoState((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -132,10 +154,10 @@ function Live2d({ onSave, onCancel }: Live2dProps) {
   };
 
   useEffect(() => {
-    if (modelInfo && l2dContext) {
+    if (activeTab === 'live2d' && modelInfo && l2dContext) {
       l2dContext.setModelInfo(modelInfo);
     }
-  }, [modelInfo, l2dContext]);
+  }, [modelInfo, l2dContext, activeTab]);
 
   return (
     <Stack {...settingStyles.live2d.container}>
