@@ -1,7 +1,7 @@
 import {
   Box, Input, IconButton, HStack,
 } from '@chakra-ui/react';
-import { BsMicFill, BsPaperclip } from 'react-icons/bs';
+import { BsMicFill, BsMicMuteFill, BsPaperclip } from 'react-icons/bs';
 import { IoHandRightSharp } from 'react-icons/io5';
 import { FiChevronDown } from 'react-icons/fi';
 import { InputGroup } from '@/components/ui/input-group';
@@ -9,6 +9,7 @@ import { footerStyles } from './footer-styles';
 import AIStateIndicator from './ai-state-indicator';
 import { useTextInput } from '@/hooks/use-text-input';
 import { useInterrupt } from '@/components/canvas/live2d';
+import { useVAD } from '@/context/vad-context';
 
 interface FooterProps {
   isCollapsed?: boolean;
@@ -25,6 +26,15 @@ function Footer({ isCollapsed = false, onToggle }: FooterProps) {
     handleCompositionEnd,
   } = useTextInput();
   const { interrupt } = useInterrupt();
+  const { startMic, stopMic, micOn } = useVAD();
+
+  const handleMicToggle = async () => {
+    if (micOn) {
+      stopMic();
+    } else {
+      await startMic();
+    }
+  };
 
   return (
     <Box {...styles.container(isCollapsed)}>
@@ -47,11 +57,11 @@ function Footer({ isCollapsed = false, onToggle }: FooterProps) {
             </Box>
             <HStack gap={2}>
               <IconButton
-                aria-label="Start recording"
-                bg="red.500"
+                bg={micOn ? "green.500" : "red.500"}
                 {...styles.actionButton}
+                onClick={handleMicToggle}
               >
-                <BsMicFill size="24" />
+                {micOn ? <BsMicFill /> : <BsMicMuteFill />}
               </IconButton>
               <IconButton
                 aria-label="Raise hand"

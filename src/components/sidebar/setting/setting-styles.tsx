@@ -141,6 +141,7 @@ export const settingStyles = {
     fieldLabel: {
       fontSize: "sm",
       color: "whiteAlpha.800",
+      whiteSpace: "nowrap" as const,
     },
     input: {
       flex: 1,

@@ -1,17 +1,13 @@
 import { Stack, Text, NumberInput } from "@chakra-ui/react";
 import { Field } from '@/components/ui/field';
+import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from 'react';
 import { settingStyles } from './setting-styles';
+import { useVAD } from '@/context/vad-context';
 
 interface ASRProps {
   onSave?: (callback: () => void) => (() => void);
   onCancel?: (callback: () => void) => (() => void);
-}
-
-interface ASRSettings {
-  speechProbThreshold: number;
-  negativeSpeechThreshold: number;
-  redemptionFrames: number;
 }
 
 interface ValueChangeDetails {
@@ -19,12 +15,9 @@ interface ValueChangeDetails {
 }
 
 function ASR({ onSave, onCancel }: ASRProps) {
-  const [settings, setSettings] = useState<ASRSettings>({
-    speechProbThreshold: Number(localStorage.getItem('speechProbThreshold')) || 97,
-    negativeSpeechThreshold: Number(localStorage.getItem('negativeSpeechThreshold')) || 15,
-    redemptionFrames: Number(localStorage.getItem('redemptionFrames')) || 20,
-  });
-  const [originalSettings, setOriginalSettings] = useState<ASRSettings>(settings);
+  const { settings, updateSettings, voiceInterruptionOn, setVoiceInterruptionOn } = useVAD();
+  const [localSettings, setLocalSettings] = useState(settings);
+  const [originalSettings, setOriginalSettings] = useState(settings);
 
   useEffect(() => {
     if (!onSave || !onCancel) return;
@@ -41,26 +34,24 @@ function ASR({ onSave, onCancel }: ASRProps) {
       cleanupSave?.();
       cleanupCancel?.();
     };
-  }, [onSave, onCancel, settings]);
+  }, [onSave, onCancel, localSettings]);
 
   const handleSave = () => {
-    console.log("Set speechProbThreshold", settings.speechProbThreshold);
-    console.log("Set negativeSpeechThreshold", settings.negativeSpeechThreshold);
-    console.log("Set redemptionFrames", settings.redemptionFrames);
-    setOriginalSettings(settings);
+    updateSettings(localSettings);
+    setOriginalSettings(localSettings);
   };
 
   const handleCancel = () => {
-    setSettings(originalSettings);
+    setLocalSettings(originalSettings);
   };
 
-  const handleInputChange = (key: keyof ASRSettings, value: number | string) => {
+  const handleInputChange = (key: keyof typeof settings, value: number | string) => {
     if (value === "" || value === "-") {
-      setSettings(prev => ({ ...prev, [key]: value }));
+      setLocalSettings(prev => ({ ...prev, [key]: value }));
     } else {
       const parsed = Number(value);
       if (!isNaN(parsed)) {
-        setSettings(prev => ({ ...prev, [key]: parsed }));
+        setLocalSettings(prev => ({ ...prev, [key]: parsed }));
       }
     }
   };
@@ -69,12 +60,25 @@ function ASR({ onSave, onCancel }: ASRProps) {
     <Stack {...settingStyles.live2d.container}>
       <Field 
         {...settingStyles.live2d.field} 
+        label={<Text {...settingStyles.live2d.fieldLabel}>Voice Interruption</Text>}
+      >
+        <Switch
+          {...settingStyles.live2d.switch}
+          checked={voiceInterruptionOn}
+          onCheckedChange={(details) => setVoiceInterruptionOn(details.checked)}
+          value="voice-interruption"
+        />
+      </Field>
+
+      <Field 
+        {...settingStyles.live2d.field} 
         label={<Text {...settingStyles.live2d.fieldLabel}>Speech Prob. Threshold</Text>}
       >
         <NumberInput.Root
           {...settingStyles.live2d.numberInput.root}
-          value={settings.speechProbThreshold.toString()}
-          onValueChange={(details: ValueChangeDetails) => handleInputChange('speechProbThreshold', details.value)}
+          value={localSettings.positiveSpeechThreshold.toString()}
+          onValueChange={(details: ValueChangeDetails) => 
+            handleInputChange('positiveSpeechThreshold', details.value)}
           min={1}
           max={100}
         >
@@ -92,8 +96,9 @@ function ASR({ onSave, onCancel }: ASRProps) {
       >
         <NumberInput.Root
           {...settingStyles.live2d.numberInput.root}
-          value={settings.negativeSpeechThreshold.toString()}
-          onValueChange={(details: ValueChangeDetails) => handleInputChange('negativeSpeechThreshold', details.value)}
+          value={localSettings.negativeSpeechThreshold.toString()}
+          onValueChange={(details: ValueChangeDetails) => 
+            handleInputChange('negativeSpeechThreshold', details.value)}
           min={0}
           max={100}
         >
@@ -111,8 +116,9 @@ function ASR({ onSave, onCancel }: ASRProps) {
       >
         <NumberInput.Root
           {...settingStyles.live2d.numberInput.root}
-          value={settings.redemptionFrames.toString()}
-          onValueChange={(details: ValueChangeDetails) => handleInputChange('redemptionFrames', details.value)}
+          value={localSettings.redemptionFrames.toString()}
+          onValueChange={(details: ValueChangeDetails) => 
+            handleInputChange('redemptionFrames', details.value)}
           min={1}
           max={100}
         >

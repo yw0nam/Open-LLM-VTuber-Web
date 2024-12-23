@@ -1,7 +1,7 @@
-import { useContext, useState } from 'react';
-import { AiStateContext } from '@/context/ai-state-context';
-import { useWebSocket, MessageEvent } from '@/hooks/use-websocket';
+import { useEffect, useState, useContext } from 'react';
+import { wsService } from '@/services/websocket-service';
 import { WebSocketContext } from '@/context/websocket-context';
+import { AiStateContext } from '@/context/ai-state-context';
 import { L2DContext } from '@/context/l2d-context';
 import { SubtitleContext } from '@/context/subtitle-context';
 import { audioTaskQueue } from '@/utils/task-queue';
@@ -12,11 +12,13 @@ import { useConfig } from '@/context/config-context';
 import { useChatHistory } from '@/context/chat-history-context';
 import { toaster } from "@/components/ui/toaster";
 import { HistoryInfo } from '@/context/websocket-context';
+import { useVAD } from '@/context/vad-context';
+import { MessageEvent } from '@/services/websocket-service';
 
 const wsUrl = "ws://127.0.0.1:12393/client-ws";
 
-
-function WebSocketConnection({ children }: { children: React.ReactNode }) {
+function WebSocketHandler({ children }: { children: React.ReactNode }) {
+  const [wsState, setWsState] = useState<string>('CLOSED');
   const { aiState, setAiState } = useContext(AiStateContext)!;
   const { setModelInfo } = useContext(L2DContext)!;
   const { setSubtitleText } = useContext(SubtitleContext)!;
@@ -24,8 +26,49 @@ function WebSocketConnection({ children }: { children: React.ReactNode }) {
   const { addAudioTask } = useAudioTask();
   const bgUrlContext = useContext(BgUrlContext);
   const { setConfName, setConfUid } = useConfig();
-  const { setCurrentHistoryUid, setMessages, setHistoryList } = useChatHistory();
-  const [histories, setHistories] = useState<HistoryInfo[]>([]);
+  const { setCurrentHistoryUid, setMessages, setHistoryList, appendHumanMessage } = useChatHistory();
+  const { startMic, stopMic } = useVAD();
+
+  useEffect(() => {
+    const stateSubscription = wsService.onStateChange(setWsState);
+    const messageSubscription = wsService.onMessage(handleWebSocketMessage);
+
+    wsService.connect(wsUrl);
+
+    return () => {
+      stateSubscription.unsubscribe();
+      messageSubscription.unsubscribe();
+      wsService.disconnect();
+    };
+  }, []);
+
+  const handleControlMessage = (controlText: string) => {
+    switch (controlText) {
+      case 'start-mic':
+        console.log("Starting microphone...");
+        startMic();
+        break;
+      case 'stop-mic':
+        console.log("Stopping microphone...");
+        stopMic();
+        break;
+      case 'conversation-chain-start':
+        setAiState('thinking-speaking');
+        audioTaskQueue.clearQueue();
+        clearResponse();
+        break;
+      case 'conversation-chain-end':
+        audioTaskQueue.addTask(() => 
+          new Promise<void>((resolve) => {
+            setAiState('idle');
+            resolve();
+          })
+        );
+        break;
+      default:
+        console.warn('Unknown control command:', controlText);
+    }
+  };
 
   const handleWebSocketMessage = (message: MessageEvent) => {
     console.log('Received message from server:', message);
@@ -119,11 +162,16 @@ function WebSocketConnection({ children }: { children: React.ReactNode }) {
         break;
       case 'history-list':
         if (message.histories) {
-          setHistories(message.histories);
           setHistoryList(message.histories);
           if (message.histories.length > 0) {
             setCurrentHistoryUid(message.histories[0].uid);
           }
+        }
+        break;
+      case 'user-input-transcription':
+        console.log("user-input-transcription: ", message.text);
+        if (message.text) {
+          appendHumanMessage(message.text);
         }
         break;
       default:
@@ -131,61 +179,10 @@ function WebSocketConnection({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleControlMessage = (controlText: string) => {
-    if (typeof controlText !== 'string') return;
-    
-    switch (controlText) {
-      case 'start-mic':
-        break;
-      case 'stop-mic':
-        break;
-      case 'conversation-chain-start':
-        setAiState('thinking-speaking');
-        audioTaskQueue.clearQueue();
-        clearResponse();
-        break;
-      case 'conversation-chain-end':
-        audioTaskQueue.addTask(() => 
-          new Promise<void>((resolve) => {
-            setAiState('idle');
-            resolve();
-          })
-        );
-        break;
-      default:
-        console.warn('Unknown control command:', controlText);
-    }
-  };
-
-  const { sendMessage, wsState, reconnect } = useWebSocket({
-    url: wsUrl,
-    onMessage: handleWebSocketMessage,
-    onOpen: () => {
-      console.log('WebSocket connection opened');
-      sendMessage({
-        type: "fetch-backgrounds"
-      });
-      sendMessage({
-        type: "fetch-conf-info"
-      });
-      sendMessage({
-        type: "fetch-history-list"
-      });
-      sendMessage({
-        type: "create-new-history",
-      });
-    },
-    onClose: () => {
-      console.log('WebSocket connection closed');
-    },
-  });
-
   const webSocketContextValue = {
-    sendMessage,
+    sendMessage: wsService.sendMessage.bind(wsService),
     wsState,
-    reconnect,
-    histories,
-    setHistories,
+    reconnect: () => wsService.connect(wsUrl),
   };
 
   return (
@@ -195,4 +192,4 @@ function WebSocketConnection({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default WebSocketConnection;
+export default WebSocketHandler;
