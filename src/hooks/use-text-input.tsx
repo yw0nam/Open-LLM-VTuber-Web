@@ -1,6 +1,6 @@
-import { useState, useContext } from 'react';
-import { WebSocketContext } from '@/context/websocket-context';
-import { AiStateContext } from '@/context/ai-state-context';
+import { useState } from 'react';
+import { useWebSocket } from '@/context/websocket-context';
+import { useAiState } from '@/context/ai-state-context';
 import { useInterrupt } from '@/components/canvas/live2d';
 import { audioTaskQueue } from '@/utils/task-queue';
 import { useChatHistory } from '@/context/chat-history-context';
@@ -8,8 +8,8 @@ import { useChatHistory } from '@/context/chat-history-context';
 export function useTextInput() {
   const [inputValue, setInputValue] = useState('');
   const [isComposing, setIsComposing] = useState(false);
-  const wsContext = useContext(WebSocketContext);
-  const { aiState } = useContext(AiStateContext)!;
+  const wsContext = useWebSocket();
+  const { aiState } = useAiState();
   const { interrupt } = useInterrupt();
   const { appendHumanMessage } = useChatHistory();
 

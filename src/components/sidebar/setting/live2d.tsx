@@ -8,8 +8,8 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import { Field } from '@/components/ui/field';
-import { useState, useEffect, useContext } from 'react';
-import { L2DContext, ModelInfo } from '@/context/l2d-context';
+import { useState, useEffect } from 'react';
+import { ModelInfo, useL2D } from '@/context/l2d-context';
 import { settingStyles } from './setting-styles';
 import { Switch } from "@/components/ui/switch";
 import { toaster } from '@/components/ui/toaster';
@@ -62,7 +62,7 @@ function NumberField({ label, value, onChange, step = 1 }: NumberFieldProps) {
 }
 
 function Live2d({ onSave, onCancel, activeTab }: Live2dProps) {
-  const l2dContext = useContext(L2DContext);
+  const l2dContext = useL2D();
   const [modelInfo, setModelInfoState] = useState<ModelInfo>(l2dContext?.modelInfo || {
     url: '',
     kScale: 0.000625,

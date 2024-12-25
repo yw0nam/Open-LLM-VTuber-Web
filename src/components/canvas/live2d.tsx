@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useContext } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as PIXI from 'pixi.js';
 import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch';
-import { L2DContext } from '@/context/l2d-context';
-import { AiStateContext } from '@/context/ai-state-context';
-import { SubtitleContext } from '@/context/subtitle-context';
-import { ResponseContext } from '@/context/response-context';
+import { useL2D } from '@/context/l2d-context';
+import { useAiState } from '@/context/ai-state-context';
+import { useSubtitle } from '@/context/subtitle-context';
+import { useResponse } from '@/context/response-context';
 import { audioTaskQueue } from '@/utils/task-queue';
-import { WebSocketContext } from '@/context/websocket-context';
+import { useWebSocket } from '@/context/websocket-context';
 import { useChatHistory } from '@/context/chat-history-context';
 
 // function setExpression(model: Live2DModel, expressionIndex: number) {
@@ -56,7 +56,7 @@ function makeDraggable(model: Live2DModel) {
 let model2: Live2DModel | null = null;
 
 export const Live2D: React.FC = () => {
-  const { modelInfo } = useContext(L2DContext)!;
+  const { modelInfo } = useL2D();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const appRef = useRef<PIXI.Application | null>(null);
   const modelRef = useRef<Live2DModel | null>(null);
@@ -211,9 +211,9 @@ interface AudioTaskOptions {
 }
 
 export function useInterrupt() {
-  const { setAiState } = useContext(AiStateContext)!;
-  const { sendMessage } = useContext(WebSocketContext)!;
-  const { fullResponse } = useContext(ResponseContext)!;
+  const { setAiState } = useAiState();
+  const { sendMessage } = useWebSocket();
+  const { fullResponse } = useResponse();
   
   const interrupt = () => {
     console.log("Interrupting conversation chain");
@@ -233,9 +233,9 @@ export function useInterrupt() {
 }
 
 export function useAudioTask() {
-  const { aiState } = useContext(AiStateContext)!;
-  const { setSubtitleText } = useContext(SubtitleContext)!;
-  const { appendResponse } = useContext(ResponseContext)!;
+  const { aiState } = useAiState();
+  const { setSubtitleText } = useSubtitle();
+  const { appendResponse } = useResponse();
   const { appendAIMessage } = useChatHistory();
 
   const handleAudioPlayback = (options: AudioTaskOptions, onComplete: () => void) => {

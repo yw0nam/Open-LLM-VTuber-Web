@@ -6,11 +6,10 @@ import { sidebarStyles } from './sidebar-styles';
 import SettingUI from './setting/setting-ui';
 import ChatHistoryPanel from './chat-history-panel';
 import CameraPanel from './camera-panel';
-import { useContext } from "react";
-import { WebSocketContext } from '@/context/websocket-context';
 import { useInterrupt } from '../canvas/live2d';
 import HistoryDrawer from './history-drawer';
 import { useChatHistory } from '@/context/chat-history-context';
+import { useWebSocket } from '@/context/websocket-context';
 
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -19,7 +18,7 @@ interface SidebarProps {
 
 function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
   const { open, onOpen, onClose } = useDisclosure();
-  const { sendMessage } = useContext(WebSocketContext)!;
+  const { sendMessage } = useWebSocket();
   const { interrupt } = useInterrupt();
   const { currentHistoryUid, messages, updateHistoryList } = useChatHistory();
 

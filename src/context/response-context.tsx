@@ -1,4 +1,4 @@
-import React, { createContext, useState, useMemo } from 'react';
+import React, { createContext, useState, useMemo, useContext } from 'react';
 
 interface ResponseContextState {
   fullResponse: string;
@@ -24,4 +24,12 @@ export const ResponseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       {children}
     </ResponseContext.Provider>
   );
+};
+
+export const useResponse = () => {
+  const context = useContext(ResponseContext);
+  if (!context) {
+    throw new Error('useResponse must be used within a ResponseProvider');
+  }
+  return context;
 }; 

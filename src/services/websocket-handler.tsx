@@ -1,13 +1,13 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { wsService } from '@/services/websocket-service';
 import { WebSocketContext } from '@/context/websocket-context';
-import { AiStateContext } from '@/context/ai-state-context';
-import { L2DContext } from '@/context/l2d-context';
-import { SubtitleContext } from '@/context/subtitle-context';
+import { useAiState } from '@/context/ai-state-context';
+import { useL2D } from '@/context/l2d-context';
+import { useSubtitle } from '@/context/subtitle-context';
 import { audioTaskQueue } from '@/utils/task-queue';
-import { ResponseContext } from '@/context/response-context';
+import { useResponse } from '@/context/response-context';
 import { useAudioTask } from '@/components/canvas/live2d';
-import { BgUrlContext } from '@/context/bgurl-context';
+import { useBgUrl } from '@/context/bgurl-context';
 import { useConfig } from '@/context/config-context';
 import { useChatHistory } from '@/context/chat-history-context';
 import { toaster } from "@/components/ui/toaster";
@@ -19,12 +19,12 @@ const wsUrl = "ws://127.0.0.1:12393/client-ws";
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const [wsState, setWsState] = useState<string>('CLOSED');
-  const { aiState, setAiState } = useContext(AiStateContext)!;
-  const { setModelInfo } = useContext(L2DContext)!;
-  const { setSubtitleText } = useContext(SubtitleContext)!;
-  const { clearResponse } = useContext(ResponseContext)!;
+  const { aiState, setAiState } = useAiState();
+  const { setModelInfo } = useL2D();
+  const { setSubtitleText } = useSubtitle();
+  const { clearResponse } = useResponse();
   const { addAudioTask } = useAudioTask();
-  const bgUrlContext = useContext(BgUrlContext);
+  const bgUrlContext = useBgUrl();
   const { setConfName, setConfUid, setConfigFiles } = useConfig();
   const { setCurrentHistoryUid, setMessages, setHistoryList, appendHumanMessage } = useChatHistory();
   const { startMic, stopMic } = useVAD();

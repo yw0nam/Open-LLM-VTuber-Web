@@ -11,8 +11,8 @@ import {
   SelectTrigger,
   SelectValueText,
 } from "@/components/ui/select"
-import { useEffect, useState, useContext } from 'react';
-import { BgUrlContext } from '@/context/bgurl-context';
+import { useEffect, useState } from 'react';
+import { useBgUrl } from '@/context/bgurl-context';
 import { settingStyles } from './setting-styles';
 import { createListCollection } from '@chakra-ui/react';
 import { useConfig } from '@/context/config-context';
@@ -67,7 +67,7 @@ function SelectField({ label, value, onChange, collection, placeholder }: Select
 }
 
 function General({ onSave, onCancel }: GeneralProps) {
-  const bgUrlContext = useContext(BgUrlContext);
+  const bgUrlContext = useBgUrl();
   const { configFiles, confName } = useConfig();
   const { switchCharacter } = useSwitchCharacter();
   

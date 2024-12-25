@@ -15,8 +15,9 @@ import {
 } from "@/components/ui/drawer";
 import { sidebarStyles } from './sidebar-styles';
 import { useChatHistory } from '@/context/chat-history-context';
-import { useContext, useState } from 'react';
-import { HistoryInfo, WebSocketContext } from '@/context/websocket-context';
+import { useState } from 'react';
+import { HistoryInfo } from '@/context/websocket-context';
+import { useWebSocket } from '@/context/websocket-context';
 
 interface HistoryDrawerProps {
   children: React.ReactNode;
@@ -32,7 +33,7 @@ function HistoryDrawer({ children }: HistoryDrawerProps) {
     messages,
     updateHistoryList 
   } = useChatHistory();
-  const { sendMessage } = useContext(WebSocketContext)!;
+  const { sendMessage } = useWebSocket();
 
   const fetchAndSetHistory = (uid: string) => {
     if (!uid || uid === currentHistoryUid) return;

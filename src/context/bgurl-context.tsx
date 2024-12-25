@@ -1,4 +1,4 @@
-import React, { createContext, useState, useMemo } from 'react';
+import React, { createContext, useState, useMemo, useContext } from 'react';
 
 interface BackgroundFile {
   name: string;
@@ -30,4 +30,12 @@ export const BgUrlProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {children}
     </BgUrlContext.Provider>
   );
+};
+
+export const useBgUrl = () => {
+  const context = useContext(BgUrlContext);
+  if (!context) {
+    throw new Error('useBgUrl must be used within a BgUrlProvider');
+  }
+  return context;
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { wsService } from '@/services/websocket-service';
 
 export interface HistoryInfo {
@@ -24,7 +24,7 @@ export const WebSocketContext = React.createContext<WebSocketContextProps>({
 });
 
 export function useWebSocket() {
-  const context = React.useContext(WebSocketContext);
+  const context = useContext(WebSocketContext);
   if (!context) {
     throw new Error('useWebSocket must be used within a WebSocketProvider');
   }

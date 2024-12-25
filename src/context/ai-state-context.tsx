@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode } from "react";
+import { createContext, useState, ReactNode, useContext } from "react";
 
 type AiState =
   | "idle"
@@ -16,7 +16,7 @@ interface AiStateContextType {
 export const AiStateContext = createContext<AiStateContextType | null>(null);
 
 export function AiStateProvider({ children }: { children: ReactNode }) {
-  const [aiState, setAiState] = useState<AiState>("idle");
+  const [aiState, setAiState] = useState<AiState>("loading");
 
   return (
     <AiStateContext.Provider value={{ aiState, setAiState }}>
@@ -24,3 +24,12 @@ export function AiStateProvider({ children }: { children: ReactNode }) {
     </AiStateContext.Provider>
   );
 }
+
+export function useAiState() {
+  const context = useContext(AiStateContext);
+  if (!context) {
+    throw new Error("useAiState must be used within a AiStateProvider");
+  }
+  return context;
+}
+  

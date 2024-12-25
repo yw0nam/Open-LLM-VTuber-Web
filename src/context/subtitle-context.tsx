@@ -1,4 +1,4 @@
-import React, { createContext, useState, useMemo } from 'react';
+import React, { createContext, useState, useMemo, useContext } from 'react';
 
 interface SubtitleContextState {
   subtitleText: string;
@@ -22,4 +22,12 @@ export const SubtitleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       {children}
     </SubtitleContext.Provider>
   );
+};
+
+export const useSubtitle = () => {
+  const context = useContext(SubtitleContext);
+  if (!context) {
+    throw new Error('useSubtitle must be used within a SubtitleProvider');
+  }
+  return context;
 };

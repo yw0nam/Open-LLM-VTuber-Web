@@ -1,10 +1,9 @@
-import { useContext } from 'react';
 import { Box } from '@chakra-ui/react';
-import { WebSocketContext } from '@/context/websocket-context';
+import { useWebSocket } from '@/context/websocket-context';
 import { canvasStyles } from './canvas-styles';
 
 function WebSocketStatus() {
-  const { wsState } = useContext(WebSocketContext)!;
+  const { wsState } = useWebSocket();
   
   const getStatusColor = () => {
     switch(wsState) {

@@ -1,4 +1,4 @@
-import { createContext, useState, PropsWithChildren } from 'react';
+import { createContext, useState, PropsWithChildren, useContext } from 'react';
 
 // import { Live2DModel } from "pixi-live2d-display-lipsyncpatch";
 export interface ModelInfo {
@@ -13,7 +13,7 @@ export interface ModelInfo {
   emotionMap: {
     [key: string]: number | string; 
   };
-  pointerInteractive?: boolean; // 新增字段
+  pointerInteractive?: boolean; 
 }
 interface L2DContextType {
   modelInfo?: ModelInfo;
@@ -34,5 +34,13 @@ export const L2DProvider = ({ children }: PropsWithChildren) => {
     </L2DContext.Provider>
   );
 };
+
+export function useL2D() {
+  const context = useContext(L2DContext);
+  if (!context) {
+    throw new Error('useL2D must be used within a L2DProvider');
+  }
+  return context;
+}
 
 export default L2DProvider;

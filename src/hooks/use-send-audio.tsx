@@ -1,8 +1,8 @@
-import { useCallback, useContext } from 'react';
-import { WebSocketContext } from '@/context/websocket-context';
+import { useCallback } from 'react';
+import { useWebSocket } from '@/context/websocket-context';
 
 export function useSendAudio() {
-  const { sendMessage } = useContext(WebSocketContext)!;
+  const { sendMessage } = useWebSocket();
 
   const sendAudioPartition = useCallback((audio: Float32Array) => {
     const chunkSize = 4096;
