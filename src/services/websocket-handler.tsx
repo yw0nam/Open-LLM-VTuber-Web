@@ -61,6 +61,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         audioTaskQueue.addTask(() => 
           new Promise<void>((resolve) => {
             setAiState('idle');
+            startMic();
             resolve();
           })
         );

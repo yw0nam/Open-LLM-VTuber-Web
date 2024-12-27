@@ -1,9 +1,10 @@
 import { Stack, Text, NumberInput } from "@chakra-ui/react";
 import { Field } from '@/components/ui/field';
 import { Switch } from "@/components/ui/switch";
-import { useState, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { settingStyles } from './setting-styles';
 import { useVAD } from '@/context/vad-context';
+import React from 'react';
 
 interface ASRProps {
   onSave?: (callback: () => void) => (() => void);
@@ -16,8 +17,10 @@ interface ValueChangeDetails {
 
 function ASR({ onSave, onCancel }: ASRProps) {
   const { settings, updateSettings, voiceInterruptionOn, setVoiceInterruptionOn } = useVAD();
-  const [localSettings, setLocalSettings] = useState(settings);
-  const [originalSettings, setOriginalSettings] = useState(settings);
+  const localSettingsRef = useRef(settings);
+  const originalSettingsRef = useRef(settings);
+  const originalVoiceInterruptionOnRef = useRef(voiceInterruptionOn);
+  const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
 
   useEffect(() => {
     if (!onSave || !onCancel) return;
@@ -34,26 +37,30 @@ function ASR({ onSave, onCancel }: ASRProps) {
       cleanupSave?.();
       cleanupCancel?.();
     };
-  }, [onSave, onCancel, localSettings]);
+  }, [onSave, onCancel]);
 
   const handleSave = () => {
-    updateSettings(localSettings);
-    setOriginalSettings(localSettings);
+    updateSettings(localSettingsRef.current);
+    originalSettingsRef.current = localSettingsRef.current;
+    originalVoiceInterruptionOnRef.current = voiceInterruptionOn;
   };
 
   const handleCancel = () => {
-    setLocalSettings(originalSettings);
+    localSettingsRef.current = originalSettingsRef.current;
+    setVoiceInterruptionOn(originalVoiceInterruptionOnRef.current);
+    forceUpdate();
   };
 
   const handleInputChange = (key: keyof typeof settings, value: number | string) => {
     if (value === "" || value === "-") {
-      setLocalSettings(prev => ({ ...prev, [key]: value }));
+      localSettingsRef.current = { ...localSettingsRef.current, [key]: value };
     } else {
       const parsed = Number(value);
       if (!isNaN(parsed)) {
-        setLocalSettings(prev => ({ ...prev, [key]: parsed }));
+        localSettingsRef.current = { ...localSettingsRef.current, [key]: parsed };
       }
     }
+    forceUpdate();
   };
 
   return (
@@ -76,7 +83,7 @@ function ASR({ onSave, onCancel }: ASRProps) {
       >
         <NumberInput.Root
           {...settingStyles.live2d.numberInput.root}
-          value={localSettings.positiveSpeechThreshold.toString()}
+          value={localSettingsRef.current.positiveSpeechThreshold.toString()}
           onValueChange={(details: ValueChangeDetails) => 
             handleInputChange('positiveSpeechThreshold', details.value)}
           min={1}
@@ -96,7 +103,7 @@ function ASR({ onSave, onCancel }: ASRProps) {
       >
         <NumberInput.Root
           {...settingStyles.live2d.numberInput.root}
-          value={localSettings.negativeSpeechThreshold.toString()}
+          value={localSettingsRef.current.negativeSpeechThreshold.toString()}
           onValueChange={(details: ValueChangeDetails) => 
             handleInputChange('negativeSpeechThreshold', details.value)}
           min={0}
@@ -116,7 +123,7 @@ function ASR({ onSave, onCancel }: ASRProps) {
       >
         <NumberInput.Root
           {...settingStyles.live2d.numberInput.root}
-          value={localSettings.redemptionFrames.toString()}
+          value={localSettingsRef.current.redemptionFrames.toString()}
           onValueChange={(details: ValueChangeDetails) => 
             handleInputChange('redemptionFrames', details.value)}
           min={1}
