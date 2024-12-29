@@ -73,7 +73,7 @@ export class WindowManager {
 
     setTimeout(() => {
       this.window?.setOpacity(1)
-    }, 500)
+    }, 800)
   }
 
   private setWindowModeWindow(): void {
@@ -131,8 +131,8 @@ export class WindowManager {
       setTimeout(() => {
         this.window?.setBackgroundColor("#00000000");
         this.window?.webContents.send("mode-changed", "pet");
-      }, 300);
-    }, 100);
+      }, 400);
+    }, 200);
   }
 
   getWindow(): BrowserWindow | null {

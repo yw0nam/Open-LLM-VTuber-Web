@@ -5,8 +5,9 @@ const api = {
   setIgnoreMouseEvents: (ignore: boolean) => {
     ipcRenderer.send('set-ignore-mouse-events', ignore)
   },
-  showContextMenu: (x: number, y: number) => {
-    ipcRenderer.send('show-context-menu', { x, y })
+  showContextMenu: ({ micOn }: { micOn: boolean }) => {
+    console.log('Preload showContextMenu micOn:', micOn)
+    ipcRenderer.send('show-context-menu', { micOn })
   },
   onModeChanged: (callback: (mode: string) => void) => {
     ipcRenderer.on('mode-changed', (_, mode) => callback(mode))

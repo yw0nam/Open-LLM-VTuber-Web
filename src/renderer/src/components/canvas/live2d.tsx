@@ -37,14 +37,6 @@ function makeDraggable(model: Live2DModel, isPet: boolean) {
   model.interactive = true;
   model.cursor = 'pointer';
 
-  if (isPet) {
-    model.on('rightdown', (e: any) => {
-      e.data.originalEvent.preventDefault()
-      const position = e.data.global
-      ;(window.api as any).showContextMenu(position.x, position.y)
-    })
-  }
-
   let pointerX = 0;
   let pointerY = 0;
 
@@ -300,17 +292,17 @@ export const Live2D: React.FC<{ isPet: boolean }> = ({ isPet }) => {
     const model = modelRef.current
 
     const handleContextMenu = (e: any) => {
-      const position = e.data.global
       e.data.originalEvent.preventDefault()
+      console.log('Current micOn state:', micOn)
       ;(window.api as any).showContextMenu({ micOn })
     }
 
-    model.on('rightclick', handleContextMenu)
+    model.on('rightdown', handleContextMenu)
 
     return () => {
-      model.off('rightclick', handleContextMenu)
+      model.off('rightdown', handleContextMenu)
     }
-  }, [isPet])
+  }, [isPet, micOn])
 
   return (
     <div 

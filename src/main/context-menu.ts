@@ -1,22 +1,17 @@
 import { Menu, ipcMain, BrowserWindow, screen, MenuItemConstructorOptions, app } from 'electron'
 
 export function setupContextMenu(onModeChange: (mode: 'window' | 'pet') => void) {
-  let currentMicState = false
-
   ipcMain.on('show-context-menu', (event, { micOn }) => {
+    console.log('Received micOn state in main process:', micOn)
     const win = BrowserWindow.fromWebContents(event.sender)
-    currentMicState = micOn
     
     if (win) {
       const screenPoint = screen.getCursorScreenPoint()
 
       const template: MenuItemConstructorOptions[] = [
         {
-          label: currentMicState ? 'Turn Off Microphone' : 'Turn On Microphone',
-          type: 'checkbox',
-          checked: currentMicState,
+          label: micOn ? 'Turn Off Microphone' : 'Turn On Microphone',
           click: () => {
-            currentMicState = !currentMicState
             event.sender.send('mic-toggle')
           }
         },

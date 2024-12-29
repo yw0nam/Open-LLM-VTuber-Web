@@ -32,7 +32,7 @@ export const VADProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const vadRef = useRef<MicVAD | null>(null);
   const previousTriggeredProbabilityRef = useRef(0);
-  const [micOn, setMicOn] = useState<boolean>(true);
+  const [micOn, setMicOn] = useState(false);
   const [settings, setSettings] = useState<VADSettings>({
     positiveSpeechThreshold: 97,
     negativeSpeechThreshold: 15,
@@ -137,7 +137,7 @@ export const VADProvider: React.FC<{ children: React.ReactNode }> = ({
     newVAD.start();
   };
 
-  const startMic = async () => {
+  const startMic = useCallback(async () => {
     try {
       if (!vadRef.current) {
         console.log("VAD init");
@@ -150,9 +150,9 @@ export const VADProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Failed to start VAD:", error);
     }
     setMicOn(true);
-  };
+  }, []);
 
-  const stopMic = () => {
+  const stopMic = useCallback(() => {
     console.log("VAD stop");
     if (vadRef.current) {
       vadRef.current.pause();
@@ -161,7 +161,7 @@ export const VADProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     else console.log("vad is null");
     setMicOn(false);
-  };
+  }, []);
 
   return (
     <VADContext.Provider
