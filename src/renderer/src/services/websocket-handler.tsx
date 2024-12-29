@@ -14,7 +14,6 @@ import { toaster } from "@/components/ui/toaster";
 import { HistoryInfo } from '@/context/websocket-context';
 import { useVAD } from '@/context/vad-context';
 import { MessageEvent } from '@/services/websocket-service';
-import { ConfigFile } from '@/context/config-context';
 import { wsUrl, baseUrl } from '@/context/websocket-context';
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const [wsState, setWsState] = useState<string>('CLOSED');
@@ -94,12 +93,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         break;
       case 'config-files':
         if (message.configs) {
-          const configFilesMap: { [key: string]: string } = {};
-          message.configs.forEach((config: ConfigFile) => {
-            const displayName = config.name.replace('.yaml', '');
-            configFilesMap[displayName] = config.name;
-          });
-          setConfigFiles(configFilesMap);
+          setConfigFiles(message.configs);
         }
         break;
       case 'config-switched':

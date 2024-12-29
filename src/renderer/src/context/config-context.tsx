@@ -1,24 +1,26 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext } from 'react';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 
 export interface ConfigFile {
-  [confName: string]: string;  // confName -> fileName mapping
+  filename: string;
+  name: string;
 }
 
 interface ConfigContextProps {
   confName: string;
   confUid: string;
-  configFiles: ConfigFile;
+  configFiles: ConfigFile[];
   setConfName: (name: string) => void;
   setConfUid: (uid: string) => void;
-  setConfigFiles: (files: ConfigFile) => void;
+  setConfigFiles: (files: ConfigFile[]) => void;
 }
 
 export const ConfigContext = createContext<ConfigContextProps | null>(null);
 
 export function ConfigProvider({ children }: { children: React.ReactNode }) {
-  const [confName, setConfName] = useState<string>('');
-  const [confUid, setConfUid] = useState<string>('');
-  const [configFiles, setConfigFiles] = useState<ConfigFile>({});
+  const [confName, setConfName] = useLocalStorage<string>('confName', '');
+  const [confUid, setConfUid] = useLocalStorage<string>('confUid', '');
+  const [configFiles, setConfigFiles] = useLocalStorage<ConfigFile[]>('configFiles', []);
 
   return (
     <ConfigContext.Provider value={{

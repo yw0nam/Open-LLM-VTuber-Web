@@ -1,5 +1,6 @@
 import React, { createContext, useMemo, useContext, useState } from 'react';
 import { baseUrl } from '@/context/websocket-context';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 
 interface BackgroundFile {
   name: string;
@@ -16,7 +17,10 @@ interface BgUrlContextState {
 export const BgUrlContext = createContext<BgUrlContextState | null>(null);
 
 export const BgUrlProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [backgroundUrl, setBackgroundUrl] = useState<string>(`${baseUrl}/bg/ceiling-window-room-night.jpeg`);
+  const [backgroundUrl, setBackgroundUrl] = useLocalStorage<string>(
+    'backgroundUrl',
+    `${baseUrl}/bg/ceiling-window-room-night.jpeg`
+  );
   const [backgroundFiles, setBackgroundFiles] = useState<BackgroundFile[]>([]);
 
   const value = useMemo(() => ({

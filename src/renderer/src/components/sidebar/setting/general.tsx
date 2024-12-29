@@ -191,16 +191,18 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
   })
 
   const characterPresetCollection = createListCollection({
-    items: Object.keys(configFiles).map((name) => ({
-      label: name,
-      value: name
+    items: configFiles.map((config) => ({
+      label: config.name,
+      value: config.filename
     }))
   })
 
   const handleCharacterPresetChange = (value: string[]): void => {
-    const selectedPreset = value[0]
-    if (selectedPreset && selectedPreset !== confName) {
-      switchCharacter(selectedPreset)
+    const selectedFilename = value[0]
+    const selectedConfig = configFiles.find(config => config.filename === selectedFilename)
+    
+    if (selectedConfig && selectedConfig.name !== confName) {
+      switchCharacter(selectedConfig.filename)
       handleSettingChange('selectedCharacterPreset', value)
     }
   }

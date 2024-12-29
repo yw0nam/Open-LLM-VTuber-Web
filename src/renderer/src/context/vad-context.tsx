@@ -1,10 +1,11 @@
-import { createContext, useContext, useRef, useState, useCallback, useEffect, useReducer } from "react";
+import { createContext, useContext, useRef, useCallback, useEffect, useReducer } from "react";
 import { MicVAD } from "@ricky0123/vad-web";
 import { useInterrupt } from "@/components/canvas/live2d";
 import { audioTaskQueue } from "@/utils/task-queue";
 import { useSendAudio } from "@/hooks/use-send-audio";
 import { SubtitleContext } from "./subtitle-context";
 import { AiStateContext } from "./ai-state-context";
+import { useLocalStorage } from '@/hooks/use-local-storage';
 
 interface VADContextProps {
   voiceInterruptionOn: boolean;
@@ -32,13 +33,13 @@ export const VADProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const vadRef = useRef<MicVAD | null>(null);
   const previousTriggeredProbabilityRef = useRef(0);
-  const [micOn, setMicOn] = useState(false);
-  const [settings, setSettings] = useState<VADSettings>({
+  const [micOn, setMicOn] = useLocalStorage('micOn', false);
+  const [voiceInterruptionOn, setVoiceInterruptionOn] = useLocalStorage('voiceInterruptionOn', false);
+  const [settings, setSettings] = useLocalStorage<VADSettings>('vadSettings', {
     positiveSpeechThreshold: 97,
     negativeSpeechThreshold: 15,
     redemptionFrames: 20,
   });
-  const [voiceInterruptionOn, setVoiceInterruptionOn] = useState<boolean>(false);
 
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
 

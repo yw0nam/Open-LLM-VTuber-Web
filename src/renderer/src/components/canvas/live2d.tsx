@@ -33,9 +33,16 @@ function adjustModelSizeAndPosition(
 let model2: Live2DModel | null = null
 let dragging = false
 
-function makeDraggable(model: Live2DModel, isPet: boolean) {
+function makeDraggable(model: Live2DModel, isPet: boolean, micOn: boolean) {
   model.interactive = true;
   model.cursor = 'pointer';
+
+  if (isPet) {
+    model.on('rightdown', (e: any) => {
+      e.data.originalEvent.preventDefault()
+      ;(window.api as any).showContextMenu({ micOn })
+    })
+  }
 
   let pointerX = 0;
   let pointerY = 0;
@@ -199,7 +206,7 @@ export const Live2D: React.FC<{ isPet: boolean }> = ({ isPet }) => {
 
         adjustModelSizeAndPosition(model2, app.screen.width, app.screen.height, modelInfo, isPet)
 
-        makeDraggable(model2, isPet)
+        makeDraggable(model2, isPet, micOn)
 
         if (isPet) {
           model2.on('pointerenter', () => {
@@ -285,24 +292,6 @@ export const Live2D: React.FC<{ isPet: boolean }> = ({ isPet }) => {
       window.api?.setIgnoreMouseEvents(false);
     };
   }, [isPet]);
-
-  useEffect(() => {
-    if (!modelRef.current || !isPet) return
-
-    const model = modelRef.current
-
-    const handleContextMenu = (e: any) => {
-      e.data.originalEvent.preventDefault()
-      console.log('Current micOn state:', micOn)
-      ;(window.api as any).showContextMenu({ micOn })
-    }
-
-    model.on('rightdown', handleContextMenu)
-
-    return () => {
-      model.off('rightdown', handleContextMenu)
-    }
-  }, [isPet, micOn])
 
   return (
     <div 
@@ -426,3 +415,4 @@ export function useAudioTask() {
     appendResponse
   }
 }
+
