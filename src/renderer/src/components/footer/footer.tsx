@@ -7,7 +7,7 @@ import { footerStyles } from './footer-styles'
 import AIStateIndicator from './ai-state-indicator'
 import { useTextInput } from '@/hooks/use-text-input'
 import { useInterrupt } from '@/components/canvas/live2d'
-import { useVAD } from '@/context/vad-context'
+import { useMicToggle } from '@/hooks/use-mic-toggle'
 
 interface FooterProps {
   isCollapsed?: boolean
@@ -24,15 +24,7 @@ function Footer({ isCollapsed = false, onToggle }: FooterProps): JSX.Element {
     handleCompositionEnd
   } = useTextInput()
   const { interrupt } = useInterrupt()
-  const { startMic, stopMic, micOn } = useVAD()
-
-  const handleMicToggle = async (): Promise<void> => {
-    if (micOn) {
-      stopMic()
-    } else {
-      await startMic()
-    }
-  }
+  const { handleMicToggle, micOn } = useMicToggle()
 
   return (
     <Box {...styles.container(isCollapsed)}>
@@ -41,7 +33,7 @@ function Footer({ isCollapsed = false, onToggle }: FooterProps): JSX.Element {
         onClick={onToggle}
         color="whiteAlpha.500"
         style={{
-          transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)'
+          transform: isCollapsed ? "rotate(180deg)" : "rotate(0deg)",
         }}
       >
         <FiChevronDown />
@@ -55,7 +47,7 @@ function Footer({ isCollapsed = false, onToggle }: FooterProps): JSX.Element {
             </Box>
             <HStack gap={2}>
               <IconButton
-                bg={micOn ? 'green.500' : 'red.500'}
+                bg={micOn ? "green.500" : "red.500"}
                 {...styles.actionButton}
                 onClick={handleMicToggle}
               >
@@ -63,7 +55,7 @@ function Footer({ isCollapsed = false, onToggle }: FooterProps): JSX.Element {
               </IconButton>
               <IconButton
                 aria-label="Raise hand"
-                bg="yellow.500"
+                bg='yellow.500'
                 {...styles.actionButton}
                 onClick={interrupt}
               >
@@ -74,7 +66,11 @@ function Footer({ isCollapsed = false, onToggle }: FooterProps): JSX.Element {
 
           <InputGroup flex={1}>
             <Box position="relative" width="100%">
-              <IconButton aria-label="Attach file" variant="ghost" {...styles.attachButton}>
+              <IconButton
+                aria-label="Attach file"
+                variant="ghost"
+                {...styles.attachButton}
+              >
                 <BsPaperclip size="24" />
               </IconButton>
               <Input
@@ -91,7 +87,7 @@ function Footer({ isCollapsed = false, onToggle }: FooterProps): JSX.Element {
         </HStack>
       </Box>
     </Box>
-  )
+  );
 }
 
 export default Footer

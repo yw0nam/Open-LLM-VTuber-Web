@@ -42,7 +42,7 @@ export const footerStyles: {
       borderRadius: '12px',
       width: '50px',
       height: '50px',
-      minW: '50px'
+      minW: '50px',
     },
     input: {
       bg: 'gray.700',

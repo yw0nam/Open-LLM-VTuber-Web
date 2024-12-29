@@ -8,6 +8,8 @@ import { useResponse } from '@/context/response-context'
 import { audioTaskQueue } from '@/utils/task-queue'
 import { useWebSocket } from '@/context/websocket-context'
 import { useChatHistory } from '@/context/chat-history-context'
+import { useIpcHandlers } from '@/hooks/use-ipc-handlers'
+import { useVAD } from '@/context/vad-context'
 
 function adjustModelSizeAndPosition(
   model: Live2DModel,
@@ -31,17 +33,27 @@ function adjustModelSizeAndPosition(
 let model2: Live2DModel | null = null
 let dragging = false
 
-function makeDraggable(model: Live2DModel) {
+function makeDraggable(model: Live2DModel, isPet: boolean) {
   model.interactive = true;
   model.cursor = 'pointer';
+
+  if (isPet) {
+    model.on('rightdown', (e: any) => {
+      e.data.originalEvent.preventDefault()
+      const position = e.data.global
+      ;(window.api as any).showContextMenu(position.x, position.y)
+    })
+  }
 
   let pointerX = 0;
   let pointerY = 0;
 
   model.on('pointerdown', (e) => {
-    dragging = true;
-    pointerX = e.data.global.x - model.x;
-    pointerY = e.data.global.y - model.y;
+    if (e.data.button === 0) {
+      dragging = true;
+      pointerX = e.data.global.x - model.x;
+      pointerY = e.data.global.y - model.y;
+    }
   });
 
   model.on('pointermove', (e) => {
@@ -61,6 +73,9 @@ export const Live2D: React.FC<{ isPet: boolean }> = ({ isPet }) => {
   const appRef = useRef<PIXI.Application | null>(null)
   const modelRef = useRef<Live2DModel | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const { micOn } = useVAD()
+
+  useIpcHandlers()
 
   // Initialize Pixi application
   useEffect(() => {
@@ -68,17 +83,36 @@ export const Live2D: React.FC<{ isPet: boolean }> = ({ isPet }) => {
       const app = new PIXI.Application({
         view: canvasRef.current,
         autoStart: true,
-        resizeTo: isPet ? window : undefined,
-        backgroundAlpha: 0
+        width: window.innerWidth,
+        height: window.innerHeight,
+        backgroundAlpha: 0,
+        antialias: true,
+        clearBeforeRender: true,
+        preserveDrawingBuffer: false,
+        powerPreference: 'high-performance'
       })
+
+      app.ticker.add(() => {
+        app.renderer.clear()
+        app.stage.children.forEach(child => {
+          if (child instanceof Live2DModel) {
+            child.update(app.ticker.deltaMS)
+          }
+        })
+      })
+
       appRef.current = app
     }
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         if (appRef.current && modelRef.current) {
-          const { width, height } = entry.contentRect
+          const { width, height } = isPet ? 
+            { width: window.innerWidth, height: window.innerHeight } : 
+            entry.contentRect
+          
           appRef.current.renderer.resize(width, height)
+          appRef.current.renderer.clear()
           adjustModelSizeAndPosition(modelRef.current, width, height, modelInfo, isPet)
         }
       }
@@ -91,7 +125,7 @@ export const Live2D: React.FC<{ isPet: boolean }> = ({ isPet }) => {
     return () => {
       observer.disconnect()
     }
-  }, [modelInfo])
+  }, [modelInfo, isPet])
 
   // Register ticker (only once)
   useEffect(() => {
@@ -101,13 +135,13 @@ export const Live2D: React.FC<{ isPet: boolean }> = ({ isPet }) => {
 
   // Resize Pixi application based on parent container size
   const resizeApp = () => {
-    if (isPet) return
     if (!appRef.current || !canvasRef.current) return
-    const parent = canvasRef.current.parentElement
-    if (parent) {
-      const rect = parent.getBoundingClientRect()
-      appRef.current.renderer.resize(rect.width, rect.height)
-    }
+    
+    const width = isPet ? window.innerWidth : canvasRef.current.parentElement?.getBoundingClientRect().width || 0
+    const height = isPet ? window.innerHeight : canvasRef.current.parentElement?.getBoundingClientRect().height || 0
+    
+    appRef.current.renderer.resize(width, height)
+    appRef.current.renderer.clear()
   }
 
   useEffect(() => {
@@ -173,7 +207,7 @@ export const Live2D: React.FC<{ isPet: boolean }> = ({ isPet }) => {
 
         adjustModelSizeAndPosition(model2, app.screen.width, app.screen.height, modelInfo, isPet)
 
-        makeDraggable(model2)
+        makeDraggable(model2, isPet)
 
         if (isPet) {
           model2.on('pointerenter', () => {
@@ -217,11 +251,16 @@ export const Live2D: React.FC<{ isPet: boolean }> = ({ isPet }) => {
         }
         appRef.current.stage.removeChildren()
         PIXI.utils.clearTextureCache()
+        
+        appRef.current.renderer.clear()
         appRef.current.destroy(true, {
           children: true,
           texture: true,
-          baseTexture: true
+          baseTexture: true,
         })
+        
+        PIXI.utils.destroyTextureCache()
+        appRef.current = null
       }
     }
   }, [])
@@ -255,15 +294,42 @@ export const Live2D: React.FC<{ isPet: boolean }> = ({ isPet }) => {
     };
   }, [isPet]);
 
+  useEffect(() => {
+    if (!modelRef.current || !isPet) return
+
+    const model = modelRef.current
+
+    const handleContextMenu = (e: any) => {
+      const position = e.data.global
+      e.data.originalEvent.preventDefault()
+      ;(window.api as any).showContextMenu({ micOn })
+    }
+
+    model.on('rightclick', handleContextMenu)
+
+    return () => {
+      model.off('rightclick', handleContextMenu)
+    }
+  }, [isPet])
+
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%', pointerEvents: 'auto' }}>
+    <div 
+      ref={containerRef} 
+      style={{ 
+        width: isPet ? '100vw' : '100%', 
+        height: isPet ? '100vh' : '100%', 
+        pointerEvents: 'auto',
+        overflow: 'hidden'
+      }}
+    >
       <canvas
         id="canvas"
         ref={canvasRef}
         style={{
           width: '100%',
           height: '100%',
-          pointerEvents: 'auto'
+          pointerEvents: 'auto',
+          display: 'block'
         }}
       />
     </div>

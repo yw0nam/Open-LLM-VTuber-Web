@@ -154,6 +154,7 @@ export const sidebarStyles = {
       overflowY: 'auto',
       px: 4,
       py: 2,
+      css: commonStyles.scrollbar,
     },
     historyItem: {
       mb: 4,

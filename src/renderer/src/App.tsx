@@ -24,6 +24,7 @@ const App: React.FC = () => {
   const [isFooterCollapsed, setIsFooterCollapsed] = useState(false)
   const [mode, setMode] = useState('window')
   const isElectron = window.api !== undefined
+
   if (isElectron) {
     useEffect(() => {
       window.electron.ipcRenderer.on('mode-changed', (_event, newMode) => {

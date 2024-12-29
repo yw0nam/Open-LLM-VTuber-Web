@@ -5,11 +5,21 @@ const api = {
   setIgnoreMouseEvents: (ignore: boolean) => {
     ipcRenderer.send('set-ignore-mouse-events', ignore)
   },
-  showContextMenu: () => {
-    ipcRenderer.send('show-context-menu')
+  showContextMenu: (x: number, y: number) => {
+    ipcRenderer.send('show-context-menu', { x, y })
   },
   onModeChanged: (callback: (mode: string) => void) => {
     ipcRenderer.on('mode-changed', (_, mode) => callback(mode))
+  },
+  onMicToggle: (callback: () => void) => {
+    const handler = (_event: any) => callback()
+    ipcRenderer.on('mic-toggle', handler)
+    return () => ipcRenderer.removeListener('mic-toggle', handler)
+  },
+  onInterrupt: (callback: () => void) => {
+    const handler = (_event: any) => callback()
+    ipcRenderer.on('interrupt', handler)
+    return () => ipcRenderer.removeListener('interrupt', handler)
   }
 }
 

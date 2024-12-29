@@ -3,7 +3,13 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 declare global {
   interface Window {
     electron: ElectronAPI
-    api: unknown
+    api: {
+      setIgnoreMouseEvents: (ignore: boolean) => void
+      onModeChanged: (callback: (mode: 'pet' | 'window') => void) => void
+      showContextMenu: (x: number, y: number) => void
+      onMicToggle: (callback: () => void) => void
+      onInterrupt: (callback: () => void) => void
+    }
   }
 }
 
