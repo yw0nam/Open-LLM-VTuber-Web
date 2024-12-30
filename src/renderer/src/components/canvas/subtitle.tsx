@@ -1,21 +1,35 @@
-import React from 'react'
 import { Box, Text } from '@chakra-ui/react'
 import { canvasStyles } from './canvas-styles'
-import { useSubtitle } from '@/context/subtitle-context'
+import { useSubtitleDisplay } from '@/hooks/use-subtitle-display'
+import { memo } from 'react'
 
-const Subtitle: React.FC = () => {
-  const context = useSubtitle()
+// Type definitions
+interface SubtitleTextProps {
+  text: string
+}
 
-  if (!context) return null
-  const { subtitleText } = context
+// Reusable components
+const SubtitleText = memo(({ text }: SubtitleTextProps) => (
+  <Text {...canvasStyles.subtitle.text}>
+    {text}
+  </Text>
+))
 
-  if (!subtitleText) return null
+SubtitleText.displayName = 'SubtitleText'
+
+// Main component
+const Subtitle = memo((): JSX.Element | null => {
+  const { subtitleText, isLoaded } = useSubtitleDisplay()
+
+  if (!isLoaded || !subtitleText) return null
 
   return (
     <Box {...canvasStyles.subtitle.container}>
-      <Text {...canvasStyles.subtitle.text}>{subtitleText}</Text>
+      <SubtitleText text={subtitleText} />
     </Box>
   )
-}
+})
+
+Subtitle.displayName = 'Subtitle'
 
 export default Subtitle

@@ -1,37 +1,31 @@
 import { Box } from '@chakra-ui/react'
-import { useWebSocket } from '@/context/websocket-context'
 import { canvasStyles } from './canvas-styles'
+import { useWSStatus } from '@/hooks/use-ws-status'
+import { memo } from 'react'
 
-function WebSocketStatus(): JSX.Element {
-  const { wsState } = useWebSocket()
+// Type definitions
+interface StatusContentProps {
+  text: string
+}
 
-  const getStatusColor = (): string => {
-    switch (wsState) {
-      case 'OPEN':
-        return 'green.500'
-      case 'CONNECTING':
-        return 'yellow.500'
-      default:
-        return 'red.500'
-    }
-  }
+// Reusable components
+const StatusContent = memo(({ text }: StatusContentProps) => (
+  <>{text}</>
+))
 
-  const getStatusText = (): string => {
-    switch (wsState) {
-      case 'OPEN':
-        return 'Connected'
-      case 'CONNECTING':
-        return 'Connecting'
-      default:
-        return 'Disconnected'
-    }
-  }
+StatusContent.displayName = 'StatusContent'
+
+// Main component
+const WebSocketStatus = memo((): JSX.Element => {
+  const { color, text } = useWSStatus()
 
   return (
-    <Box {...canvasStyles.wsStatus.container} backgroundColor={getStatusColor()}>
-      {getStatusText()}
+    <Box {...canvasStyles.wsStatus.container} backgroundColor={color}>
+      <StatusContent text={text} />
     </Box>
   )
-}
+})
+
+WebSocketStatus.displayName = 'WebSocketStatus'
 
 export default WebSocketStatus

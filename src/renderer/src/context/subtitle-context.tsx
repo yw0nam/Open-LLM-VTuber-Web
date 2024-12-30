@@ -1,33 +1,40 @@
-import React, { createContext, useState, useMemo, useContext } from 'react';
+import { createContext, useState, useMemo, useContext, memo } from 'react'
 
+// Type definitions
 interface SubtitleContextState {
-  subtitleText: string;
-  setSubtitleText: (text: string) => void;
+  subtitleText: string
+  setSubtitleText: (text: string) => void
 }
 
-export const SubtitleContext = createContext<SubtitleContextState | null>(null);
+// Default values
+const DEFAULT_SUBTITLE = "Hi, I'm some random AI VTuber. Who the hell are ya? Ahh, you must be amazed by my awesomeness, right? right?"
 
-export const SubtitleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [subtitleText, setSubtitleText] = useState<string>(
-    "Hi, I'm some random AI VTuber. Who the hell are ya? Ahh, you must be amazed by my awesomeness, right? right?"
-  );
+// Context
+export const SubtitleContext = createContext<SubtitleContextState | null>(null)
+
+// Provider component
+export const SubtitleProvider = memo(({ children }: { children: React.ReactNode }) => {
+  const [subtitleText, setSubtitleText] = useState<string>(DEFAULT_SUBTITLE)
 
   const value = useMemo(() => ({
     subtitleText,
     setSubtitleText,
-  }), [subtitleText]);
+  }), [subtitleText])
 
   return (
     <SubtitleContext.Provider value={value}>
       {children}
     </SubtitleContext.Provider>
-  );
-};
+  )
+})
 
+SubtitleProvider.displayName = 'SubtitleProvider'
+
+// Hook
 export const useSubtitle = () => {
-  const context = useContext(SubtitleContext);
+  const context = useContext(SubtitleContext)
   if (!context) {
-    throw new Error('useSubtitle must be used within a SubtitleProvider');
+    throw new Error('useSubtitle must be used within a SubtitleProvider')
   }
-  return context;
-};
+  return context
+}
