@@ -1,11 +1,10 @@
 import { app, ipcMain, globalShortcut } from "electron";
 import { electronApp, optimizer } from "@electron-toolkit/utils";
 import { WindowManager } from "./window-manager";
-import { TrayManager } from "./tray-manager";
-import { setupContextMenu } from "./context-menu";
+import { MenuManager } from "./menu-manager";
 
 let windowManager: WindowManager;
-let trayManager: TrayManager;
+let menuManager: MenuManager;
 let isQuitting = false;
 
 function setupIPC(): void {
@@ -47,12 +46,10 @@ app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.electron");
 
   windowManager = new WindowManager();
-  trayManager = new TrayManager((mode) => windowManager.setWindowMode(mode));
+  menuManager = new MenuManager((mode) => windowManager.setWindowMode(mode));
 
   const window = windowManager.createWindow();
-  trayManager.createTray();
-
-  setupContextMenu((mode) => windowManager.setWindowMode(mode));
+  menuManager.createTray();
 
   window.on("close", (event) => {
     if (!isQuitting) {
@@ -95,6 +92,6 @@ app.on("window-all-closed", () => {
 
 app.on("before-quit", () => {
   isQuitting = true;
-  trayManager.destroy();
+  menuManager.destroy();
   globalShortcut.unregisterAll();
 });
