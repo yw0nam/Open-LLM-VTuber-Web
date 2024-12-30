@@ -1,67 +1,68 @@
 import { Stack, Text, NumberInput } from '@chakra-ui/react'
 import { Field } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { settingStyles } from './setting-styles'
-import { useVAD } from '@/context/vad-context'
-import React from 'react'
+import { useASRSettings } from '@/hooks/use-asr-settings'
 
+// Type definitions
 interface ASRProps {
   onSave?: (callback: () => void) => () => void
   onCancel?: (callback: () => void) => () => void
 }
 
-interface ValueChangeDetails {
-  value: string
+interface NumberFieldProps {
+  label: string
+  value: number | string
+  onChange: (value: string) => void
+  min?: number
+  max?: number
 }
 
+// Reusable components
+const NumberField = ({ label, value, onChange, min, max }: NumberFieldProps): JSX.Element => (
+  <Field
+    {...settingStyles.live2d.field}
+    label={<Text {...settingStyles.live2d.fieldLabel}>{label}</Text>}
+  >
+    <NumberInput.Root
+      {...settingStyles.live2d.numberInput.root}
+      value={value.toString()}
+      onValueChange={(details) => onChange(details.value)}
+      min={min}
+      max={max}
+    >
+      <NumberInput.Input {...settingStyles.live2d.numberInput.input} />
+      <NumberInput.Control>
+        <NumberInput.IncrementTrigger />
+        <NumberInput.DecrementTrigger />
+      </NumberInput.Control>
+    </NumberInput.Root>
+  </Field>
+)
+
+// Main component
 function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
-  const { settings, updateSettings, voiceInterruptionOn, setVoiceInterruptionOn } = useVAD()
-  const localSettingsRef = useRef(settings)
-  const originalSettingsRef = useRef(settings)
-  const originalVoiceInterruptionOnRef = useRef(voiceInterruptionOn)
-  const [, forceUpdate] = React.useReducer((x) => x + 1, 0)
+  const {
+    localSettings,
+    voiceInterruptionOn,
+    setVoiceInterruptionOn,
+    handleInputChange,
+    handleSave,
+    handleCancel
+  } = useASRSettings()
 
   useEffect(() => {
     if (!onSave || !onCancel) return
 
-    const cleanupSave = onSave(() => {
-      handleSave()
-    })
-
-    const cleanupCancel = onCancel(() => {
-      handleCancel()
-    })
+    const cleanupSave = onSave(handleSave)
+    const cleanupCancel = onCancel(handleCancel)
 
     return (): void => {
       cleanupSave?.()
       cleanupCancel?.()
     }
-  }, [onSave, onCancel])
-
-  const handleSave = (): void => {
-    updateSettings(localSettingsRef.current)
-    originalSettingsRef.current = localSettingsRef.current
-    originalVoiceInterruptionOnRef.current = voiceInterruptionOn
-  }
-
-  const handleCancel = (): void => {
-    localSettingsRef.current = originalSettingsRef.current
-    setVoiceInterruptionOn(originalVoiceInterruptionOnRef.current)
-    forceUpdate()
-  }
-
-  const handleInputChange = (key: keyof typeof settings, value: number | string): void => {
-    if (value === '' || value === '-') {
-      localSettingsRef.current = { ...localSettingsRef.current, [key]: value }
-    } else {
-      const parsed = Number(value)
-      if (!isNaN(parsed)) {
-        localSettingsRef.current = { ...localSettingsRef.current, [key]: parsed }
-      }
-    }
-    forceUpdate()
-  }
+  }, [onSave, onCancel, handleSave, handleCancel])
 
   return (
     <Stack {...settingStyles.live2d.container}>
@@ -77,68 +78,29 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
         />
       </Field>
 
-      <Field
-        {...settingStyles.live2d.field}
-        label={<Text {...settingStyles.live2d.fieldLabel}>Speech Prob. Threshold</Text>}
-      >
-        <NumberInput.Root
-          {...settingStyles.live2d.numberInput.root}
-          value={localSettingsRef.current.positiveSpeechThreshold.toString()}
-          onValueChange={(details: ValueChangeDetails) =>
-            handleInputChange('positiveSpeechThreshold', details.value)
-          }
-          min={1}
-          max={100}
-        >
-          <NumberInput.Input {...settingStyles.live2d.numberInput.input} />
-          <NumberInput.Control>
-            <NumberInput.IncrementTrigger />
-            <NumberInput.DecrementTrigger />
-          </NumberInput.Control>
-        </NumberInput.Root>
-      </Field>
+      <NumberField
+        label="Speech Prob. Threshold"
+        value={localSettings.positiveSpeechThreshold}
+        onChange={(value) => handleInputChange('positiveSpeechThreshold', value)}
+        min={1}
+        max={100}
+      />
 
-      <Field
-        {...settingStyles.live2d.field}
-        label={<Text {...settingStyles.live2d.fieldLabel}>Negative Speech Threshold</Text>}
-      >
-        <NumberInput.Root
-          {...settingStyles.live2d.numberInput.root}
-          value={localSettingsRef.current.negativeSpeechThreshold.toString()}
-          onValueChange={(details: ValueChangeDetails) =>
-            handleInputChange('negativeSpeechThreshold', details.value)
-          }
-          min={0}
-          max={100}
-        >
-          <NumberInput.Input {...settingStyles.live2d.numberInput.input} />
-          <NumberInput.Control>
-            <NumberInput.IncrementTrigger />
-            <NumberInput.DecrementTrigger />
-          </NumberInput.Control>
-        </NumberInput.Root>
-      </Field>
+      <NumberField
+        label="Negative Speech Threshold"
+        value={localSettings.negativeSpeechThreshold}
+        onChange={(value) => handleInputChange('negativeSpeechThreshold', value)}
+        min={0}
+        max={100}
+      />
 
-      <Field
-        {...settingStyles.live2d.field}
-        label={<Text {...settingStyles.live2d.fieldLabel}>Redemption Frames</Text>}
-      >
-        <NumberInput.Root
-          {...settingStyles.live2d.numberInput.root}
-          value={localSettingsRef.current.redemptionFrames.toString()}
-          onValueChange={(details: ValueChangeDetails) =>
-            handleInputChange('redemptionFrames', details.value)
-          }
-          min={1}
-          max={100}
-        >
-          <NumberInput.Input {...settingStyles.live2d.numberInput.input} />
-          <NumberInput.Control>
-            <NumberInput.IncrementTrigger />
-            <NumberInput.DecrementTrigger />
-          </NumberInput.Control>
-        </NumberInput.Root>
-      </Field>
+      <NumberField
+        label="Redemption Frames"
+        value={localSettings.redemptionFrames}
+        onChange={(value) => handleInputChange('redemptionFrames', value)}
+        min={1}
+        max={100}
+      />
     </Stack>
   )
 }

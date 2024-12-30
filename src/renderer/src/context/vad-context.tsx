@@ -22,7 +22,7 @@ interface VADContextProps {
 
 export const VADContext = createContext<VADContextProps | undefined>(undefined);
 
-interface VADSettings {
+export interface VADSettings {
   positiveSpeechThreshold: number;
   negativeSpeechThreshold: number;
   redemptionFrames: number;
