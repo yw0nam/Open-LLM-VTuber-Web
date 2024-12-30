@@ -105,20 +105,21 @@ export class WindowManager {
   private setWindowModeWindow(): void {
     if (!this.window) return;
 
-    this.window.setSize(900, 670);
+    if (this.windowedBounds) {
+      this.window.setBounds(this.windowedBounds);
+    } else {
+      this.window.setSize(900, 670);
+      this.window.center();
+    }
 
-    setTimeout(() => {
-      this.window?.center();
-      this.window?.setAlwaysOnTop(false);
-      this.window?.setIgnoreMouseEvents(false);
-      this.window?.setSkipTaskbar(false);
-      this.window?.setResizable(true);
-      this.window?.setFocusable(true);
-      this.window?.setAlwaysOnTop(false);
+    this.window.setAlwaysOnTop(false);
+    this.window.setIgnoreMouseEvents(false);
+    this.window.setSkipTaskbar(false);
+    this.window.setResizable(true);
+    this.window.setFocusable(true);
+    this.window.setAlwaysOnTop(false);
 
-      this.window?.setBackgroundColor("#ffffff");
-    }, 200);
-    
+    this.window.setBackgroundColor("#ffffff");
 
     if (isMac) {
       this.window.setWindowButtonVisibility(true);
@@ -132,6 +133,8 @@ export class WindowManager {
 
   private setWindowModePet(): void {
     if (!this.window) return;
+
+    this.windowedBounds = this.window.getBounds();
 
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
     if (this.window.isFullScreen()) {

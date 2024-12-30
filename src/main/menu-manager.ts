@@ -89,27 +89,36 @@ export class MenuManager {
 
         const template: MenuItemConstructorOptions[] = [
           {
-            label: micOn ? 'Turn Off Microphone' : 'Turn On Microphone',
+            label: micOn ? "Turn Off Microphone" : "Turn On Microphone",
             click: () => {
-              event.sender.send('mic-toggle')
-            }
+              event.sender.send("mic-toggle");
+            },
           },
           {
-            label: 'Interrupt',
+            label: "Interrupt",
             click: () => {
-              event.sender.send('interrupt')
-            }
+              event.sender.send("interrupt");
+            },
           },
-          { type: 'separator' },
+          { type: "separator" },
           ...this.getModeMenuItems(),
-          { type: 'separator' },
+          { type: "separator" },
           {
-            label: 'Exit',
+            label: "Hide",
             click: () => {
-              app.quit()
-            }
-          }
-        ]
+              const windows = BrowserWindow.getAllWindows();
+              windows.forEach((window) => {
+                window.hide();
+              });
+            },
+          },
+          {
+            label: "Exit",
+            click: () => {
+              app.quit();
+            },
+          },
+        ];
 
         const menu = Menu.buildFromTemplate(template)
         menu.popup({
