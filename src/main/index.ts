@@ -1,98 +1,100 @@
-import { app, ipcMain, globalShortcut } from 'electron'
-import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { WindowManager } from './window-manager'
-import { TrayManager } from './tray-manager'
-import { setupContextMenu } from './context-menu'
+import { app, ipcMain, globalShortcut } from "electron";
+import { electronApp, optimizer } from "@electron-toolkit/utils";
+import { WindowManager } from "./window-manager";
+import { TrayManager } from "./tray-manager";
+import { setupContextMenu } from "./context-menu";
 
-let windowManager: WindowManager
-let trayManager: TrayManager
-let isQuitting = false
+let windowManager: WindowManager;
+let trayManager: TrayManager;
+let isQuitting = false;
 
 function setupIPC(): void {
-  ipcMain.on('set-ignore-mouse-events', (_event, ignore: boolean) => {
-    const window = windowManager.getWindow()
+  ipcMain.handle("get-platform", () => {
+    return process.platform;
+  });
+
+  ipcMain.on("set-ignore-mouse-events", (_event, ignore: boolean) => {
+    const window = windowManager.getWindow();
     if (window) {
-      windowManager.setIgnoreMouseEvents(ignore)
+      windowManager.setIgnoreMouseEvents(ignore);
     }
-  })
+  });
 
-  ipcMain.on('window-minimize', () => {
-    windowManager.getWindow()?.minimize()
-  })
+  ipcMain.on("window-minimize", () => {
+    windowManager.getWindow()?.minimize();
+  });
 
-  ipcMain.on('window-maximize', () => {
-    const window = windowManager.getWindow()
-    if (window?.isMaximized()) {
-      window.unmaximize()
-    } else {
-      window?.maximize()
-    }
-  })
-
-  ipcMain.on('window-close', () => {
-    const window = windowManager.getWindow()
+  ipcMain.on("window-maximize", () => {
+    const window = windowManager.getWindow();
     if (window) {
-      if (process.platform === 'darwin') {
-        window.hide()
+      windowManager.maximizeWindow();
+    }
+  });
+
+  ipcMain.on("window-close", () => {
+    const window = windowManager.getWindow();
+    if (window) {
+      if (process.platform === "darwin") {
+        window.hide();
       } else {
-        window.close()
+        window.close();
       }
     }
-  })
+  });
 }
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId("com.electron");
 
-  windowManager = new WindowManager()
-  trayManager = new TrayManager((mode) => windowManager.setWindowMode(mode))
+  windowManager = new WindowManager();
+  trayManager = new TrayManager((mode) => windowManager.setWindowMode(mode));
 
-  const window = windowManager.createWindow()
-  trayManager.createTray()
+  const window = windowManager.createWindow();
+  trayManager.createTray();
 
-  setupContextMenu((mode) => windowManager.setWindowMode(mode))
+  setupContextMenu((mode) => windowManager.setWindowMode(mode));
 
-  window.on('close', (event) => {
+  window.on("close", (event) => {
     if (!isQuitting) {
-      event.preventDefault()
-      window.hide()
+      event.preventDefault();
+      window.hide();
     }
-    return false
-  })
+    return false;
+  });
 
-  globalShortcut.register('F12', () => {
-    const window = windowManager.getWindow()
-    if (!window) return
+  globalShortcut.register("F12", () => {
+    const window = windowManager.getWindow();
+    if (!window) return;
 
     if (window.webContents.isDevToolsOpened()) {
-      window.webContents.closeDevTools()
+      window.webContents.closeDevTools();
     } else {
-      window.webContents.openDevTools()
+      window.webContents.openDevTools();
     }
-  })
+  });
 
-  setupIPC()
+  setupIPC();
 
-  app.on('activate', () => {
-    const window = windowManager.getWindow()
+  app.on("activate", () => {
+    const window = windowManager.getWindow();
     if (window) {
-      window.show()
+      window.show();
     }
-  })
+  });
 
-  app.on('browser-window-created', (_, window) => {
-    optimizer.watchWindowShortcuts(window)
-  })
-})
+  app.on("browser-window-created", (_, window) => {
+    optimizer.watchWindowShortcuts(window);
+  });
+});
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
   }
-})
+});
 
-app.on('before-quit', () => {
-  isQuitting = true
-  trayManager.destroy()
-  globalShortcut.unregisterAll()
-})
+app.on("before-quit", () => {
+  isQuitting = true;
+  trayManager.destroy();
+  globalShortcut.unregisterAll();
+});

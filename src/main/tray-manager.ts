@@ -1,4 +1,4 @@
-import { Tray, nativeImage, Menu } from 'electron'
+import { Tray, nativeImage, Menu, BrowserWindow } from 'electron'
 import trayIcon from '../../resources/icon.png?asset'
 
 export class TrayManager {
@@ -39,6 +39,24 @@ export class TrayManager {
         }
       },
       { type: 'separator' },
+      {
+        label: 'Show',
+        click: () => {
+          const windows = BrowserWindow.getAllWindows()
+          windows.forEach(window => {
+            window.show()
+          })
+        }
+      },
+      {
+        label: 'Hide',
+        click: () => {
+          const windows = BrowserWindow.getAllWindows()
+          windows.forEach(window => {
+            window.hide()
+          })
+        }
+      },
       {
         label: 'Exit',
         click: () => {

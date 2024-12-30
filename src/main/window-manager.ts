@@ -1,12 +1,18 @@
-import { BrowserWindow, screen, shell } from 'electron'
-import { join } from 'path'
-import { is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+import { BrowserWindow, screen, shell } from "electron";
+import { join } from "path";
+import { is } from "@electron-toolkit/utils";
+import icon from "../../resources/icon.png?asset";
 
-const isMac = process.platform === 'darwin'
+const isMac = process.platform === "darwin";
 
 export class WindowManager {
-  private window: BrowserWindow | null = null
+  private window: BrowserWindow | null = null;
+  private windowedBounds: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null = null;
 
   constructor() {}
 
@@ -16,86 +22,108 @@ export class WindowManager {
       height: 670,
       show: false,
       transparent: true,
-      backgroundColor: '#ffffff',
+      backgroundColor: "#ffffff",
       autoHideMenuBar: true,
       frame: false,
-      ...(isMac ? { titleBarStyle: 'hiddenInset' } : {}),
-      ...(process.platform === 'linux' ? { icon } : {}),
+      ...(isMac ? { titleBarStyle: "hiddenInset" } : {}),
+      ...(process.platform === "linux" ? { icon } : {}),
       webPreferences: {
-        preload: join(__dirname, '../preload/index.js'),
+        preload: join(__dirname, "../preload/index.js"),
         sandbox: false,
         contextIsolation: true,
-        nodeIntegration: true
+        nodeIntegration: true,
       },
       hasShadow: false,
-      paintWhenInitiallyHidden: true
-    })
+      paintWhenInitiallyHidden: true,
+    });
 
-    this.setupWindowEvents()
-    this.loadContent()
+    this.setupWindowEvents();
+    this.loadContent();
 
-    return this.window
+    return this.window;
   }
 
   private setupWindowEvents(): void {
-    if (!this.window) return
+    if (!this.window) return;
 
-    this.window.on('ready-to-show', () => {
-      this.window?.show()
-    })
+    this.window.on("ready-to-show", () => {
+      this.window?.show();
+      this.window?.webContents.send(
+        "window-maximized-change",
+        this.window.isMaximized()
+      );
+    });
+
+    this.window.on("maximize", () => {
+      this.window?.webContents.send("window-maximized-change", true);
+    });
+
+    this.window.on("unmaximize", () => {
+      this.window?.webContents.send("window-maximized-change", false);
+    });
+
+    this.window.on("maximize", () => {
+      this.window?.webContents.send("window-maximized-change", true);
+    });
+
+    this.window.on("unmaximize", () => {
+      this.window?.webContents.send("window-maximized-change", false);
+    });
 
     this.window.webContents.setWindowOpenHandler((details) => {
-      shell.openExternal(details.url)
-      return { action: 'deny' }
-    })
+      shell.openExternal(details.url);
+      return { action: "deny" };
+    });
   }
 
   private loadContent(): void {
-    if (!this.window) return
+    if (!this.window) return;
 
-    if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-      this.window.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+      this.window.loadURL(process.env["ELECTRON_RENDERER_URL"]);
     } else {
-      this.window.loadFile(join(__dirname, '../renderer/index.html'))
+      this.window.loadFile(join(__dirname, "../renderer/index.html"));
     }
   }
 
-  setWindowMode(mode: 'window' | 'pet'): void {
-    if (!this.window) return
-    
-    this.window.setOpacity(0)
-    
-    if (mode === 'window') {
-      this.setWindowModeWindow()
+  setWindowMode(mode: "window" | "pet"): void {
+    if (!this.window) return;
+
+    this.window.setOpacity(0);
+
+    if (mode === "window") {
+      this.setWindowModeWindow();
     } else {
-      this.setWindowModePet()
+      this.setWindowModePet();
     }
 
     setTimeout(() => {
-      this.window?.setOpacity(1)
-    }, 800)
+      this.window?.setOpacity(1);
+    }, 800);
   }
 
   private setWindowModeWindow(): void {
-    if (!this.window) return    
+    if (!this.window) return;
 
-    this.window.setSize(900, 670)
-    this.window.center()
-    this.window.setAlwaysOnTop(false)
-    this.window.setIgnoreMouseEvents(false)
-    this.window.setSkipTaskbar(false)
-    this.window.setResizable(true)
-    this.window.setFocusable(true)
-    this.window.setAlwaysOnTop(false)
-    
-    this.window.setBackgroundColor('#ffffff')
-    
+    this.window.setSize(900, 670);
+    this.window.center();
+    this.window.setAlwaysOnTop(false);
+    this.window.setIgnoreMouseEvents(false);
+    this.window.setSkipTaskbar(false);
+    this.window.setResizable(true);
+    this.window.setFocusable(true);
+    this.window.setAlwaysOnTop(false);
+
+    this.window.setBackgroundColor("#ffffff");
+
     if (isMac) {
-      this.window.setWindowButtonVisibility(true)
-      this.window.setVisibleOnAllWorkspaces(false, { visibleOnFullScreen: false })
+      this.window.setWindowButtonVisibility(true);
+      this.window.setVisibleOnAllWorkspaces(false, {
+        visibleOnFullScreen: false,
+      });
     }
 
-    this.window.webContents.send('mode-changed', 'window')
+    this.window.webContents.send("mode-changed", "window");
   }
 
   private setWindowModePet(): void {
@@ -136,16 +164,40 @@ export class WindowManager {
   }
 
   getWindow(): BrowserWindow | null {
-    return this.window
+    return this.window;
   }
 
   setIgnoreMouseEvents(ignore: boolean): void {
-    if (!this.window) return
-    
+    if (!this.window) return;
+
     if (isMac) {
-      this.window.setIgnoreMouseEvents(ignore)
+      this.window.setIgnoreMouseEvents(ignore);
     } else {
-      this.window.setIgnoreMouseEvents(ignore, { forward: true })
+      this.window.setIgnoreMouseEvents(ignore, { forward: true });
     }
   }
-} 
+
+  maximizeWindow(): void {
+    if (!this.window) return;
+
+    if (this.isWindowMaximized()) {
+      if (this.windowedBounds) {
+        this.window.setBounds(this.windowedBounds);
+        this.windowedBounds = null;
+        this.window.webContents.send("window-maximized-change", false);
+      }
+    } else {
+      this.windowedBounds = this.window.getBounds();
+      const { width, height } = screen.getPrimaryDisplay().workArea;
+      this.window.setBounds({ x: 0, y: 0, width, height });
+      this.window.webContents.send("window-maximized-change", true);
+    }
+  }
+
+  isWindowMaximized(): boolean {
+    if (!this.window) return false;
+    const bounds = this.window.getBounds();
+    const { width, height } = screen.getPrimaryDisplay().workArea;
+    return bounds.width >= width && bounds.height >= height;
+  }
+}

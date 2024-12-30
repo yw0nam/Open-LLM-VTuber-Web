@@ -19,6 +19,10 @@ const TitleBar = (): JSX.Element => {
     }
   }, [])
 
+  const handleMaximizeClick = () => {
+    window.electron?.ipcRenderer.send('window-maximize')
+  }
+
   if (isMac) {
     return (
       <Box {...layoutStyles.macTitleBar}>
@@ -44,8 +48,8 @@ const TitleBar = (): JSX.Element => {
         </IconButton>
         <IconButton
           {...layoutStyles.titleBarButton}
-          onClick={() => window.electron?.ipcRenderer.send('window-maximize')}
-          aria-label="Maximize"
+          onClick={handleMaximizeClick}
+          aria-label={isMaximized ? "Restore" : "Maximize"}
         >
           {isMaximized ? <FiMinimize2 /> : <FiMaximize2 />}
         </IconButton>
