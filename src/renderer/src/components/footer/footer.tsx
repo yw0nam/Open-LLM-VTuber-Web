@@ -5,39 +5,119 @@ import { FiChevronDown } from 'react-icons/fi'
 import { InputGroup } from '@/components/ui/input-group'
 import { footerStyles } from './footer-styles'
 import AIStateIndicator from './ai-state-indicator'
-import { useTextInput } from '@/hooks/use-text-input'
-import { useInterrupt } from '@/components/canvas/live2d'
-import { useMicToggle } from '@/hooks/use-mic-toggle'
+import { useFooter } from '@/hooks/use-footer'
+import { memo } from 'react'
 
+// Type definitions
 interface FooterProps {
   isCollapsed?: boolean
   onToggle?: () => void
 }
 
+interface ToggleButtonProps {
+  isCollapsed: boolean
+  onToggle?: () => void
+}
+
+interface ActionButtonsProps {
+  micOn: boolean
+  onMicToggle: () => void
+  onInterrupt: () => void
+}
+
+interface MessageInputProps {
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void
+  onCompositionStart: () => void
+  onCompositionEnd: () => void
+}
+
+// Reusable components
+const ToggleButton = memo(({ isCollapsed, onToggle }: ToggleButtonProps) => (
+  <Box
+    {...footerStyles.footer.toggleButton}
+    onClick={onToggle}
+    color="whiteAlpha.500"
+    style={{
+      transform: isCollapsed ? "rotate(180deg)" : "rotate(0deg)",
+    }}
+  >
+    <FiChevronDown />
+  </Box>
+))
+
+ToggleButton.displayName = 'ToggleButton'
+
+const ActionButtons = memo(({ micOn, onMicToggle, onInterrupt }: ActionButtonsProps) => (
+  <HStack gap={2}>
+    <IconButton
+      bg={micOn ? "green.500" : "red.500"}
+      {...footerStyles.footer.actionButton}
+      onClick={onMicToggle}
+    >
+      {micOn ? <BsMicFill /> : <BsMicMuteFill />}
+    </IconButton>
+    <IconButton
+      aria-label="Raise hand"
+      bg='yellow.500'
+      {...footerStyles.footer.actionButton}
+      onClick={onInterrupt}
+    >
+      <IoHandRightSharp size="24" />
+    </IconButton>
+  </HStack>
+))
+
+ActionButtons.displayName = 'ActionButtons'
+
+const MessageInput = memo(({
+  value,
+  onChange,
+  onKeyDown,
+  onCompositionStart,
+  onCompositionEnd
+}: MessageInputProps) => (
+  <InputGroup flex={1}>
+    <Box position="relative" width="100%">
+      <IconButton
+        aria-label="Attach file"
+        variant="ghost"
+        {...footerStyles.footer.attachButton}
+      >
+        <BsPaperclip size="24" />
+      </IconButton>
+      <Input
+        value={value}
+        onChange={onChange}
+        onKeyDown={onKeyDown}
+        onCompositionStart={onCompositionStart}
+        onCompositionEnd={onCompositionEnd}
+        placeholder="Type your message..."
+        {...footerStyles.footer.input}
+      />
+    </Box>
+  </InputGroup>
+))
+
+MessageInput.displayName = 'MessageInput'
+
+// Main component
 function Footer({ isCollapsed = false, onToggle }: FooterProps): JSX.Element {
-  const styles = footerStyles.footer
   const {
     inputValue,
     handleInputChange,
     handleKeyPress,
     handleCompositionStart,
-    handleCompositionEnd
-  } = useTextInput()
-  const { interrupt } = useInterrupt()
-  const { handleMicToggle, micOn } = useMicToggle()
+    handleCompositionEnd,
+    interrupt,
+    handleMicToggle,
+    micOn
+  } = useFooter()
 
   return (
-    <Box {...styles.container(isCollapsed)}>
-      <Box
-        {...styles.toggleButton}
-        onClick={onToggle}
-        color="whiteAlpha.500"
-        style={{
-          transform: isCollapsed ? "rotate(180deg)" : "rotate(0deg)",
-        }}
-      >
-        <FiChevronDown />
-      </Box>
+    <Box {...footerStyles.footer.container(isCollapsed)}>
+      <ToggleButton isCollapsed={isCollapsed} onToggle={onToggle} />
 
       <Box pt="0" px="4">
         <HStack width="100%" gap={4}>
@@ -45,49 +125,24 @@ function Footer({ isCollapsed = false, onToggle }: FooterProps): JSX.Element {
             <Box mb="1.5">
               <AIStateIndicator />
             </Box>
-            <HStack gap={2}>
-              <IconButton
-                bg={micOn ? "green.500" : "red.500"}
-                {...styles.actionButton}
-                onClick={handleMicToggle}
-              >
-                {micOn ? <BsMicFill /> : <BsMicMuteFill />}
-              </IconButton>
-              <IconButton
-                aria-label="Raise hand"
-                bg='yellow.500'
-                {...styles.actionButton}
-                onClick={interrupt}
-              >
-                <IoHandRightSharp size="24" />
-              </IconButton>
-            </HStack>
+            <ActionButtons
+              micOn={micOn}
+              onMicToggle={handleMicToggle}
+              onInterrupt={interrupt}
+            />
           </Box>
 
-          <InputGroup flex={1}>
-            <Box position="relative" width="100%">
-              <IconButton
-                aria-label="Attach file"
-                variant="ghost"
-                {...styles.attachButton}
-              >
-                <BsPaperclip size="24" />
-              </IconButton>
-              <Input
-                value={inputValue}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyPress}
-                onCompositionStart={handleCompositionStart}
-                onCompositionEnd={handleCompositionEnd}
-                placeholder="Type your message..."
-                {...styles.input}
-              />
-            </Box>
-          </InputGroup>
+          <MessageInput
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyPress}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
+          />
         </HStack>
       </Box>
     </Box>
-  );
+  )
 }
 
 export default Footer
