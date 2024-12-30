@@ -1,22 +1,42 @@
-import React from 'react'
 import { Box, Image } from '@chakra-ui/react'
 import { canvasStyles } from './canvas-styles'
-import { useBgUrl } from '@/context/bgurl-context'
+import { useBackground } from '@/hooks/use-background'
+import { memo } from 'react'
 
-const Background: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
-  const context = useBgUrl()
+// Type definitions
+interface BackgroundProps {
+  children?: React.ReactNode
+}
 
-  if (!context) return null
-  const { backgroundUrl } = context
+interface BackgroundImageProps {
+  url: string
+}
+
+// Reusable components
+const BackgroundImage = memo(({ url }: BackgroundImageProps) => (
+  <Image 
+    src={url} 
+    alt="Background" 
+    {...canvasStyles.background.image} 
+  />
+))
+
+BackgroundImage.displayName = 'BackgroundImage'
+
+// Main component
+const Background = memo(({ children }: BackgroundProps): JSX.Element | null => {
+  const { backgroundUrl, isLoaded } = useBackground()
+
+  if (!isLoaded) return null
 
   return (
     <Box {...canvasStyles.background.container}>
-      {backgroundUrl && (
-        <Image src={backgroundUrl} alt="Background" {...canvasStyles.background.image} />
-      )}
+      {backgroundUrl && <BackgroundImage url={backgroundUrl} />}
       {children}
     </Box>
   )
-}
+})
+
+Background.displayName = 'Background'
 
 export default Background

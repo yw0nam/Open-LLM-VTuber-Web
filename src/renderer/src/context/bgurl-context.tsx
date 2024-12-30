@@ -1,7 +1,8 @@
-import React, { createContext, useMemo, useContext, useState } from 'react';
+import { createContext, useMemo, useContext, useState, memo } from 'react';
 import { baseUrl } from '@/context/websocket-context';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
+// Type definitions
 interface BackgroundFile {
   name: string;
   url: string;
@@ -14,12 +15,17 @@ export interface BgUrlContextState {
   setBackgroundFiles: (files: BackgroundFile[]) => void;
 }
 
-export const BgUrlContext = createContext<BgUrlContextState | null>(null);
+// Context
+const BgUrlContext = createContext<BgUrlContextState | null>(null);
 
-export const BgUrlProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// Default values
+const DEFAULT_BACKGROUND = `${baseUrl}/bg/ceiling-window-room-night.jpeg`;
+
+// Provider component
+export const BgUrlProvider = memo(({ children }: { children: React.ReactNode }) => {
   const [backgroundUrl, setBackgroundUrl] = useLocalStorage<string>(
     'backgroundUrl',
-    `${baseUrl}/bg/ceiling-window-room-night.jpeg`
+    DEFAULT_BACKGROUND
   );
   const [backgroundFiles, setBackgroundFiles] = useState<BackgroundFile[]>([]);
 
@@ -28,15 +34,18 @@ export const BgUrlProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setBackgroundUrl,
     backgroundFiles,
     setBackgroundFiles,
-  }), [backgroundUrl, backgroundFiles])
+  }), [backgroundUrl, backgroundFiles]);
 
   return (
     <BgUrlContext.Provider value={value}>
       {children}
     </BgUrlContext.Provider>
-  )
-}
+  );
+});
 
+BgUrlProvider.displayName = 'BgUrlProvider';
+
+// Hook
 export const useBgUrl = () => {
   const context = useContext(BgUrlContext);
   if (!context) {
