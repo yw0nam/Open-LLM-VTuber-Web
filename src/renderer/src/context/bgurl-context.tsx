@@ -7,7 +7,7 @@ interface BackgroundFile {
   url: string;
 }
 
-interface BgUrlContextState {
+export interface BgUrlContextState {
   backgroundUrl: string;
   setBackgroundUrl: (url: string) => void;
   backgroundFiles: BackgroundFile[];

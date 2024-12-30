@@ -7,25 +7,19 @@ import {
   SelectTrigger,
   SelectValueText
 } from '@/components/ui/select'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useBgUrl } from '@/context/bgurl-context'
 import { settingStyles } from './setting-styles'
 import { createListCollection } from '@chakra-ui/react'
 import { useConfig } from '@/context/config-context'
 import { useSwitchCharacter } from '@/hooks/use-switch-character'
 import { baseUrl } from '@/context/websocket-context'
+import { useGeneralSettings } from '@/hooks/use-general-settings'
 
+// Type definitions
 interface GeneralProps {
   onSave?: (callback: () => void) => () => void
   onCancel?: (callback: () => void) => () => void
-}
-
-interface GeneralSettings {
-  language: string[]
-  customBgUrl: string
-  selectedBgUrl: string[]
-  backgroundUrl: string
-  selectedCharacterPreset: string[]
 }
 
 interface SelectFieldProps {
@@ -36,126 +30,90 @@ interface SelectFieldProps {
   placeholder: string
 }
 
-function SelectField({
+// Reusable select component
+const SelectField = ({
   label,
   value,
   onChange,
   collection,
   placeholder
-}: SelectFieldProps): JSX.Element {
-  return (
-    <Field
-      {...settingStyles.general.field}
-      label={<Text {...settingStyles.general.field.label}>{label}</Text>}
+}: SelectFieldProps): JSX.Element => (
+  <Field
+    {...settingStyles.general.field}
+    label={<Text {...settingStyles.general.field.label}>{label}</Text>}
+  >
+    <SelectRoot
+      {...settingStyles.general.select.root}
+      collection={collection}
+      value={value}
+      onValueChange={(e) => onChange(e.value)}
     >
-      <SelectRoot
-        {...settingStyles.general.select.root}
-        collection={collection}
-        value={value}
-        onValueChange={(e) => onChange(e.value)}
-      >
-        <SelectTrigger {...settingStyles.general.select.trigger}>
-          <SelectValueText placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          {collection.items.map((item) => (
-            <SelectItem key={item.value} item={item}>
-              {item.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </SelectRoot>
-    </Field>
-  )
+      <SelectTrigger {...settingStyles.general.select.trigger}>
+        <SelectValueText placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {collection.items.map((item) => (
+          <SelectItem key={item.value} item={item}>
+            {item.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </SelectRoot>
+  </Field>
+)
+
+// Data collection definition
+const useCollections = () => {
+  const { backgroundFiles } = useBgUrl() || {}
+  const { configFiles } = useConfig()
+
+  const languages = createListCollection({
+    items: [
+      { label: 'English', value: 'en' },
+      { label: '中文', value: 'zh' }
+    ]
+  })
+
+  const backgrounds = createListCollection({
+    items: backgroundFiles?.map((filename) => ({
+      label: String(filename),
+      value: `/bg/${filename}`
+    })) || []
+  })
+
+  const characterPresets = createListCollection({
+    items: configFiles.map((config) => ({
+      label: config.name,
+      value: config.filename
+    }))
+  })
+
+  return {
+    languages,
+    backgrounds,
+    characterPresets
+  }
 }
 
+// Main component
 function General({ onSave, onCancel }: GeneralProps): JSX.Element {
   const bgUrlContext = useBgUrl()
-  const { configFiles, confName } = useConfig()
+  const { confName, configFiles } = useConfig()
   const { switchCharacter } = useSwitchCharacter()
-
-  const getCurrentBgKey = (): string[] => {
-    if (!bgUrlContext?.backgroundUrl) return []
-    const currentBgUrl = bgUrlContext.backgroundUrl
-    const path = currentBgUrl.replace(baseUrl, '')
-    if (path.startsWith('/bg/')) {
-      return [path]
-    }
-    return []
-  }
-
-  const [settings, setSettings] = useState<GeneralSettings>({
-    language: ['en'],
-    customBgUrl: !bgUrlContext?.backgroundUrl?.includes('/bg/')
-      ? bgUrlContext?.backgroundUrl || ''
-      : '',
-    selectedBgUrl: getCurrentBgKey(),
-    backgroundUrl: bgUrlContext?.backgroundUrl || '',
-    selectedCharacterPreset: []
+  const collections = useCollections()
+  
+  const {
+    settings,
+    handleSettingChange,
+    handleSave,
+    handleCancel
+  } = useGeneralSettings({
+    bgUrlContext,
+    confName,
+    baseUrl
   })
 
-  const [originalSettings, setOriginalSettings] = useState<GeneralSettings>({
-    language: ['en'],
-    customBgUrl: !bgUrlContext?.backgroundUrl?.includes('/bg/')
-      ? bgUrlContext?.backgroundUrl || ''
-      : '',
-    selectedBgUrl: getCurrentBgKey(),
-    backgroundUrl: bgUrlContext?.backgroundUrl || '',
-    selectedCharacterPreset: []
-  })
-
-  useEffect(() => {
-    if (confName) {
-      const initialSettings = {
-        ...settings,
-        selectedCharacterPreset: [confName]
-      }
-      setSettings(initialSettings)
-      setOriginalSettings(initialSettings)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (confName) {
-      const newSettings = {
-        ...settings,
-        selectedCharacterPreset: [confName]
-      }
-      setSettings(newSettings)
-      setOriginalSettings(newSettings)
-    }
-  }, [confName])
-
-  const handleSave = (): void => {
-    const newBgUrl = settings.customBgUrl || settings.selectedBgUrl[0]
-    if (newBgUrl && bgUrlContext) {
-      setOriginalSettings({ ...settings })
-    }
-  }
-
-  const handleCancel = (): void => {
-    console.log('handleCancel')
-    setSettings(originalSettings)
-    if (bgUrlContext && originalSettings.backgroundUrl) {
-      bgUrlContext.setBackgroundUrl(originalSettings.backgroundUrl)
-    }
-  }
-
-  const handleSettingChange = (
-    key: keyof GeneralSettings,
-    value: GeneralSettings[keyof GeneralSettings]
-  ): void => {
-    setSettings((prev) => ({ ...prev, [key]: value }))
-  }
-
-  useEffect(() => {
-    const newBgUrl = settings.customBgUrl || settings.selectedBgUrl[0]
-    if (newBgUrl && bgUrlContext) {
-      const fullUrl = newBgUrl.startsWith('http') ? newBgUrl : `${baseUrl}${newBgUrl}`
-      bgUrlContext.setBackgroundUrl(fullUrl)
-    }
-  }, [settings.selectedBgUrl, settings.customBgUrl, bgUrlContext])
-
+  // Save and cancel side effects
   useEffect(() => {
     if (!onSave || !onCancel) return
 
@@ -169,40 +127,19 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
       handleCancel()
     })
 
-    return (): void => {
+    return () => {
       cleanupSave?.()
       cleanupCancel?.()
     }
-  }, [onSave, onCancel])
+  }, [onSave, onCancel, handleSave, handleCancel])
 
-  const languages = createListCollection({
-    items: [
-      { label: 'English', value: 'en' },
-      { label: '中文', value: 'zh' }
-    ]
-  })
-
-  const backgroundCollection = createListCollection({
-    items:
-      bgUrlContext?.backgroundFiles.map((filename) => ({
-        label: String(filename),
-        value: `/bg/${filename}`
-      })) || []
-  })
-
-  const characterPresetCollection = createListCollection({
-    items: configFiles.map((config) => ({
-      label: config.name,
-      value: config.filename
-    }))
-  })
-
+  // Preset change handler
   const handleCharacterPresetChange = (value: string[]): void => {
     const selectedFilename = value[0]
     const selectedConfig = configFiles.find(config => config.filename === selectedFilename)
     
     if (selectedConfig && selectedConfig.name !== confName) {
-      switchCharacter(selectedConfig.filename)
+      switchCharacter(selectedFilename)
       handleSettingChange('selectedCharacterPreset', value)
     }
   }
@@ -213,7 +150,7 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
         label="Language"
         value={settings.language}
         onChange={(value) => handleSettingChange('language', value)}
-        collection={languages}
+        collection={collections.languages}
         placeholder="Select language"
       />
 
@@ -221,7 +158,7 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
         label="Background Image"
         value={settings.selectedBgUrl}
         onChange={(value) => handleSettingChange('selectedBgUrl', value)}
-        collection={backgroundCollection}
+        collection={collections.backgrounds}
         placeholder="Select from available backgrounds"
       />
 
@@ -241,7 +178,7 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
         label="Character Preset"
         value={settings.selectedCharacterPreset}
         onChange={handleCharacterPresetChange}
-        collection={characterPresetCollection}
+        collection={collections.characterPresets}
         placeholder={confName || 'Select character preset'}
       />
     </Stack>
