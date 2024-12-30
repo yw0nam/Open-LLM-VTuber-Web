@@ -55,3 +55,6 @@ packages/react-devtools-extensions/.tempUserDataDir
 *.pyc
 .grunt
 out
+
+# Cursor files
+.cursorrules

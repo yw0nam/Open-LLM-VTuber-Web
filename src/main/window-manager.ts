@@ -19,7 +19,7 @@ export class WindowManager {
       backgroundColor: '#ffffff',
       autoHideMenuBar: true,
       frame: false,
-      titleBarStyle: 'hiddenInset',
+      ...(isMac ? { titleBarStyle: 'hiddenInset' } : {}),
       ...(process.platform === 'linux' ? { icon } : {}),
       webPreferences: {
         preload: join(__dirname, '../preload/index.js'),

@@ -1,56 +1,62 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import { Box, IconButton } from '@chakra-ui/react'
-import { FiMinus, FiMaximize2, FiX } from 'react-icons/fi'
+import { FiMinus, FiMaximize2, FiMinimize2, FiX } from 'react-icons/fi'
+import { layoutStyles } from '../layout'
 
-const TitleBar: React.FC = () => {
-  const handleMinimize = () => {
-    window.electron.ipcRenderer.send('window-minimize')
-  }
+const TitleBar = (): JSX.Element => {
+  const [isMaximized, setIsMaximized] = useState(false)
+  const isMac = window.electron?.process.platform === 'darwin'
 
-  const handleMaximize = () => {
-    window.electron.ipcRenderer.send('window-maximize')
-  }
+  useEffect(() => {
+    const handleMaximizeChange = (_event: any, maximized: boolean) => {
+      setIsMaximized(maximized)
+    }
 
-  const handleClose = () => {
-    window.electron.ipcRenderer.send('window-close')
+    window.electron?.ipcRenderer.on('window-maximized-change', handleMaximizeChange)
+
+    return () => {
+      window.electron?.ipcRenderer.removeAllListeners('window-maximized-change')
+    }
+  }, [])
+
+  if (isMac) {
+    return (
+      <Box {...layoutStyles.macTitleBar}>
+        <Box {...layoutStyles.titleBarTitle}>
+          Open LLM VTuber
+        </Box>
+      </Box>
+    )
   }
 
   return (
-    <Box
-      display="flex"
-      alignItems="center"
-      justifyContent="flex-end"
-      height="30px"
-      backgroundColor="gray.800"
-      paddingRight="10px"
-      css={{ '-webkit-app-region': 'drag' }}
-    >
-      <IconButton
-        size="sm"
-        variant="ghost"
-        onClick={handleMinimize}
-        css={{ '-webkit-app-region': 'no-drag' }}
-      >
-        <FiMinus />
-      </IconButton>
-
-      <IconButton
-        size="sm"
-        variant="ghost"
-        onClick={handleMaximize}
-        css={{ '-webkit-app-region': 'no-drag' }}
-      >
-        <FiMaximize2 />
-      </IconButton>
-
-      <IconButton
-        size="sm"
-        variant="ghost"
-        onClick={handleClose}
-        css={{ '-webkit-app-region': 'no-drag' }}
-      >
-        <FiX />
-      </IconButton>
+    <Box {...layoutStyles.windowsTitleBar}>
+      <Box {...layoutStyles.titleBarTitle}>
+        Open LLM VTuber
+      </Box>
+      <Box {...layoutStyles.titleBarButtons}>
+        <IconButton
+          {...layoutStyles.titleBarButton}
+          onClick={() => window.electron?.ipcRenderer.send('window-minimize')}
+          aria-label="Minimize"
+        >
+          <FiMinus />
+        </IconButton>
+        <IconButton
+          {...layoutStyles.titleBarButton}
+          onClick={() => window.electron?.ipcRenderer.send('window-maximize')}
+          aria-label="Maximize"
+        >
+          {isMaximized ? <FiMinimize2 /> : <FiMaximize2 />}
+        </IconButton>
+        <IconButton
+          {...layoutStyles.closeButton}
+          onClick={() => window.electron?.ipcRenderer.send('window-close')}
+          aria-label="Close"
+        >
+          <FiX />
+        </IconButton>
+      </Box>
     </Box>
   )
 }

@@ -75,5 +75,48 @@ export const layoutStyles = {
   collapsedFooter: {
     height: '24px',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+  },
+  windowsTitleBar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: '30px',
+    backgroundColor: 'gray.800',
+    paddingX: '10px',
+    css: { '-webkit-app-region': 'drag' }
+  },
+  macTitleBar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '30px',
+    backgroundColor: 'gray.800',
+    css: { 
+      '-webkit-app-region': 'drag',
+      '-webkit-user-select': 'none'
+    }
+  },
+  titleBarTitle: {
+    fontSize: 'sm',
+    color: 'whiteAlpha.800',
+    textAlign: 'center'
+  },
+  titleBarButtons: {
+    display: 'flex',
+    gap: '1'
+  },
+  titleBarButton: {
+    size: 'sm',
+    variant: 'ghost',
+    color: 'whiteAlpha.800',
+    css: { '-webkit-app-region': 'no-drag' },
+    _hover: { backgroundColor: 'whiteAlpha.200' }
+  },
+  closeButton: {
+    size: 'sm',
+    variant: 'ghost',
+    color: 'whiteAlpha.800',
+    css: { '-webkit-app-region': 'no-drag' },
+    _hover: { backgroundColor: 'red.500' }
   }
-}
+} as const
