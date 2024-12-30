@@ -12,9 +12,9 @@ import { useBgUrl } from '@/context/bgurl-context'
 import { settingStyles } from './setting-styles'
 import { createListCollection } from '@chakra-ui/react'
 import { useConfig } from '@/context/config-context'
-import { useSwitchCharacter } from '@/hooks/use-switch-character'
+import { useSwitchCharacter } from '@/hooks/utils/use-switch-character'
 import { baseUrl } from '@/context/websocket-context'
-import { useGeneralSettings } from '@/hooks/use-general-settings'
+import { useGeneralSettings } from '@/hooks/sidebar/setting/use-general-settings'
 
 // Type definitions
 interface GeneralProps {

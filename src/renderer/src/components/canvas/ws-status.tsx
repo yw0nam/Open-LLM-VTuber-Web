@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react'
 import { canvasStyles } from './canvas-styles'
-import { useWSStatus } from '@/hooks/use-ws-status'
+import { useWSStatus } from '@/hooks/canvas/use-ws-status'
 import { memo } from 'react'
 
 // Type definitions

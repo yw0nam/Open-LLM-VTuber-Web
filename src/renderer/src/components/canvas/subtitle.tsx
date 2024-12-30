@@ -1,6 +1,6 @@
 import { Box, Text } from '@chakra-ui/react'
 import { canvasStyles } from './canvas-styles'
-import { useSubtitleDisplay } from '@/hooks/use-subtitle-display'
+import { useSubtitleDisplay } from '@/hooks/canvas/use-subtitle-display'
 import { memo } from 'react'
 
 // Type definitions

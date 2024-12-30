@@ -3,7 +3,7 @@ import { Box, Text } from '@chakra-ui/react'
 import { FiCamera } from 'react-icons/fi'
 import { Tooltip } from '@/components/ui/tooltip'
 import { sidebarStyles } from './sidebar-styles'
-import { useCameraPanel } from '@/hooks/use-camera-panel'
+import { useCameraPanel } from '@/hooks/sidebar/use-camera-panel'
 
 // Reusable components
 const LiveIndicator = () => (

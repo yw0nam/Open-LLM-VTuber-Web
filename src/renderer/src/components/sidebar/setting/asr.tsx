@@ -3,7 +3,7 @@ import { Field } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
 import { useEffect } from 'react'
 import { settingStyles } from './setting-styles'
-import { useASRSettings } from '@/hooks/use-asr-settings'
+import { useASRSettings } from '@/hooks/sidebar/setting/use-asr-settings'
 
 // Type definitions
 interface ASRProps {

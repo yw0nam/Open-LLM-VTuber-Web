@@ -2,10 +2,10 @@ import { createContext, useContext, useRef, useCallback, useEffect, useReducer }
 import { MicVAD } from "@ricky0123/vad-web";
 import { useInterrupt } from "@/components/canvas/live2d";
 import { audioTaskQueue } from "@/utils/task-queue";
-import { useSendAudio } from "@/hooks/use-send-audio";
+import { useSendAudio } from "@/hooks/utils/use-send-audio";
 import { SubtitleContext } from "./subtitle-context";
 import { AiStateContext } from "./ai-state-context";
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 
 interface VADContextProps {
   voiceInterruptionOn: boolean;

@@ -1,5 +1,5 @@
-import React, { createContext, useContext } from 'react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import { createContext, useContext } from 'react';
+import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 
 export interface ConfigFile {
   filename: string;

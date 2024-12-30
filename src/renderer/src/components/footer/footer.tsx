@@ -5,7 +5,7 @@ import { FiChevronDown } from 'react-icons/fi'
 import { InputGroup } from '@/components/ui/input-group'
 import { footerStyles } from './footer-styles'
 import AIStateIndicator from './ai-state-indicator'
-import { useFooter } from '@/hooks/use-footer'
+import { useFooter } from '@/hooks/footer/use-footer'
 import { memo } from 'react'
 
 // Type definitions

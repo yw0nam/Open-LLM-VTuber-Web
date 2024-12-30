@@ -14,7 +14,7 @@ import {
   DrawerCloseTrigger,
 } from "@/components/ui/drawer";
 import { sidebarStyles } from './sidebar-styles';
-import { useHistoryDrawer } from '@/hooks/use-history-drawer';
+import { useHistoryDrawer } from '@/hooks/sidebar/use-history-drawer';
 import { memo } from 'react';
 import { HistoryInfo } from '@/context/websocket-context';
 

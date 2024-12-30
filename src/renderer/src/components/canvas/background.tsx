@@ -1,6 +1,6 @@
 import { Box, Image } from '@chakra-ui/react'
 import { canvasStyles } from './canvas-styles'
-import { useBackground } from '@/hooks/use-background'
+import { useBackground } from '@/hooks/canvas/use-background'
 import { memo } from 'react'
 
 // Type definitions

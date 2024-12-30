@@ -3,7 +3,7 @@ import { Field } from '@/components/ui/field'
 import { useEffect } from 'react'
 import { settingStyles } from './setting-styles'
 import { Switch } from '@/components/ui/switch'
-import { useLive2dSettings } from '@/hooks/use-live2d-settings'
+import { useLive2dSettings } from '@/hooks/sidebar/setting/use-live2d-settings'
 
 // Type definitions
 interface Live2dProps {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { wsService } from '@/services/websocket-service';
 import { WebSocketContext } from '@/context/websocket-context';
 import { useAiState } from '@/context/ai-state-context';
@@ -15,12 +15,15 @@ import { HistoryInfo } from '@/context/websocket-context';
 import { useVAD } from '@/context/vad-context';
 import { MessageEvent } from '@/services/websocket-service';
 import { wsUrl, baseUrl } from '@/context/websocket-context';
+import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch';
+
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const [wsState, setWsState] = useState<string>('CLOSED');
   const { aiState, setAiState } = useAiState();
   const { setModelInfo } = useL2D();
   const { setSubtitleText } = useSubtitle();
   const { clearResponse } = useResponse();
+  const modelRef = useRef<Live2DModel | null>(null);
   const { addAudioTask } = useAudioTask();
   const bgUrlContext = useBgUrl();
   const { setConfName, setConfUid, setConfigFiles } = useConfig();

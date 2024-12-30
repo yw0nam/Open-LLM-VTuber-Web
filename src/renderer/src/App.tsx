@@ -18,6 +18,7 @@ import { Toaster } from './components/ui/toaster'
 import { VADProvider } from './context/vad-context'
 import { Live2D } from './components/canvas/live2d'
 import TitleBar from './components/title-bar'
+import { Live2DModelProvider } from './context/live2d-model-context'
 
 const App: React.FC = () => {
   const [showSidebar, setShowSidebar] = useState(true)
@@ -35,59 +36,61 @@ const App: React.FC = () => {
 
   return (
     <ChakraProvider value={defaultSystem}>
-      <CameraProvider>
-        <ResponseProvider>
-          <AiStateProvider>
-            <L2DProvider>
-              <SubtitleProvider>
-                <VADProvider>
-                  <BgUrlProvider>
-                    <ConfigProvider>
-                      <ChatHistoryProvider>
-                        <WebSocketHandler>
-                          <Toaster />
-                          {mode === 'window' ? (
-                            <>
-                              {isElectron && <TitleBar />}
-                              <Flex {...layoutStyles.appContainer}>
-                                <Box
-                                  {...layoutStyles.sidebar}
-                                  {...(!showSidebar && { width: '24px' })}
-                                >
-                                  <Sidebar
-                                    isCollapsed={!showSidebar}
-                                    onToggle={() => setShowSidebar(!showSidebar)}
-                                  />
-                                </Box>
-                                <Box {...layoutStyles.mainContent}>
-                                  {/* <Box {...layoutStyles.canvas}> */}
-                                    <Canvas/>
-                                  {/* </Box> */}
+      <Live2DModelProvider>
+        <CameraProvider>
+          <ResponseProvider>
+            <AiStateProvider>
+              <L2DProvider>
+                <SubtitleProvider>
+                  <VADProvider>
+                    <BgUrlProvider>
+                      <ConfigProvider>
+                        <ChatHistoryProvider>
+                          <WebSocketHandler>
+                            <Toaster />
+                            {mode === 'window' ? (
+                              <>
+                                {isElectron && <TitleBar />}
+                                <Flex {...layoutStyles.appContainer}>
                                   <Box
-                                    {...layoutStyles.footer}
-                                    {...(isFooterCollapsed && layoutStyles.collapsedFooter)}
+                                    {...layoutStyles.sidebar}
+                                    {...(!showSidebar && { width: '24px' })}
                                   >
-                                    <Footer
-                                      isCollapsed={isFooterCollapsed}
-                                      onToggle={() => setIsFooterCollapsed(!isFooterCollapsed)}
+                                    <Sidebar
+                                      isCollapsed={!showSidebar}
+                                      onToggle={() => setShowSidebar(!showSidebar)}
                                     />
                                   </Box>
-                                </Box>
-                              </Flex>
-                            </>
-                          ) : (
-                            <Live2D isPet={mode === 'pet'} />
-                          )}
-                        </WebSocketHandler>
-                      </ChatHistoryProvider>
-                    </ConfigProvider>
-                  </BgUrlProvider>
-                </VADProvider>
-              </SubtitleProvider>
-            </L2DProvider>
-          </AiStateProvider>
-        </ResponseProvider>
-      </CameraProvider>
+                                  <Box {...layoutStyles.mainContent}>
+                                    {/* <Box {...layoutStyles.canvas}> */}
+                                      <Canvas/>
+                                    {/* </Box> */}
+                                    <Box
+                                      {...layoutStyles.footer}
+                                      {...(isFooterCollapsed && layoutStyles.collapsedFooter)}
+                                    >
+                                      <Footer
+                                        isCollapsed={isFooterCollapsed}
+                                        onToggle={() => setIsFooterCollapsed(!isFooterCollapsed)}
+                                      />
+                                    </Box>
+                                  </Box>
+                                </Flex>
+                              </>
+                            ) : (
+                              <Live2D isPet={mode === 'pet'} />
+                            )}
+                          </WebSocketHandler>
+                        </ChatHistoryProvider>
+                      </ConfigProvider>
+                    </BgUrlProvider>
+                  </VADProvider>
+                </SubtitleProvider>
+              </L2DProvider>
+            </AiStateProvider>
+          </ResponseProvider>
+        </CameraProvider>
+      </Live2DModelProvider>
     </ChakraProvider>
   )
 }

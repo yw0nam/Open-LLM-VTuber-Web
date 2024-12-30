@@ -1,7 +1,7 @@
 import { Box, Text } from '@chakra-ui/react'
 import ChatBubble from './chat-bubble'
 import { sidebarStyles } from './sidebar-styles'
-import { useChatHistoryPanel } from '@/hooks/use-chat-history-panel'
+import { useChatHistoryPanel } from '@/hooks/sidebar/use-chat-history-panel'
 import { memo } from 'react'
 import { Message } from '@/types/message'
 

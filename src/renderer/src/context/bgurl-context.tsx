@@ -1,6 +1,6 @@
 import { createContext, useMemo, useContext, useState, memo } from 'react';
 import { baseUrl } from '@/context/websocket-context';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 
 // Type definitions
 interface BackgroundFile {

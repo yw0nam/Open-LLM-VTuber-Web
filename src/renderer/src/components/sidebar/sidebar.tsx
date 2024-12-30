@@ -5,7 +5,7 @@ import SettingUI from './setting/setting-ui'
 import ChatHistoryPanel from './chat-history-panel'
 import CameraPanel from './camera-panel'
 import HistoryDrawer from './history-drawer'
-import { useSidebar } from '@/hooks/use-sidebar'
+import { useSidebar } from '@/hooks/sidebar/use-sidebar'
 import { memo } from 'react'
 
 // Type definitions

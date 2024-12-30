@@ -1,6 +1,6 @@
-import { useTextInput } from './use-text-input'
-import { useInterrupt } from '@/components/canvas/live2d'
-import { useMicToggle } from './use-mic-toggle'
+import { useTextInput } from '@/hooks/footer/use-text-input'
+import { useInterrupt } from '@/hooks/utils/use-interrupt'
+import { useMicToggle } from '@/hooks/utils/use-mic-toggle'
 
 export const useFooter = () => {
   const {
