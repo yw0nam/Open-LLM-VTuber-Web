@@ -60,14 +60,19 @@ export const adjustModelSizeAndPosition = (
   modelInfo: ModelInfo | undefined,
   isPet: boolean = false
 ) => {
-  const initXshift = modelInfo?.initialXshift || 0;
-  const initYshift = modelInfo?.initialYshift || 0;
+  if (!model || !modelInfo) return
 
-  const scaleX = width * (modelInfo?.kScale || 0);
-  const scaleY = height * (modelInfo?.kScale || 0);
-  const newScale = Math.min(scaleX, scaleY) * (isPet ? 0.5 : 1);
+  const initXshift = modelInfo?.initialXshift || 0
+  const initYshift = modelInfo?.initialYshift || 0
 
-  model.scale.set(newScale);
-  model.x = (width - model.width) / 2 + initXshift;
-  model.y = (height - model.height) / 2 + initYshift;
-};
+  const scaleX = width * (modelInfo?.kScale || 0)
+  const scaleY = height * (modelInfo?.kScale || 0)
+  const newScale = Math.min(scaleX, scaleY) * (isPet ? 0.5 : 1)
+
+  model.scale.set(newScale)
+  
+  const targetX = (width - model.width) / 2 + initXshift
+  const targetY = (height - model.height) / 2 + initYshift
+  
+  model.position.set(targetX, targetY)
+}

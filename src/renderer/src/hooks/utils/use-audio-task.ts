@@ -21,7 +21,6 @@ export const useAudioTask = () => {
   const { appendAIMessage } = useChatHistory()
   const { currentModel } = useLive2DModel()
   
-  // 使用 ref 存储最新的状态和函数
   const stateRef = useRef({
     aiState,
     currentModel,
@@ -30,7 +29,6 @@ export const useAudioTask = () => {
     appendAIMessage
   })
 
-  // 保持 ref 为最新值
   stateRef.current = {
     aiState,
     currentModel,

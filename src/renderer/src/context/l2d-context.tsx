@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext } from 'react';
+import { createContext, PropsWithChildren, useContext, useState } from 'react';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 
 // import { Live2DModel } from "pixi-live2d-display-lipsyncpatch";
@@ -19,15 +19,23 @@ export interface ModelInfo {
 interface L2DContextType {
   modelInfo?: ModelInfo;
   setModelInfo: (info: L2DContextType['modelInfo']) => void;
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
 }
 
 export const L2DContext = createContext<L2DContextType | null>(null);
 
 export const L2DProvider = ({ children }: PropsWithChildren) => {
   const [modelInfo, setModelInfo] = useLocalStorage<ModelInfo | undefined>('modelInfo', undefined);
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <L2DContext.Provider value={{ modelInfo, setModelInfo }}>
+    <L2DContext.Provider value={{ 
+      modelInfo, 
+      setModelInfo,
+      isLoading,
+      setIsLoading
+    }}>
       {children}
     </L2DContext.Provider>
   );

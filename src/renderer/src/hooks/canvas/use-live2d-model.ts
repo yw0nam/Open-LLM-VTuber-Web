@@ -4,6 +4,7 @@ import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch'
 import { ModelInfo } from '@/context/l2d-context'
 import { useLive2DModel as useModelContext } from '@/context/live2d-model-context'
 import { adjustModelSizeAndPosition } from './use-live2d-resize'
+import { useL2D } from '@/context/l2d-context'
 
 interface UseLive2DModelProps {
   isPet: boolean
@@ -18,6 +19,8 @@ export const useLive2DModel = ({ isPet, modelInfo, micOn, onModelLoad }: UseLive
   const modelRef = useRef<Live2DModel | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const { setCurrentModel } = useModelContext()
+  const { setIsLoading } = useL2D();
+  const loadingRef = useRef(false);
 
   // Initialize Pixi application
   useEffect(() => {
@@ -35,54 +38,64 @@ export const useLive2DModel = ({ isPet, modelInfo, micOn, onModelLoad }: UseLive
       })
 
       app.ticker.add(() => {
-        app.renderer.clear()
-        app.stage.children.forEach(child => {
-          if (child instanceof Live2DModel) {
-            child.update(app.ticker.deltaMS)
-          }
-        })
+        if (app.renderer) {
+          app.renderer.render(app.stage)
+        }
       })
 
       appRef.current = app
+      
+      Live2DModel.registerTicker(PIXI.Ticker)
     }
 
     return () => {
-      if (appRef.current) {
-        cleanupApp()
-      }
+      cleanupApp()
     }
   }, [])
 
-  // Load model
   useEffect(() => {
-    loadModel()
-    return () => {
-      cleanupModel()
+    if (modelInfo?.url) {
+      loadModel();
     }
-  }, [modelInfo, isPet, micOn])
+    return () => {
+      cleanupModel();
+    }
+  }, [modelInfo?.url]);
 
   const loadModel = async () => {
-    if (!modelInfo?.url || !appRef.current) return
+    if (!modelInfo?.url || !appRef.current) return;
+    if (loadingRef.current) return;
+
+    console.log('Loading model:', modelInfo.url)
+    
+    if (modelRef.current?.internalModel.settings.url === modelInfo.url) {
+      return;
+    }
 
     try {
+      loadingRef.current = true;
+      setIsLoading(true);
+
       const model = await Live2DModel.from(modelInfo.url, {
-        autoInteract: !isPet,
         autoHitTest: true,
+        autoFocus: !isPet,
         autoUpdate: true
-      })
+      });
       
-      setupModel(model)
-      onModelLoad?.(model)
+      setupModel(model);
+      onModelLoad?.(model);
       
     } catch (error) {
-      console.error('Failed to load Live2D model:', error)
+      console.error('Failed to load Live2D model:', error);
+    } finally {
+      loadingRef.current = false;
+      setIsLoading(false);
     }
-  }
+  };
 
   const setupModel = (model: Live2DModel) => {
     if (!appRef.current) return
 
-    // 清理旧模型
     if (modelRef.current) {
       modelRef.current.removeAllListeners()
       appRef.current.stage.removeChild(modelRef.current)
@@ -94,12 +107,10 @@ export const useLive2DModel = ({ isPet, modelInfo, micOn, onModelLoad }: UseLive
       PIXI.utils.clearTextureCache()
     }
 
-    // 设置新模型
     modelRef.current = model
-    setCurrentModel(model)  // 更新全局引用
+    setCurrentModel(model)  
     appRef.current.stage.addChild(model)
 
-    // 设置模型交互
     model.interactive = true
     model.cursor = 'pointer'
 
@@ -120,7 +131,6 @@ export const useLive2DModel = ({ isPet, modelInfo, micOn, onModelLoad }: UseLive
       })
     }
 
-    // 设置拖拽
     let dragging = false
     let pointerX = 0
     let pointerY = 0
@@ -143,7 +153,6 @@ export const useLive2DModel = ({ isPet, modelInfo, micOn, onModelLoad }: UseLive
     model.on('pointerupoutside', () => dragging = false)
     model.on('pointerup', () => dragging = false)
 
-    // 初始化位置和大小
     const { width, height } = appRef.current.screen
     adjustModelSizeAndPosition(model, width, height, modelInfo, isPet)
 

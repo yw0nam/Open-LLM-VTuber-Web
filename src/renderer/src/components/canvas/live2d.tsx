@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { useL2D } from '@/context/l2d-context'
 import { useVAD } from '@/context/vad-context'
 import { useIpcHandlers } from '@/hooks/utils/use-ipc-handlers'
@@ -14,21 +14,23 @@ interface Live2DProps {
 
 // Main component
 export const Live2D = memo(({ isPet }: Live2DProps): JSX.Element => {
-  const { modelInfo } = useL2D()
+  const { modelInfo, isLoading } = useL2D()
   const { micOn } = useVAD()
 
   useIpcHandlers()
+
+  const modelConfig = useMemo(() => ({
+    isPet,
+    modelInfo,
+    micOn,
+  }), [isPet, modelInfo?.url])
 
   const {
     canvasRef,
     appRef,
     modelRef,
     containerRef
-  } = useLive2DModel({
-    isPet,
-    modelInfo,
-    micOn
-  })
+  } = useLive2DModel(modelConfig)
 
   useLive2DResize(containerRef, appRef, modelRef, modelInfo, isPet)
 
@@ -43,7 +45,9 @@ export const Live2D = memo(({ isPet }: Live2DProps): JSX.Element => {
         width: isPet ? '100vw' : '100%', 
         height: isPet ? '100vh' : '100%', 
         pointerEvents: 'auto',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        opacity: isLoading ? 0 : 1,
+        transition: 'opacity 0.3s ease-in-out'
       }}
     >
       <canvas
