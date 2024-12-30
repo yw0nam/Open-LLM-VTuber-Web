@@ -14,63 +14,68 @@ import {
   DrawerCloseTrigger,
 } from "@/components/ui/drawer";
 import { sidebarStyles } from './sidebar-styles';
-import { useChatHistory } from '@/context/chat-history-context';
-import { useState } from 'react';
+import { useHistoryDrawer } from '@/hooks/use-history-drawer';
+import { memo } from 'react';
 import { HistoryInfo } from '@/context/websocket-context';
-import { useWebSocket } from '@/context/websocket-context';
 
+// Type definitions
 interface HistoryDrawerProps {
   children: React.ReactNode;
 }
 
-function HistoryDrawer({ children }: HistoryDrawerProps) {
-  const [open, setOpen] = useState(false);
+interface HistoryItemProps {
+  isSelected: boolean;
+  latestMessage: { content: string; timestamp: string | null };
+  onSelect: () => void;
+  onDelete: (e: React.MouseEvent) => void;
+}
+
+// Reusable components
+const HistoryItem = memo(({
+  isSelected,
+  latestMessage,
+  onSelect,
+  onDelete
+}: HistoryItemProps): JSX.Element => (
+  <Box
+    {...sidebarStyles.historyDrawer.historyItem}
+    {...(isSelected ? sidebarStyles.historyDrawer.historyItemSelected : {})}
+    onClick={onSelect}
+  >
+    <Box {...sidebarStyles.historyDrawer.historyHeader}>
+      <Box {...sidebarStyles.historyDrawer.timestamp}>
+        {latestMessage.timestamp
+          ? formatDistanceToNow(new Date(latestMessage.timestamp), { addSuffix: true })
+          : 'No messages'}
+      </Box>
+      <Button
+        onClick={onDelete}
+        {...sidebarStyles.historyDrawer.deleteButton}
+      >
+        <FiTrash2 />
+      </Button>
+    </Box>
+    {latestMessage.content && (
+      <Box {...sidebarStyles.historyDrawer.messagePreview}>
+        {latestMessage.content}
+      </Box>
+    )}
+  </Box>
+));
+
+HistoryItem.displayName = 'HistoryItem';
+
+// Main component
+function HistoryDrawer({ children }: HistoryDrawerProps): JSX.Element {
   const {
+    open,
+    setOpen,
     historyList,
     currentHistoryUid,
-    setCurrentHistoryUid,
-    setHistoryList,
-    messages,
-    updateHistoryList
-  } = useChatHistory();
-  const { sendMessage } = useWebSocket();
-
-  const fetchAndSetHistory = (uid: string) => {
-    if (!uid || uid === currentHistoryUid) return;
-
-    if (currentHistoryUid && messages.length > 0) {
-      const latestMessage = messages[messages.length - 1];
-      updateHistoryList(currentHistoryUid, latestMessage);
-    }
-
-    setCurrentHistoryUid(uid);
-    sendMessage({
-      type: 'fetch-and-set-history',
-      history_uid: uid,
-    });
-  };
-
-  const deleteHistory = (uid: string) => {
-    sendMessage({
-      type: 'delete-history',
-      history_uid: uid,
-    });
-    setHistoryList(historyList.filter(history => history.uid !== uid));
-  };
-
-  const getLatestMessageContent = (history: HistoryInfo) => {
-    if (history.uid === currentHistoryUid && messages.length > 0) {
-      const latestMessage = messages[messages.length - 1];
-      return {
-        content: latestMessage.content,
-        timestamp: latestMessage.timestamp
-      };
-    }
-    return {
-      content: history.latest_message?.content || '',
-      timestamp: history.timestamp
-    };
-  };
+    fetchAndSetHistory,
+    deleteHistory,
+    getLatestMessageContent
+  } = useHistoryDrawer();
 
   return (
     <DrawerRoot
@@ -82,49 +87,26 @@ function HistoryDrawer({ children }: HistoryDrawerProps) {
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent style={sidebarStyles.historyDrawer.drawer.content}>
         <DrawerHeader>
-          <DrawerTitle style={sidebarStyles.historyDrawer.drawer.title}>Chat History List</DrawerTitle>
+          <DrawerTitle style={sidebarStyles.historyDrawer.drawer.title}>
+            Chat History List
+          </DrawerTitle>
           <DrawerCloseTrigger style={sidebarStyles.historyDrawer.drawer.closeButton} />
         </DrawerHeader>
 
         <DrawerBody>
           <Box {...sidebarStyles.historyDrawer.listContainer}>
-            {historyList.map((history: HistoryInfo) => {
-              const latestMessage = getLatestMessageContent(history);
-
-              return (
-                <Box
-                  key={history.uid}
-                  {...sidebarStyles.historyDrawer.historyItem}
-                  {...(currentHistoryUid === history.uid
-                    ? sidebarStyles.historyDrawer.historyItemSelected
-                    : {}
-                  )}
-                  onClick={() => fetchAndSetHistory(history.uid)}
-                >
-                  <Box {...sidebarStyles.historyDrawer.historyHeader}>
-                    <Box {...sidebarStyles.historyDrawer.timestamp}>
-                      {latestMessage.timestamp
-                        ? formatDistanceToNow(new Date(latestMessage.timestamp), { addSuffix: true })
-                        : 'No messages'}
-                    </Box>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteHistory(history.uid);
-                      }}
-                      {...sidebarStyles.historyDrawer.deleteButton}
-                    >
-                      <FiTrash2 />
-                    </Button>
-                  </Box>
-                  {latestMessage.content && (
-                    <Box {...sidebarStyles.historyDrawer.messagePreview}>
-                      {latestMessage.content}
-                    </Box>
-                  )}
-                </Box>
-              );
-            })}
+            {historyList.map((history: HistoryInfo) => (
+              <HistoryItem
+                key={history.uid}
+                isSelected={currentHistoryUid === history.uid}
+                latestMessage={getLatestMessageContent(history)}
+                onSelect={() => fetchAndSetHistory(history.uid)}
+                onDelete={(e) => {
+                  e.stopPropagation();
+                  deleteHistory(history.uid);
+                }}
+              />
+            ))}
           </Box>
         </DrawerBody>
 
