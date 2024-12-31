@@ -49,7 +49,8 @@ const SchemaField = ({ schema, value, onChange, path = [], definitions = {}, req
   if (!fieldName) return null; // 如果没有字段名，不渲染
 
   const description = schema.description?.[window.localStorage.getItem('language') || 'en'] || schema.description
-  const errorText = errors[fieldName]
+  const errorPath = path.join('.');
+  const errorText = errors[errorPath]
 
   // Handle $ref
   if (schema.$ref && definitions) {
@@ -207,7 +208,7 @@ const SchemaField = ({ schema, value, onChange, path = [], definitions = {}, req
           onChange={(e) => onChange(path, e.target.value || null)}
           placeholder={description}
           bg="whiteAlpha.100"
-          borderColor="whiteAlpha.200"
+          borderColor={errorText ? "red.500" : "whiteAlpha.200"}
           _hover={{ bg: "whiteAlpha.200" }}
         />
       </Field>

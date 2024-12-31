@@ -5,7 +5,7 @@ import { NumberInputField, NumberInputRoot } from '@/components/ui/number-input'
 import { useASRSettings } from '@/hooks/sidebar/setting/use-asr-settings'
 import { SchemaForm } from './schema-form'
 import { settingStyles } from './setting-styles'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useVAD } from '@/context/vad-context'
 
 interface ASRProps {
@@ -17,35 +17,35 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
   const {
     vadSettings,
     onVadSettingChange,
+    voiceInterruption,
+    onVoiceInterruptionChange,
     asrSchema,
     asrValues,
     onASRValueChange,
     saveSettings,
+    resetSettings,
+    errors,
   } = useASRSettings()
-
-  const { voiceInterruptionOn, setVoiceInterruptionOn } = useVAD();
-
-  const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   useEffect(() => {
     if (!onSave || !onCancel) return
 
     const handleSave = () => {
-      saveSettings();
-      return true;
+      const success = saveSettings();
+      return success;
     };
 
     const cleanupSave = onSave(handleSave)
 
     const cleanupCancel = onCancel(() => {
-      setErrors({})
+      resetSettings();
     })
 
     return () => {
       cleanupSave?.()
       cleanupCancel?.()
     }
-  }, [onSave, onCancel, saveSettings])
+  }, [onSave, onCancel, saveSettings, resetSettings])
 
   return (
     <Stack {...settingStyles.live2d.container}>
@@ -56,8 +56,8 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
       >
         <Switch
           {...settingStyles.live2d.switch}
-          checked={voiceInterruptionOn}
-          onCheckedChange={({ checked }) => setVoiceInterruptionOn(checked)}
+          checked={voiceInterruption}
+          onCheckedChange={({ checked }) => onVoiceInterruptionChange(checked)}
         />
       </Field>
 

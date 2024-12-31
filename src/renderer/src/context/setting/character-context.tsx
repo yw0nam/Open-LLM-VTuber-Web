@@ -64,12 +64,9 @@ export const CharacterContext = createContext<CharacterContextProps | null>(
 );
 
 export function CharacterProvider({ children }: { children: React.ReactNode }) {
-  const [confName, setConfName] = useLocalStorage<string>("confName", "");
-  const [confUid, setConfUid] = useLocalStorage<string>("confUid", "");
-  const [configFiles, setConfigFiles] = useLocalStorage<ConfigFile[]>(
-    "configFiles",
-    []
-  );
+  const [confName, setConfName] = useState<string>("");
+  const [confUid, setConfUid] = useState<string>("");
+  const [configFiles, setConfigFiles] = useState<ConfigFile[]>([]);
   const [systemSchema, setSystemSchema] = useState<any>({});
   const [characterSchema, setCharacterSchema] = useState<any>({});
   const [llmSchema, setLlmSchema] = useState<any>({});
@@ -91,14 +88,13 @@ export function CharacterProvider({ children }: { children: React.ReactNode }) {
     console.log("CharacterProvider", {
       // confName,
       // confUid,
-      // configFiles,
+      configFiles,
       // systemSchema,
       // characterSchema,
       // llmSchema,
       asrSchema,
       // ttsSchema,
       // translatorSchema,
-      asrConfig,
     });
   }, [
     confName,
