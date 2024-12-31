@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react'
-import { useL2D } from '@/context/l2d-context'
+import { useL2D } from '@/context/setting/live2d-context'
 import { useVAD } from '@/context/vad-context'
 import { useIpcHandlers } from '@/hooks/utils/use-ipc-handlers'
 import { useLive2DModel } from '@/hooks/canvas/use-live2d-model'

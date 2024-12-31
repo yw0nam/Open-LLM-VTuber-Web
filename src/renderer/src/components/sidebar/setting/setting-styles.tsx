@@ -96,21 +96,30 @@ export const settingStyles = {
       p: 4,
     },
     field: {
-      label: {
-        color: "whiteAlpha.800",
-      },
+      // Remove label from here since we're passing it directly
     },
     select: {
       root: {
         colorPalette: "gray",
         bg: "gray.800",
+        width: "100%",
       },
       trigger: {
         bg: "gray.800",
+        color: "whiteAlpha.900",
+        borderColor: "whiteAlpha.200",
+        _hover: {
+          bg: "whiteAlpha.200",
+        },
       },
     },
     input: {
       bg: "gray.800",
+      color: "whiteAlpha.900",
+      borderColor: "whiteAlpha.200",
+      _hover: {
+        bg: "whiteAlpha.200",
+      },
     },
     buttonGroup: {
       gap: 4,

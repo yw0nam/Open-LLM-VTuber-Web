@@ -7,7 +7,7 @@ import { useLive2dSettings } from '@/hooks/sidebar/setting/use-live2d-settings'
 
 // Type definitions
 interface Live2dProps {
-  onSave?: (callback: () => void) => () => void
+  onSave?: (callback: () => boolean) => () => void
   onCancel?: (callback: () => void) => () => void
   activeTab: string
 }
@@ -171,7 +171,7 @@ function Live2d({ onSave, onCancel, activeTab }: Live2dProps): JSX.Element {
           <EmotionMapEntry
             key={`emotion-${key}`}
             emotionKey={key}
-            value={value}
+            value={value as number}
             onChange={(newKey, newValue) => handleEmotionMapChange(key, newKey, newValue)}
             onDelete={() => handleEmotionMapRemove(key)}
           />

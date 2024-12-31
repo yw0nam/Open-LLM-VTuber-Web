@@ -1,105 +1,134 @@
-import { Stack, Text, NumberInput } from '@chakra-ui/react'
+import { Stack } from '@chakra-ui/react'
 import { Field } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
-import { useEffect } from 'react'
-import { settingStyles } from './setting-styles'
+import { NumberInputField, NumberInputRoot } from '@/components/ui/number-input'
 import { useASRSettings } from '@/hooks/sidebar/setting/use-asr-settings'
+import { SchemaForm } from './schema-form'
+import { settingStyles } from './setting-styles'
+import { useEffect, useState } from 'react'
+import { useVAD } from '@/context/vad-context'
 
-// Type definitions
 interface ASRProps {
-  onSave?: (callback: () => void) => () => void
+  onSave?: (callback: () => boolean) => () => void
   onCancel?: (callback: () => void) => () => void
 }
 
-interface NumberFieldProps {
-  label: string
-  value: number | string
-  onChange: (value: string) => void
-  min?: number
-  max?: number
-}
-
-// Reusable components
-const NumberField = ({ label, value, onChange, min, max }: NumberFieldProps): JSX.Element => (
-  <Field
-    {...settingStyles.live2d.field}
-    label={<Text {...settingStyles.live2d.fieldLabel}>{label}</Text>}
-  >
-    <NumberInput.Root
-      {...settingStyles.live2d.numberInput.root}
-      value={value.toString()}
-      onValueChange={(details) => onChange(details.value)}
-      min={min}
-      max={max}
-    >
-      <NumberInput.Input {...settingStyles.live2d.numberInput.input} />
-      <NumberInput.Control>
-        <NumberInput.IncrementTrigger />
-        <NumberInput.DecrementTrigger />
-      </NumberInput.Control>
-    </NumberInput.Root>
-  </Field>
-)
-
-// Main component
 function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
   const {
-    localSettings,
-    voiceInterruptionOn,
-    setVoiceInterruptionOn,
-    handleInputChange,
-    handleSave,
-    handleCancel
+    vadSettings,
+    onVadSettingChange,
+    asrSchema,
+    asrValues,
+    onASRValueChange,
+    saveSettings,
   } = useASRSettings()
+
+  const { voiceInterruptionOn, setVoiceInterruptionOn } = useVAD();
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   useEffect(() => {
     if (!onSave || !onCancel) return
 
-    const cleanupSave = onSave(handleSave)
-    const cleanupCancel = onCancel(handleCancel)
+    const handleSave = () => {
+      saveSettings();
+      return true;
+    };
 
-    return (): void => {
+    const cleanupSave = onSave(handleSave)
+
+    const cleanupCancel = onCancel(() => {
+      setErrors({})
+    })
+
+    return () => {
       cleanupSave?.()
       cleanupCancel?.()
     }
-  }, [onSave, onCancel, handleSave, handleCancel])
+  }, [onSave, onCancel, saveSettings])
 
   return (
     <Stack {...settingStyles.live2d.container}>
-      <Field
+      {/* Voice Interruption Switch */}
+      <Field 
         {...settingStyles.live2d.field}
-        label={<Text {...settingStyles.live2d.fieldLabel}>Voice Interruption</Text>}
+        label="Voice Interruption"
       >
         <Switch
           {...settingStyles.live2d.switch}
           checked={voiceInterruptionOn}
-          onCheckedChange={(details) => setVoiceInterruptionOn(details.checked)}
-          value="voice-interruption"
+          onCheckedChange={({ checked }) => setVoiceInterruptionOn(checked)}
         />
       </Field>
 
-      <NumberField
+      {/* VAD Settings */}
+      <Field 
+        {...settingStyles.live2d.field}
         label="Speech Prob. Threshold"
-        value={localSettings.positiveSpeechThreshold}
-        onChange={(value) => handleInputChange('positiveSpeechThreshold', value)}
-        min={1}
-        max={100}
-      />
+      >
+        <NumberInputRoot 
+          {...settingStyles.live2d.numberInput.root}
+          value={vadSettings.positiveSpeechThreshold.toString()}
+          onValueChange={(e) => onVadSettingChange('positiveSpeechThreshold', Number(e.value))}
+          min={1}
+          max={100}
+        >
+          <NumberInputField {...settingStyles.live2d.numberInput.input} />
+        </NumberInputRoot>
+      </Field>
 
-      <NumberField
+      <Field 
+        {...settingStyles.live2d.field}
         label="Negative Speech Threshold"
-        value={localSettings.negativeSpeechThreshold}
-        onChange={(value) => handleInputChange('negativeSpeechThreshold', value)}
-        min={0}
-        max={100}
-      />
+      >
+        <NumberInputRoot 
+          {...settingStyles.live2d.numberInput.root}
+          value={vadSettings.negativeSpeechThreshold.toString()}
+          onValueChange={(e) => onVadSettingChange('negativeSpeechThreshold', Number(e.value))}
+          min={0}
+          max={100}
+        >
+          <NumberInputField {...settingStyles.live2d.numberInput.input} />
+        </NumberInputRoot>
+      </Field>
 
-      <NumberField
+      <Field 
+        {...settingStyles.live2d.field}
         label="Redemption Frames"
-        value={localSettings.redemptionFrames}
-        onChange={(value) => handleInputChange('redemptionFrames', value)}
-        min={1}
-        max={100}
+      >
+        <NumberInputRoot 
+          {...settingStyles.live2d.numberInput.root}
+          value={vadSettings.redemptionFrames.toString()}
+          onValueChange={(e) => onVadSettingChange('redemptionFrames', Number(e.value))}
+          min={1}
+          max={100}
+        >
+          <NumberInputField {...settingStyles.live2d.numberInput.input} />
+        </NumberInputRoot>
+      </Field>
+
+      {/* ASR Model Configuration Form */}
+      <SchemaForm
+        schema={asrSchema}
+        value={asrValues}
+        onChange={onASRValueChange}
+        definitions={asrSchema.$defs}
+        errors={errors}
+        dependencies={{
+          // Define dependencies: show corresponding config when asr_model changes
+          asr_model: {
+            field: 'asr_model',
+            mapping: {
+              'faster_whisper': ['faster_whisper'],
+              'whisper_cpp': ['whisper_cpp'],
+              'whisper': ['whisper'],
+              'azure_asr': ['azure_asr'],
+              'fun_asr': ['fun_asr'],
+              'groq_whisper_asr': ['groq_whisper_asr'],
+              'sherpa_onnx_asr': ['sherpa_onnx_asr']
+            }
+          }
+        }}
       />
     </Stack>
   )

@@ -1,12 +1,12 @@
 import { useWebSocket } from '@/context/websocket-context';
-import { useConfig } from '@/context/config-context';
+import { useCharacter } from '@/context/setting/character-context';
 import { useCallback } from 'react';
 import { useInterrupt } from '@/components/canvas/live2d';
 import { useVAD } from '@/context/vad-context';
 
 export function useSwitchCharacter() {
   const { sendMessage } = useWebSocket();
-  const { configFiles } = useConfig();
+  const { configFiles } = useCharacter();
   const { interrupt } = useInterrupt();
   const { stopMic } = useVAD();
   const switchCharacter = useCallback((fileName: string) => {

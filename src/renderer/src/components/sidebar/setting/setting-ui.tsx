@@ -8,60 +8,99 @@ import {
   DrawerBody,
   DrawerFooter,
   DrawerBackdrop,
-  DrawerCloseTrigger
-} from '@chakra-ui/react'
-import { CloseButton } from '@/components/ui/close-button'
+  DrawerCloseTrigger,
+} from "@chakra-ui/react";
+import { CloseButton } from "@/components/ui/close-button";
 
-import { settingStyles } from './setting-styles'
-import General from './general'
-import Live2d from './live2d'
-import ASR from './asr'
-import TTS from './tts'
-import LLM from './llm'
-import About from './about'
-import { useState } from 'react'
+import { settingStyles } from "./setting-styles";
+import General from "./general";
+import Live2d from "./live2d";
+import ASR from "./asr";
+import TTS from "./tts";
+import LLM from "./llm";
+import About from "./about";
+import { useState, useMemo, useCallback } from "react";
 
 interface SettingUIProps {
-  open: boolean
-  onClose: () => void
-  onToggle: () => void
+  open: boolean;
+  onClose: () => void;
+  onToggle: () => void;
 }
 
 function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
-  const [saveHandlers, setSaveHandlers] = useState<(() => void)[]>([])
-  const [cancelHandlers, setCancelHandlers] = useState<(() => void)[]>([])
-  const [activeTab, setActiveTab] = useState('general')
+  const [saveHandlers, setSaveHandlers] = useState<(() => boolean)[]>([]);
+  const [cancelHandlers, setCancelHandlers] = useState<(() => void)[]>([]);
+  const [activeTab, setActiveTab] = useState("general");
 
-  const handleSaveCallback = (handler: () => void) => {
-    setSaveHandlers((prev) => [...prev, handler])
+  const handleSaveCallback = useCallback((handler: () => boolean) => {
+    setSaveHandlers((prev) => [...prev, handler]);
     return (): void => {
-      setSaveHandlers((prev) => prev.filter((h) => h !== handler))
-    }
-  }
+      setSaveHandlers((prev) => prev.filter((h) => h !== handler));
+    };
+  }, []);
 
-  const handleCancelCallback = (handler: () => void) => {
-    setCancelHandlers((prev) => [...prev, handler])
+  const handleCancelCallback = useCallback((handler: () => void) => {
+    setCancelHandlers((prev) => [...prev, handler]);
     return (): void => {
-      setCancelHandlers((prev) => prev.filter((h) => h !== handler))
-    }
-  }
+      setCancelHandlers((prev) => prev.filter((h) => h !== handler));
+    };
+  }, []);
 
-  const handleSave = (): void => {
-    saveHandlers.forEach((handler) => handler())
-    onClose()
-  }
+  const handleSave = useCallback((): void => {
+    saveHandlers.forEach((handler) => handler());
+    onClose();
+  }, [saveHandlers, onClose]);
 
-  const handleCancel = (): void => {
-    cancelHandlers.forEach((handler) => handler())
-    onClose()
-  }
+  const handleCancel = useCallback((): void => {
+    cancelHandlers.forEach((handler) => handler());
+    onClose();
+  }, [cancelHandlers, onClose]);
+
+  const tabsContent = useMemo(
+    () => (
+      <Tabs.ContentGroup>
+        <Tabs.Content value="general" {...settingStyles.settingUI.tabs.content}>
+          <General
+            onSave={handleSaveCallback}
+            onCancel={handleCancelCallback}
+          />
+        </Tabs.Content>
+        <Tabs.Content value="live2d" {...settingStyles.settingUI.tabs.content}>
+          <Live2d
+            onSave={handleSaveCallback}
+            onCancel={handleCancelCallback}
+            activeTab={activeTab}
+          />
+        </Tabs.Content>
+        <Tabs.Content value="asr" {...settingStyles.settingUI.tabs.content}>
+          <ASR onSave={handleSaveCallback} onCancel={handleCancelCallback} />
+        </Tabs.Content>
+        <Tabs.Content value="tts" {...settingStyles.settingUI.tabs.content}>
+          <TTS />
+        </Tabs.Content>
+        <Tabs.Content value="llm" {...settingStyles.settingUI.tabs.content}>
+          <LLM />
+        </Tabs.Content>
+        <Tabs.Content value="about" {...settingStyles.settingUI.tabs.content}>
+          <About />
+        </Tabs.Content>
+      </Tabs.ContentGroup>
+    ),
+    [activeTab, handleSaveCallback, handleCancelCallback]
+  );
 
   return (
-    <DrawerRoot open={open} onOpenChange={(e) => (e.open ? null : onClose())} placement="start">
+    <DrawerRoot
+      open={open}
+      onOpenChange={(e) => (e.open ? null : onClose())}
+      placement="start"
+    >
       <DrawerBackdrop />
       <DrawerContent {...settingStyles.settingUI.drawerContent}>
         <DrawerHeader {...settingStyles.settingUI.drawerHeader}>
-          <DrawerTitle {...settingStyles.settingUI.drawerTitle}>Settings</DrawerTitle>
+          <DrawerTitle {...settingStyles.settingUI.drawerTitle}>
+            Settings
+          </DrawerTitle>
           <div {...settingStyles.settingUI.closeButton}>
             <DrawerCloseTrigger asChild onClick={handleCancel}>
               <CloseButton size="sm" color="white" />
@@ -77,50 +116,45 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
             {...settingStyles.settingUI.tabs.root}
           >
             <Tabs.List>
-              <Tabs.Trigger value="general" {...settingStyles.settingUI.tabs.trigger}>
+              <Tabs.Trigger
+                value="general"
+                {...settingStyles.settingUI.tabs.trigger}
+              >
                 General
               </Tabs.Trigger>
-              <Tabs.Trigger value="live2d" {...settingStyles.settingUI.tabs.trigger}>
+              <Tabs.Trigger
+                value="live2d"
+                {...settingStyles.settingUI.tabs.trigger}
+              >
                 Live2d
               </Tabs.Trigger>
-              <Tabs.Trigger value="asr" {...settingStyles.settingUI.tabs.trigger}>
+              <Tabs.Trigger
+                value="asr"
+                {...settingStyles.settingUI.tabs.trigger}
+              >
                 ASR
               </Tabs.Trigger>
-              <Tabs.Trigger value="tts" {...settingStyles.settingUI.tabs.trigger}>
+              <Tabs.Trigger
+                value="tts"
+                {...settingStyles.settingUI.tabs.trigger}
+              >
                 TTS
               </Tabs.Trigger>
-              <Tabs.Trigger value="llm" {...settingStyles.settingUI.tabs.trigger}>
+              <Tabs.Trigger
+                value="llm"
+                {...settingStyles.settingUI.tabs.trigger}
+              >
                 LLM
               </Tabs.Trigger>
-              <Tabs.Trigger value="about" {...settingStyles.settingUI.tabs.trigger}>
+              <Tabs.Trigger
+                value="about"
+                {...settingStyles.settingUI.tabs.trigger}
+              >
                 About
               </Tabs.Trigger>
             </Tabs.List>
 
-            <Tabs.ContentGroup>
-              <Tabs.Content value="general" {...settingStyles.settingUI.tabs.content}>
-                <General onSave={handleSaveCallback} onCancel={handleCancelCallback} />
-              </Tabs.Content>
-              <Tabs.Content value="live2d" {...settingStyles.settingUI.tabs.content}>
-                <Live2d
-                  onSave={handleSaveCallback}
-                  onCancel={handleCancelCallback}
-                  activeTab={activeTab}
-                />
-              </Tabs.Content>
-              <Tabs.Content value="asr" {...settingStyles.settingUI.tabs.content}>
-                <ASR onSave={handleSaveCallback} onCancel={handleCancelCallback} />
-              </Tabs.Content>
-              <Tabs.Content value="tts" {...settingStyles.settingUI.tabs.content}>
-                <TTS />
-              </Tabs.Content>
-              <Tabs.Content value="llm" {...settingStyles.settingUI.tabs.content}>
-                <LLM />
-              </Tabs.Content>
-              <Tabs.Content value="about" {...settingStyles.settingUI.tabs.content}>
-                <About />
-              </Tabs.Content>
-            </Tabs.ContentGroup>
+            {tabsContent}
           </Tabs.Root>
         </DrawerBody>
 
@@ -134,7 +168,7 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
         </DrawerFooter>
       </DrawerContent>
     </DrawerRoot>
-  )
+  );
 }
 
-export default SettingUI
+export default SettingUI;
