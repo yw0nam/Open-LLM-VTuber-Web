@@ -17,10 +17,18 @@ StatusContent.displayName = 'StatusContent'
 
 // Main component
 const WebSocketStatus = memo((): JSX.Element => {
-  const { color, text } = useWSStatus()
+  const { color, text, handleClick, isDisconnected } = useWSStatus()
 
   return (
-    <Box {...canvasStyles.wsStatus.container} backgroundColor={color}>
+    <Box 
+      {...canvasStyles.wsStatus.container} 
+      backgroundColor={color}
+      onClick={handleClick}
+      cursor={isDisconnected ? 'pointer' : 'default'}
+      _hover={{
+        opacity: isDisconnected ? 0.8 : 1
+      }}
+    >
       <StatusContent text={text} />
     </Box>
   )

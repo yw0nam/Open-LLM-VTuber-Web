@@ -1,33 +1,47 @@
 import { useWebSocket } from '@/context/websocket-context'
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 
 interface WSStatusInfo {
   color: string
   text: string
+  isDisconnected: boolean
+  handleClick: () => void
 }
 
 export const useWSStatus = () => {
-  const { wsState } = useWebSocket()
+  const { wsState, reconnect } = useWebSocket()
+
+  const handleClick = useCallback(() => {
+    if (wsState !== 'OPEN' && wsState !== 'CONNECTING') {
+      reconnect()
+    }
+  }, [wsState, reconnect])
 
   const statusInfo = useMemo((): WSStatusInfo => {
     switch (wsState) {
       case 'OPEN':
         return {
           color: 'green.500',
-          text: 'Connected'
+          text: 'Connected',
+          isDisconnected: false,
+          handleClick
         }
       case 'CONNECTING':
         return {
           color: 'yellow.500',
-          text: 'Connecting'
+          text: 'Connecting',
+          isDisconnected: false,
+          handleClick
         }
       default:
         return {
           color: 'red.500',
-          text: 'Disconnected'
+          text: 'Click to Reconnect',
+          isDisconnected: true,
+          handleClick
         }
     }
-  }, [wsState])
+  }, [wsState, handleClick])
 
   return statusInfo
 } 

@@ -6,12 +6,14 @@ import { useLive2DModel } from '@/context/live2d-model-context'
 import { useSubtitle } from '@/context/subtitle-context';
 
 export const useInterrupt = () => {
-  const { setAiState } = useAiState()
+  const { aiState, setAiState } = useAiState()
   const { sendMessage } = useWebSocket()
   const { fullResponse, clearResponse } = useResponse()
   const { currentModel } = useLive2DModel()
   const { subtitleText, setSubtitleText } = useSubtitle();
   const interrupt = () => {
+    if (aiState != "thinking-speaking")
+      return
     console.log('Interrupting conversation chain')
     sendMessage({
       type: 'interrupt-signal',

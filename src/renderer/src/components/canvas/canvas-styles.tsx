@@ -59,16 +59,10 @@ export const canvasStyles = {
       fontWeight: 'medium',
       color: 'white',
       transition: 'all 0.2s',
-      variants: {
-        connected: {
-          backgroundColor: 'green.500'
-        },
-        disconnected: {
-          backgroundColor: 'red.500'
-        },
-        connecting: {
-          backgroundColor: 'yellow.500'
-        }
+      cursor: 'pointer',
+      userSelect: 'none',
+      _hover: {
+        opacity: 0.8
       }
     }
   }
