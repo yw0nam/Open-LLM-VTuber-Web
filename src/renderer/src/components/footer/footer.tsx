@@ -1,4 +1,4 @@
-import { Box, Input, IconButton, HStack } from '@chakra-ui/react'
+import { Box, Textarea, IconButton, HStack } from '@chakra-ui/react'
 import { BsMicFill, BsMicMuteFill, BsPaperclip } from 'react-icons/bs'
 import { IoHandRightSharp } from 'react-icons/io5'
 import { FiChevronDown } from 'react-icons/fi'
@@ -27,8 +27,8 @@ interface ActionButtonsProps {
 
 interface MessageInputProps {
   value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
   onCompositionStart: () => void
   onCompositionEnd: () => void
 }
@@ -87,7 +87,7 @@ const MessageInput = memo(({
       >
         <BsPaperclip size="24" />
       </IconButton>
-      <Input
+      <Textarea
         value={value}
         onChange={onChange}
         onKeyDown={onKeyDown}

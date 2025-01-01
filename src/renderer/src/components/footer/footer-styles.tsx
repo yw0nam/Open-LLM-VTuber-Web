@@ -25,7 +25,8 @@ export const footerStyles: {
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       height: '100%',
       position: 'relative',
-      overflow: isCollapsed ? 'visible' : 'hidden'
+      overflow: isCollapsed ? 'visible' : 'hidden',
+      pb: '4'
     }),
     toggleButton: {
       height: '24px',
@@ -59,7 +60,15 @@ export const footerStyles: {
       _focus: {
         border: 'none',
         bg: 'gray.700'
-      }
+      },
+      resize: 'none',
+      minHeight: '80px',
+      maxHeight: '80px',
+      py: '0',
+      display: 'flex',
+      alignItems: 'center',
+      paddingTop: '28px',
+      lineHeight: '1.4'
     },
     attachButton: {
       position: 'absolute',
