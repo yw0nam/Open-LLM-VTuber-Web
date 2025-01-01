@@ -1,52 +1,120 @@
-import { createContext, PropsWithChildren, useContext, useState } from 'react';
-import { useLocalStorage } from '@/hooks/utils/use-local-storage';
+import { createContext, useContext, useState, useMemo } from "react";
+import { useLocalStorage } from "@/hooks/utils/use-local-storage";
 
-// import { Live2DModel } from "pixi-live2d-display-lipsyncpatch";
+/**
+ * Model emotion mapping interface
+ * @interface EmotionMap
+ */
+interface EmotionMap {
+  [key: string]: number | string;
+}
+
+/**
+ * Live2D model information interface
+ * @interface ModelInfo
+ */
 export interface ModelInfo {
-  name?: string;                  // Model name
-  description?: string;           // Model description
-  url: string;                    // Model URL
-  kScale: number;                 // Scale factor
-  initialXshift: number;          // Initial X position shift
-  initialYshift: number;          // Initial Y position shift
-  kXOffset?: number;             // X-axis offset coefficient
-  idleMotionGroupName?: string;   // Idle motion group name
-  emotionMap: {
-    [key: string]: number | string;
-  };
+  /** Model name */
+  name?: string;
+  
+  /** Model description */
+  description?: string;
+  
+  /** Model URL */
+  url: string;
+  
+  /** Scale factor */
+  kScale: number;
+  
+  /** Initial X position shift */
+  initialXshift: number;
+  
+  /** Initial Y position shift */
+  initialYshift: number;
+  
+  /** X-axis offset coefficient */
+  kXOffset?: number;
+  
+  /** Idle motion group name */
+  idleMotionGroupName?: string;
+  
+  /** Emotion mapping configuration */
+  emotionMap: EmotionMap;
+  
+  /** Enable pointer interactivity */
   pointerInteractive?: boolean;
 }
-interface Live2DConfigContextType {
+
+/**
+ * Live2D configuration context state interface
+ * @interface Live2DConfigState
+ */
+interface Live2DConfigState {
   modelInfo?: ModelInfo;
-  setModelInfo: (info: Live2DConfigContextType['modelInfo']) => void;
+  setModelInfo: (info: ModelInfo | undefined) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 }
 
-export const Live2DConfigContext = createContext<Live2DConfigContextType | null>(null);
+/**
+ * Default values and constants
+ */
+const DEFAULT_CONFIG = {
+  modelInfo: undefined as ModelInfo | undefined,
+  isLoading: false,
+};
 
-export const Live2DConfigProvider = ({ children }: PropsWithChildren) => {
-  const [modelInfo, setModelInfo] = useLocalStorage<ModelInfo | undefined>('modelInfo', undefined);
-  const [isLoading, setIsLoading] = useState(false);
+/**
+ * Create the Live2D configuration context
+ */
+export const Live2DConfigContext = createContext<Live2DConfigState | null>(null);
 
-  return (
-    <Live2DConfigContext.Provider value={{ 
-      modelInfo, 
+/**
+ * Live2D Configuration Provider Component
+ * @param {Object} props - Provider props
+ * @param {React.ReactNode} props.children - Child components
+ */
+export function Live2DConfigProvider({ children }: { children: React.ReactNode }) {
+  // State management with local storage persistence
+  const [modelInfo, setModelInfo] = useLocalStorage<ModelInfo | undefined>(
+    "modelInfo",
+    DEFAULT_CONFIG.modelInfo
+  );
+  
+  // Loading state
+  const [isLoading, setIsLoading] = useState(DEFAULT_CONFIG.isLoading);
+
+  // Memoized context value
+  const contextValue = useMemo(
+    () => ({
+      modelInfo,
       setModelInfo,
       isLoading,
-      setIsLoading
-    }}>
+      setIsLoading,
+    }),
+    [modelInfo, isLoading]
+  );
+
+  return (
+    <Live2DConfigContext.Provider value={contextValue}>
       {children}
     </Live2DConfigContext.Provider>
   );
-};
+}
 
+/**
+ * Custom hook to use the Live2D configuration context
+ * @throws {Error} If used outside of Live2DConfigProvider
+ */
 export function useLive2DConfig() {
   const context = useContext(Live2DConfigContext);
+
   if (!context) {
-    throw new Error('useLive2DConfig must be used within a Live2DConfigProvider');
+    throw new Error("useLive2DConfig must be used within a Live2DConfigProvider");
   }
+
   return context;
 }
 
+// Export the provider as default
 export default Live2DConfigProvider;

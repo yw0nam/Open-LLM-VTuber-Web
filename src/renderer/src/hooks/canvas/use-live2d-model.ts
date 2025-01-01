@@ -48,8 +48,6 @@ export const useLive2DModel = ({
       });
 
       appRef.current = app;
-
-      Live2DModel.registerTicker(PIXI.Ticker);
     }
 
     return () => {
@@ -64,7 +62,7 @@ export const useLive2DModel = ({
     return () => {
       cleanupModel();
     };
-  }, [modelInfo?.url]);
+  }, [modelInfo?.url, modelInfo?.pointerInteractive]);
 
   const loadModel = async () => {
     if (!modelInfo?.url || !appRef.current) return;
@@ -72,18 +70,15 @@ export const useLive2DModel = ({
 
     console.log("Loading model:", modelInfo.url);
 
-    if (modelRef.current?.internalModel.settings.url === modelInfo.url) {
-      return;
-    }
-
     try {
       loadingRef.current = true;
       setIsLoading(true);
 
       const model = await Live2DModel.from(modelInfo.url, {
-        autoHitTest: true,
-        autoFocus: !isPet,
+        autoHitTest: modelInfo.pointerInteractive ?? false,
+        autoFocus: modelInfo.pointerInteractive ?? false,
         autoUpdate: true,
+        ticker: PIXI.Ticker.shared
       });
 
       setupModel(model);

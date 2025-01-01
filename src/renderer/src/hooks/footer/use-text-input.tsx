@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useWebSocket } from '@/context/websocket-context';
 import { useAiState } from '@/context/ai-state-context';
 import { useInterrupt } from '@/components/canvas/live2d';
-import { audioTaskQueue } from '@/utils/task-queue';
 import { useChatHistory } from '@/context/chat-history-context';
-
+import { useVAD } from '@/context/vad-context';
 export function useTextInput() {
   const [inputValue, setInputValue] = useState('');
   const [isComposing, setIsComposing] = useState(false);
@@ -12,7 +11,7 @@ export function useTextInput() {
   const { aiState } = useAiState();
   const { interrupt } = useInterrupt();
   const { appendHumanMessage } = useChatHistory();
-
+  const { stopMic, voiceInterruptionOn } = useVAD();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
@@ -27,8 +26,8 @@ export function useTextInput() {
       type: 'text-input',
       text: inputValue.trim()
     });
+    if (!voiceInterruptionOn) stopMic();
     setInputValue('');
-    audioTaskQueue.clearQueue();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {

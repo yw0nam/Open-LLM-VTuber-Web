@@ -1,40 +1,67 @@
 import { createContext, useState, useMemo, useContext, memo } from 'react'
 
-// Type definitions
-interface SubtitleContextState {
+/**
+ * Subtitle context state interface
+ * @interface SubtitleState
+ */
+interface SubtitleState {
+  /** Current subtitle text */
   subtitleText: string
+  
+  /** Set subtitle text */
   setSubtitleText: (text: string) => void
 }
 
-// Default values
-const DEFAULT_SUBTITLE = "Hi, I'm some random AI VTuber. Who the hell are ya? Ahh, you must be amazed by my awesomeness, right? right?"
+/**
+ * Default values and constants
+ */
+const DEFAULT_SUBTITLE = {
+  text: "Hi, I'm some random AI VTuber. Who the hell are ya? " +
+        "Ahh, you must be amazed by my awesomeness, right? right?",
+}
 
-// Context
-export const SubtitleContext = createContext<SubtitleContextState | null>(null)
+/**
+ * Create the subtitle context
+ */
+export const SubtitleContext = createContext<SubtitleState | null>(null)
 
-// Provider component
+/**
+ * Subtitle Provider Component
+ * Manages the subtitle display text state
+ * 
+ * @param {Object} props - Provider props
+ * @param {React.ReactNode} props.children - Child components
+ */
 export const SubtitleProvider = memo(({ children }: { children: React.ReactNode }) => {
-  const [subtitleText, setSubtitleText] = useState<string>(DEFAULT_SUBTITLE)
+  // State management
+  const [subtitleText, setSubtitleText] = useState<string>(DEFAULT_SUBTITLE.text)
 
-  const value = useMemo(() => ({
-    subtitleText,
-    setSubtitleText,
-  }), [subtitleText])
+  // Memoized context value
+  const contextValue = useMemo(
+    () => ({
+      subtitleText,
+      setSubtitleText,
+    }),
+    [subtitleText]
+  )
 
   return (
-    <SubtitleContext.Provider value={value}>
+    <SubtitleContext.Provider value={contextValue}>
       {children}
     </SubtitleContext.Provider>
   )
 })
 
-SubtitleProvider.displayName = 'SubtitleProvider'
-
-// Hook
-export const useSubtitle = () => {
+/**
+ * Custom hook to use the subtitle context
+ * @throws {Error} If used outside of SubtitleProvider
+ */
+export function useSubtitle() {
   const context = useContext(SubtitleContext)
+
   if (!context) {
-    throw new Error('useSubtitle must be used within a SubtitleProvider')
+    throw new Error("useSubtitle must be used within a SubtitleProvider")
   }
+
   return context
 }

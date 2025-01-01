@@ -25,7 +25,7 @@ export const Live2D = memo(({ isPet }: Live2DProps): JSX.Element => {
       modelInfo,
       micOn,
     }),
-    [isPet, modelInfo?.url]
+    [isPet, modelInfo?.url, modelInfo?.pointerInteractive, micOn]
   );
 
   const { canvasRef, appRef, modelRef, containerRef } =

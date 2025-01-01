@@ -110,7 +110,7 @@ function Footer({ isCollapsed = false, onToggle }: FooterProps): JSX.Element {
     handleKeyPress,
     handleCompositionStart,
     handleCompositionEnd,
-    interrupt,
+    handleInterrupt,
     handleMicToggle,
     micOn
   } = useFooter()
@@ -128,7 +128,7 @@ function Footer({ isCollapsed = false, onToggle }: FooterProps): JSX.Element {
             <ActionButtons
               micOn={micOn}
               onMicToggle={handleMicToggle}
-              onInterrupt={interrupt}
+              onInterrupt={handleInterrupt}
             />
           </Box>
 

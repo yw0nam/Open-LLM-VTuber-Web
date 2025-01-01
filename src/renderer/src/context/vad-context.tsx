@@ -1,59 +1,122 @@
-import { createContext, useContext, useRef, useCallback, useEffect, useReducer } from "react";
+import { createContext, useContext, useRef, useCallback, useEffect, useReducer, useMemo } from "react";
 import { MicVAD } from "@ricky0123/vad-web";
 import { useInterrupt } from "@/components/canvas/live2d";
 import { audioTaskQueue } from "@/utils/task-queue";
 import { useSendAudio } from "@/hooks/utils/use-send-audio";
 import { SubtitleContext } from "./subtitle-context";
 import { AiStateContext } from "./ai-state-context";
-import { useLocalStorage } from '@/hooks/utils/use-local-storage';
+import { useLocalStorage } from "@/hooks/utils/use-local-storage";
 
-interface VADContextProps {
-  voiceInterruptionOn: boolean;
-  micOn: boolean;
-  setMicOn: (value: boolean) => void;
-  setVoiceInterruptionOn: (value: boolean) => void;
-  startMic: () => Promise<void>;
-  stopMic: () => void;
-  previousTriggeredProbability: number;
-  setPreviousTriggeredProbability: (value: number) => void;
-  settings: VADSettings;
-  updateSettings: (newSettings: VADSettings) => void;
-}
-
-export const VADContext = createContext<VADContextProps | undefined>(undefined);
-
+/**
+ * VAD settings configuration interface
+ * @interface VADSettings
+ */
 export interface VADSettings {
+  /** Threshold for positive speech detection (0-100) */
   positiveSpeechThreshold: number;
+  
+  /** Threshold for negative speech detection (0-100) */
   negativeSpeechThreshold: number;
+  
+  /** Number of frames for speech redemption */
   redemptionFrames: number;
 }
 
-export const VADProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+/**
+ * VAD context state interface
+ * @interface VADState
+ */
+interface VADState {
+  /** Voice interruption feature state */
+  voiceInterruptionOn: boolean;
+  
+  /** Microphone active state */
+  micOn: boolean;
+  
+  /** Set microphone state */
+  setMicOn: (value: boolean) => void;
+  
+  /** Set voice interruption state */
+  setVoiceInterruptionOn: (value: boolean) => void;
+  
+  /** Start microphone and VAD */
+  startMic: () => Promise<void>;
+  
+  /** Stop microphone and VAD */
+  stopMic: () => void;
+  
+  /** Previous speech probability value */
+  previousTriggeredProbability: number;
+  
+  /** Set previous speech probability */
+  setPreviousTriggeredProbability: (value: number) => void;
+  
+  /** VAD settings configuration */
+  settings: VADSettings;
+  
+  /** Update VAD settings */
+  updateSettings: (newSettings: VADSettings) => void;
+}
+
+/**
+ * Default values and constants
+ */
+const DEFAULT_VAD_SETTINGS: VADSettings = {
+  positiveSpeechThreshold: 97,
+  negativeSpeechThreshold: 15,
+  redemptionFrames: 20,
+};
+
+const DEFAULT_VAD_STATE = {
+  micOn: false,
+  voiceInterruptionOn: false,
+};
+
+/**
+ * Create the VAD context
+ */
+export const VADContext = createContext<VADState | null>(null);
+
+/**
+ * VAD Provider Component
+ * Manages voice activity detection and microphone state
+ * 
+ * @param {Object} props - Provider props
+ * @param {React.ReactNode} props.children - Child components
+ */
+export function VADProvider({ children }: { children: React.ReactNode }) {
+  // Refs for VAD instance and state
   const vadRef = useRef<MicVAD | null>(null);
   const previousTriggeredProbabilityRef = useRef(0);
-  const [micOn, setMicOn] = useLocalStorage('micOn', false);
-  const [voiceInterruptionOn, setVoiceInterruptionOn] = useLocalStorage('voiceInterruptionOn', false);
-  const [settings, setSettings] = useLocalStorage<VADSettings>('vadSettings', {
-    positiveSpeechThreshold: 97,
-    negativeSpeechThreshold: 15,
-    redemptionFrames: 20,
-  });
 
+  // Persistent state management
+  const [micOn, setMicOn] = useLocalStorage("micOn", DEFAULT_VAD_STATE.micOn);
+  const [voiceInterruptionOn, setVoiceInterruptionOn] = useLocalStorage(
+    "voiceInterruptionOn",
+    DEFAULT_VAD_STATE.voiceInterruptionOn
+  );
+  const [settings, setSettings] = useLocalStorage<VADSettings>(
+    "vadSettings",
+    DEFAULT_VAD_SETTINGS
+  );
+
+  // Force update mechanism for ref updates
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
+  // External hooks and contexts
   const { interrupt } = useInterrupt();
   const { sendAudioPartition } = useSendAudio();
   const { setSubtitleText } = useContext(SubtitleContext)!;
   const { aiState, setAiState } = useContext(AiStateContext)!;
 
+  // Refs for callback stability
   const interruptRef = useRef(interrupt);
   const sendAudioPartitionRef = useRef(sendAudioPartition);
   const aiStateRef = useRef<string>(aiState);
   const setSubtitleTextRef = useRef(setSubtitleText);
   const setAiStateRef = useRef(setAiState);
 
+  // Update refs when dependencies change
   useEffect(() => {
     aiStateRef.current = aiState;
   }, [aiState]);
@@ -74,120 +137,169 @@ export const VADProvider: React.FC<{ children: React.ReactNode }> = ({
     setAiStateRef.current = setAiState;
   }, [setAiState]);
 
-  const setPreviousTriggeredProbability = (value: number) => {
+  /**
+   * Update previous triggered probability and force re-render
+   */
+  const setPreviousTriggeredProbability = useCallback((value: number) => {
     previousTriggeredProbabilityRef.current = value;
     forceUpdate();
-  };
+  }, []);
 
+  /**
+   * Handle speech start event
+   */
   const handleSpeechStart = useCallback(() => {
-    console.log("onSpeechStart");
+    console.log("Speech started");
     if (aiStateRef.current === "thinking-speaking") {
       interruptRef.current();
     }
   }, []);
 
+  /**
+   * Handle frame processing event
+   */
   const handleFrameProcessed = useCallback((probs: { isSpeech: number }) => {
     if (probs.isSpeech > previousTriggeredProbabilityRef.current) {
       setPreviousTriggeredProbability(probs.isSpeech);
     }
   }, []);
 
+  /**
+   * Handle speech end event
+   */
   const handleSpeechEnd = useCallback((audio: Float32Array) => {
-    console.log("onSpeechEnd");
+    console.log("Speech ended");
     audioTaskQueue.clearQueue();
+    
     if (!voiceInterruptionOn) {
       stopMic();
+    } else {
+      console.log("Voice interruption is on, keeping mic active");
     }
-    else console.log("voice interruption is on, not stopping mic");
+    
     setPreviousTriggeredProbability(0);
     sendAudioPartitionRef.current(audio);
   }, [voiceInterruptionOn]);
 
+  /**
+   * Handle VAD misfire event
+   */
   const handleVADMisfire = useCallback(() => {
-    console.log("onVADMisfire");
+    console.log("VAD misfire detected");
     setPreviousTriggeredProbability(0);
+    
     if (aiStateRef.current === "interrupted") {
       setAiStateRef.current("idle");
     }
     setSubtitleTextRef.current("The LLM can't hear you.");
   }, []);
 
+  /**
+   * Update VAD settings and restart if active
+   */
   const updateSettings = useCallback((newSettings: VADSettings) => {
-    setSettings(newSettings)
+    setSettings(newSettings);
     if (vadRef.current) {
-      stopMic()
+      stopMic();
       setTimeout(() => {
-        startMic()
-      }, 100)
+        startMic();
+      }, 100);
     }
-  }, [])
+  }, []);
 
+  /**
+   * Initialize new VAD instance
+   */
   const initVAD = async () => {
     const newVAD = await MicVAD.new({
       preSpeechPadFrames: 20,
       positiveSpeechThreshold: settings.positiveSpeechThreshold / 100,
       negativeSpeechThreshold: settings.negativeSpeechThreshold / 100,
       redemptionFrames: settings.redemptionFrames,
-
       onSpeechStart: handleSpeechStart,
       onFrameProcessed: handleFrameProcessed,
       onSpeechEnd: handleSpeechEnd,
       onVADMisfire: handleVADMisfire,
     });
+    
     vadRef.current = newVAD;
     newVAD.start();
   };
 
+  /**
+   * Start microphone and VAD processing
+   */
   const startMic = useCallback(async () => {
     try {
       if (!vadRef.current) {
-        console.log("VAD init");
+        console.log("Initializing VAD");
         await initVAD();
       } else {
-        console.log("VAD start");
+        console.log("Starting VAD");
         vadRef.current.start();
       }
+      setMicOn(true);
     } catch (error) {
       console.error("Failed to start VAD:", error);
     }
-    setMicOn(true);
   }, []);
 
+  /**
+   * Stop microphone and VAD processing
+   */
   const stopMic = useCallback(() => {
-    console.log("VAD stop");
+    console.log("Stopping VAD");
     if (vadRef.current) {
       vadRef.current.pause();
-      console.log("vad.pause() completed");
+      console.log("VAD paused successfully");
       setPreviousTriggeredProbability(0);
+    } else {
+      console.log("VAD instance not found");
     }
-    else console.log("vad is null");
     setMicOn(false);
   }, []);
 
+  // Memoized context value
+  const contextValue = useMemo(
+    () => ({
+      voiceInterruptionOn,
+      micOn,
+      setMicOn,
+      setVoiceInterruptionOn,
+      startMic,
+      stopMic,
+      previousTriggeredProbability: previousTriggeredProbabilityRef.current,
+      setPreviousTriggeredProbability,
+      settings,
+      updateSettings,
+    }),
+    [
+      voiceInterruptionOn,
+      micOn,
+      startMic,
+      stopMic,
+      settings,
+      updateSettings,
+    ]
+  );
+
   return (
-    <VADContext.Provider
-      value={{
-        startMic,
-        stopMic,
-        voiceInterruptionOn,
-        setVoiceInterruptionOn,
-        previousTriggeredProbability: previousTriggeredProbabilityRef.current,
-        setPreviousTriggeredProbability,
-        micOn,
-        setMicOn,
-        settings,
-        updateSettings,
-      }}
-    >
+    <VADContext.Provider value={contextValue}>
       {children}
     </VADContext.Provider>
   );
-};
+}
 
-export const useVAD = () => {
+/**
+ * Custom hook to use the VAD context
+ * @throws {Error} If used outside of VADProvider
+ */
+export function useVAD() {
   const context = useContext(VADContext);
+
   if (!context) {
     throw new Error("useVAD must be used within a VADProvider");
   }
+
   return context;
-};
+}

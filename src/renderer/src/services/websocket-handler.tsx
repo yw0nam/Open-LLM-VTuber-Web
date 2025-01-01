@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { wsService } from '@/services/websocket-service';
 import { WebSocketContext } from '@/context/websocket-context';
 import { useAiState } from '@/context/ai-state-context';
@@ -15,7 +15,6 @@ import { HistoryInfo } from '@/context/websocket-context';
 import { useVAD } from '@/context/vad-context';
 import { MessageEvent } from '@/services/websocket-service';
 import { wsUrl, baseUrl } from '@/context/websocket-context';
-import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch';
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const [wsState, setWsState] = useState<string>('CLOSED');
@@ -23,7 +22,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { setModelInfo } = useLive2DConfig();
   const { setSubtitleText } = useSubtitle();
   const { clearResponse } = useResponse();
-  const modelRef = useRef<Live2DModel | null>(null);
   const { addAudioTask } = useAudioTask();
   const bgUrlContext = useBgUrl();
   const { setConfName, setConfUid, setConfigFiles } = useConfig();
@@ -101,6 +99,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         break;
       case 'config-switched':
         setAiState('idle');
+        setSubtitleText("New Character Loaded");
         startMic();
 
         toaster.create({
@@ -153,6 +152,9 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         });
         break;
       case 'new-history-created':
+        setAiState('idle');
+        setSubtitleText("New Conversation Started");
+        // No need to open mic here
         if (message.history_uid) {
           setCurrentHistoryUid(message.history_uid);
           setMessages([]);
