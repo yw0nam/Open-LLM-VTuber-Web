@@ -50,10 +50,10 @@ class WebSocketService {
       type: "fetch-backgrounds"
     });
     this.sendMessage({
-      type: "fetch-configs",
+      type: "fetch-conf-schemas",
     });
     this.sendMessage({
-      type: "fetch-conf-schemas",
+      type: "fetch-conf-info"
     });
     this.sendMessage({
       type: "fetch-history-list"

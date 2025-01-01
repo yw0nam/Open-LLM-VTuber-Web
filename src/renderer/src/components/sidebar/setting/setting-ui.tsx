@@ -47,10 +47,8 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
   }, []);
 
   const handleSave = useCallback((): void => {
-    const allValid = saveHandlers.every((handler) => handler());
-    if (allValid) {
-      onClose();
-    }
+    saveHandlers.forEach((handler) => handler());
+    onClose();
   }, [saveHandlers, onClose]);
 
   const handleCancel = useCallback((): void => {
