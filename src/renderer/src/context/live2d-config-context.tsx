@@ -16,37 +16,37 @@ export interface ModelInfo {
   };
   pointerInteractive?: boolean;
 }
-interface L2DContextType {
+interface Live2DConfigContextType {
   modelInfo?: ModelInfo;
-  setModelInfo: (info: L2DContextType['modelInfo']) => void;
+  setModelInfo: (info: Live2DConfigContextType['modelInfo']) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 }
 
-export const L2DContext = createContext<L2DContextType | null>(null);
+export const Live2DConfigContext = createContext<Live2DConfigContextType | null>(null);
 
-export const L2DProvider = ({ children }: PropsWithChildren) => {
+export const Live2DConfigProvider = ({ children }: PropsWithChildren) => {
   const [modelInfo, setModelInfo] = useLocalStorage<ModelInfo | undefined>('modelInfo', undefined);
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <L2DContext.Provider value={{ 
+    <Live2DConfigContext.Provider value={{ 
       modelInfo, 
       setModelInfo,
       isLoading,
       setIsLoading
     }}>
       {children}
-    </L2DContext.Provider>
+    </Live2DConfigContext.Provider>
   );
 };
 
-export function useL2D() {
-  const context = useContext(L2DContext);
+export function useLive2DConfig() {
+  const context = useContext(Live2DConfigContext);
   if (!context) {
-    throw new Error('useL2D must be used within a L2DProvider');
+    throw new Error('useLive2DConfig must be used within a Live2DConfigProvider');
   }
   return context;
 }
 
-export default L2DProvider;
+export default Live2DConfigProvider;

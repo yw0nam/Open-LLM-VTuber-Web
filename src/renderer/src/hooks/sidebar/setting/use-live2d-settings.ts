@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ModelInfo, useL2D } from '@/context/l2d-context'
+import { ModelInfo, useLive2DConfig } from '@/context/live2d-config-context'
 import { toaster } from '@/components/ui/toaster'
 
 interface UseLive2dSettingsProps {
@@ -7,7 +7,7 @@ interface UseLive2dSettingsProps {
 }
 
 export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
-  const l2dContext = useL2D()
+  const Live2DConfigContext = useLive2DConfig()
   const [lastUpdateTime, setLastUpdateTime] = useState<number>(0)
   
   const initialModelInfo: ModelInfo = {
@@ -20,24 +20,24 @@ export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
   }
 
   const [modelInfo, setModelInfoState] = useState<ModelInfo>(
-    l2dContext?.modelInfo || initialModelInfo
+    Live2DConfigContext?.modelInfo || initialModelInfo
   )
   const [originalModelInfo, setOriginalModelInfo] = useState<ModelInfo>(
-    l2dContext?.modelInfo || initialModelInfo
+    Live2DConfigContext?.modelInfo || initialModelInfo
   )
 
   useEffect(() => {
-    if (l2dContext?.modelInfo && activeTab !== 'live2d') {
-      setOriginalModelInfo(l2dContext.modelInfo)
-      setModelInfoState(l2dContext.modelInfo)
+    if (Live2DConfigContext?.modelInfo && activeTab !== 'live2d') {
+      setOriginalModelInfo(Live2DConfigContext.modelInfo)
+      setModelInfoState(Live2DConfigContext.modelInfo)
     }
-  }, [l2dContext?.modelInfo])
+  }, [Live2DConfigContext?.modelInfo])
 
   useEffect(() => {
-    if (activeTab === 'live2d' && modelInfo && l2dContext) {
-      l2dContext.setModelInfo(modelInfo)
+    if (activeTab === 'live2d' && modelInfo && Live2DConfigContext) {
+      Live2DConfigContext.setModelInfo(modelInfo)
     }
-  }, [modelInfo, l2dContext, activeTab])
+  }, [modelInfo, Live2DConfigContext, activeTab])
 
   const handleInputChange = (key: keyof ModelInfo, value: ModelInfo[keyof ModelInfo]): void => {
     const now = Date.now()
@@ -84,16 +84,16 @@ export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
   }
 
   const handleSave = (): void => {
-    if (l2dContext && modelInfo) {
-      l2dContext.setModelInfo(modelInfo)
+    if (Live2DConfigContext && modelInfo) {
+      Live2DConfigContext.setModelInfo(modelInfo)
       setOriginalModelInfo(modelInfo)
     }
   }
 
   const handleCancel = (): void => {
     setModelInfoState(originalModelInfo)
-    if (l2dContext && originalModelInfo) {
-      l2dContext.setModelInfo(originalModelInfo)
+    if (Live2DConfigContext && originalModelInfo) {
+      Live2DConfigContext.setModelInfo(originalModelInfo)
     }
   }
 
