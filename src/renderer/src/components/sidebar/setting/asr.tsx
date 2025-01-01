@@ -1,134 +1,105 @@
-import { Stack } from '@chakra-ui/react'
+import { Stack, Text, NumberInput } from '@chakra-ui/react'
 import { Field } from '@/components/ui/field'
 import { Switch } from '@/components/ui/switch'
-import { NumberInputField, NumberInputRoot } from '@/components/ui/number-input'
-import { useASRSettings } from '@/hooks/sidebar/setting/use-asr-settings'
-import { SchemaForm } from './schema-form'
+import { useEffect } from 'react'
 import { settingStyles } from './setting-styles'
-import { useEffect, useState } from 'react'
-import { useVAD } from '@/context/vad-context'
+import { useASRSettings } from '@/hooks/sidebar/setting/use-asr-settings'
 
+// Type definitions
 interface ASRProps {
-  onSave?: (callback: () => boolean) => () => void
+  onSave?: (callback: () => void) => () => void
   onCancel?: (callback: () => void) => () => void
 }
 
+interface NumberFieldProps {
+  label: string
+  value: number | string
+  onChange: (value: string) => void
+  min?: number
+  max?: number
+}
+
+// Reusable components
+const NumberField = ({ label, value, onChange, min, max }: NumberFieldProps): JSX.Element => (
+  <Field
+    {...settingStyles.live2d.field}
+    label={<Text {...settingStyles.live2d.fieldLabel}>{label}</Text>}
+  >
+    <NumberInput.Root
+      {...settingStyles.live2d.numberInput.root}
+      value={value.toString()}
+      onValueChange={(details) => onChange(details.value)}
+      min={min}
+      max={max}
+    >
+      <NumberInput.Input {...settingStyles.live2d.numberInput.input} />
+      <NumberInput.Control>
+        <NumberInput.IncrementTrigger />
+        <NumberInput.DecrementTrigger />
+      </NumberInput.Control>
+    </NumberInput.Root>
+  </Field>
+)
+
+// Main component
 function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
   const {
-    vadSettings,
-    onVadSettingChange,
-    asrSchema,
-    asrValues,
-    onASRValueChange,
-    saveSettings,
+    localSettings,
+    voiceInterruptionOn,
+    setVoiceInterruptionOn,
+    handleInputChange,
+    handleSave,
+    handleCancel
   } = useASRSettings()
-
-  const { voiceInterruptionOn, setVoiceInterruptionOn } = useVAD();
-
-  const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   useEffect(() => {
     if (!onSave || !onCancel) return
 
-    const handleSave = () => {
-      saveSettings();
-      return true;
-    };
-
     const cleanupSave = onSave(handleSave)
+    const cleanupCancel = onCancel(handleCancel)
 
-    const cleanupCancel = onCancel(() => {
-      setErrors({})
-    })
-
-    return () => {
+    return (): void => {
       cleanupSave?.()
       cleanupCancel?.()
     }
-  }, [onSave, onCancel, saveSettings])
+  }, [onSave, onCancel, handleSave, handleCancel])
 
   return (
     <Stack {...settingStyles.live2d.container}>
-      {/* Voice Interruption Switch */}
-      <Field 
+      <Field
         {...settingStyles.live2d.field}
-        label="Voice Interruption"
+        label={<Text {...settingStyles.live2d.fieldLabel}>Voice Interruption</Text>}
       >
         <Switch
           {...settingStyles.live2d.switch}
           checked={voiceInterruptionOn}
-          onCheckedChange={({ checked }) => setVoiceInterruptionOn(checked)}
+          onCheckedChange={(details) => setVoiceInterruptionOn(details.checked)}
+          value="voice-interruption"
         />
       </Field>
 
-      {/* VAD Settings */}
-      <Field 
-        {...settingStyles.live2d.field}
+      <NumberField
         label="Speech Prob. Threshold"
-      >
-        <NumberInputRoot 
-          {...settingStyles.live2d.numberInput.root}
-          value={vadSettings.positiveSpeechThreshold.toString()}
-          onValueChange={(e) => onVadSettingChange('positiveSpeechThreshold', Number(e.value))}
-          min={1}
-          max={100}
-        >
-          <NumberInputField {...settingStyles.live2d.numberInput.input} />
-        </NumberInputRoot>
-      </Field>
+        value={localSettings.positiveSpeechThreshold}
+        onChange={(value) => handleInputChange('positiveSpeechThreshold', value)}
+        min={1}
+        max={100}
+      />
 
-      <Field 
-        {...settingStyles.live2d.field}
+      <NumberField
         label="Negative Speech Threshold"
-      >
-        <NumberInputRoot 
-          {...settingStyles.live2d.numberInput.root}
-          value={vadSettings.negativeSpeechThreshold.toString()}
-          onValueChange={(e) => onVadSettingChange('negativeSpeechThreshold', Number(e.value))}
-          min={0}
-          max={100}
-        >
-          <NumberInputField {...settingStyles.live2d.numberInput.input} />
-        </NumberInputRoot>
-      </Field>
+        value={localSettings.negativeSpeechThreshold}
+        onChange={(value) => handleInputChange('negativeSpeechThreshold', value)}
+        min={0}
+        max={100}
+      />
 
-      <Field 
-        {...settingStyles.live2d.field}
+      <NumberField
         label="Redemption Frames"
-      >
-        <NumberInputRoot 
-          {...settingStyles.live2d.numberInput.root}
-          value={vadSettings.redemptionFrames.toString()}
-          onValueChange={(e) => onVadSettingChange('redemptionFrames', Number(e.value))}
-          min={1}
-          max={100}
-        >
-          <NumberInputField {...settingStyles.live2d.numberInput.input} />
-        </NumberInputRoot>
-      </Field>
-
-      {/* ASR Model Configuration Form */}
-      <SchemaForm
-        schema={asrSchema}
-        value={asrValues}
-        onChange={onASRValueChange}
-        definitions={asrSchema.$defs}
-        errors={errors}
-        dependencies={{
-          // Define dependencies: show corresponding config when asr_model changes
-          asr_model: {
-            field: 'asr_model',
-            mapping: {
-              'faster_whisper': ['faster_whisper'],
-              'whisper_cpp': ['whisper_cpp'],
-              'whisper': ['whisper'],
-              'azure_asr': ['azure_asr'],
-              'fun_asr': ['fun_asr'],
-              'groq_whisper_asr': ['groq_whisper_asr'],
-              'sherpa_onnx_asr': ['sherpa_onnx_asr']
-            }
-          }
-        }}
+        value={localSettings.redemptionFrames}
+        onChange={(value) => handleInputChange('redemptionFrames', value)}
+        min={1}
+        max={100}
       />
     </Stack>
   )

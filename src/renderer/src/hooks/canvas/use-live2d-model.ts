@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react'
 import * as PIXI from 'pixi.js'
 import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch'
-import { ModelInfo } from '@/context/setting/live2d-context'
+import { ModelInfo } from '@/context/l2d-context'
 import { useLive2DModel as useModelContext } from '@/context/live2d-model-context'
 import { adjustModelSizeAndPosition } from './use-live2d-resize'
-import { useL2D } from '@/context/setting/live2d-context'
+import { useL2D } from '@/context/l2d-context'
 
 interface UseLive2DModelProps {
   isPet: boolean

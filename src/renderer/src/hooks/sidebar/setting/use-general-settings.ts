@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BgUrlContextState } from '@/context/setting/bgurl-context'
+import { BgUrlContextState } from '@/context/bgurl-context'
 
 interface GeneralSettings {
   language: string[]
@@ -68,12 +68,11 @@ export const useGeneralSettings = ({
     setSettings((prev) => ({ ...prev, [key]: value }))
   }
 
-  const handleSave = (): boolean => {
+  const handleSave = (): void => {
     const newBgUrl = settings.customBgUrl || settings.selectedBgUrl[0]
     if (newBgUrl && bgUrlContext) {
       setOriginalSettings({ ...settings })
     }
-    return true
   }
 
   const handleCancel = (): void => {

@@ -4,16 +4,16 @@ import Canvas from './components/canvas/canvas'
 import Sidebar from './components/sidebar/sidebar'
 import Footer from './components/footer/footer'
 import { AiStateProvider } from './context/ai-state-context'
-import { L2DProvider } from './context/setting/live2d-context'
+import { L2DProvider } from './context/l2d-context'
 import { SubtitleProvider } from './context/subtitle-context'
-import { BgUrlProvider } from './context/setting/bgurl-context'
+import { BgUrlProvider } from './context/bgurl-context'
 import { layoutStyles } from './layout'
 import WebSocketHandler from './services/websocket-handler'
 import { ResponseProvider } from './context/response-context'
 import { useState, useEffect } from 'react'
 import { CameraProvider } from './context/camera-context'
 import { ChatHistoryProvider } from './context/chat-history-context'
-import { CharacterProvider } from './context/setting/character-context'
+import { ConfigProvider } from './context/config-context'
 import { Toaster } from './components/ui/toaster'
 import { VADProvider } from './context/vad-context'
 import { Live2D } from './components/canvas/live2d'
@@ -44,7 +44,7 @@ const App: React.FC = () => {
                 <SubtitleProvider>
                   <VADProvider>
                     <BgUrlProvider>
-                      <CharacterProvider>
+                      <ConfigProvider>
                         <ChatHistoryProvider>
                           <WebSocketHandler>
                             <Toaster />
@@ -82,7 +82,7 @@ const App: React.FC = () => {
                             )}
                           </WebSocketHandler>
                         </ChatHistoryProvider>
-                      </CharacterProvider>
+                      </ConfigProvider>
                     </BgUrlProvider>
                   </VADProvider>
                 </SubtitleProvider>

@@ -1,4 +1,4 @@
-import { Input, Stack } from '@chakra-ui/react'
+import { Input, Text, Stack } from '@chakra-ui/react'
 import { Field } from '@/components/ui/field'
 import {
   SelectContent,
@@ -8,17 +8,17 @@ import {
   SelectValueText
 } from '@/components/ui/select'
 import { useEffect } from 'react'
-import { useBgUrl } from '@/context/setting/bgurl-context'
+import { useBgUrl } from '@/context/bgurl-context'
 import { settingStyles } from './setting-styles'
 import { createListCollection } from '@chakra-ui/react'
-import { useCharacter } from '@/context/setting/character-context'
+import { useConfig } from '@/context/config-context'
 import { useSwitchCharacter } from '@/hooks/utils/use-switch-character'
 import { baseUrl } from '@/context/websocket-context'
 import { useGeneralSettings } from '@/hooks/sidebar/setting/use-general-settings'
 
 // Type definitions
 interface GeneralProps {
-  onSave?: (callback: () => boolean) => () => void
+  onSave?: (callback: () => void) => () => void
   onCancel?: (callback: () => void) => () => void
 }
 
@@ -40,7 +40,7 @@ const SelectField = ({
 }: SelectFieldProps): JSX.Element => (
   <Field
     {...settingStyles.general.field}
-    label={label}
+    label={<Text {...settingStyles.general.field.label}>{label}</Text>}
   >
     <SelectRoot
       {...settingStyles.general.select.root}
@@ -65,7 +65,7 @@ const SelectField = ({
 // Data collection definition
 const useCollections = () => {
   const { backgroundFiles } = useBgUrl() || {}
-  const { configFiles } = useCharacter()
+  const { configFiles } = useConfig()
 
   const languages = createListCollection({
     items: [
@@ -98,7 +98,7 @@ const useCollections = () => {
 // Main component
 function General({ onSave, onCancel }: GeneralProps): JSX.Element {
   const bgUrlContext = useBgUrl()
-  const { confName, configFiles } = useCharacter()
+  const { confName, configFiles } = useConfig()
   const { switchCharacter } = useSwitchCharacter()
   const collections = useCollections()
   
@@ -120,7 +120,6 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
     const cleanupSave = onSave(() => {
       console.log('Saving general settings...')
       handleSave()
-      return true
     })
 
     const cleanupCancel = onCancel(() => {
@@ -165,7 +164,7 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
 
       <Field
         {...settingStyles.general.field}
-        label="Or enter a custom background URL"
+        label={<Text {...settingStyles.general.field.label}>Or enter a custom background URL</Text>}
       >
         <Input
           {...settingStyles.general.input}

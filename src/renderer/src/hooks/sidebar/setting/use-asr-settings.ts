@@ -1,54 +1,44 @@
-import { useCharacter } from "@/context/setting/character-context";
-import { useVAD } from "@/context/vad-context";
-import { set } from "lodash";
-import { useState, useEffect } from "react";
+import { useRef } from 'react'
+import { useVAD, VADSettings } from '@/context/vad-context'
+import React from 'react'
 
 export const useASRSettings = () => {
-  const { asrSchema, asrValues, setAsrValues } = useCharacter();
-  const { settings: vadSettings, updateSettings: updateVadSettings } = useVAD();
+  const { settings, updateSettings, voiceInterruptionOn, setVoiceInterruptionOn } = useVAD()
+  const localSettingsRef = useRef<VADSettings>(settings)
+  const originalSettingsRef = useRef(settings)
+  const originalVoiceInterruptionOnRef = useRef(voiceInterruptionOn)
+  const [, forceUpdate] = React.useReducer((x) => x + 1, 0)
 
-  const [tempVadSettings, setTempVadSettings] = useState(vadSettings);
-  const [tempAsrValues, setTempAsrValues] = useState(asrValues);
+  const handleInputChange = (key: keyof VADSettings, value: number | string): void => {
+    if (value === '' || value === '-') {
+      localSettingsRef.current = { ...localSettingsRef.current, [key]: value }
+    } else {
+      const parsed = Number(value)
+      if (!isNaN(parsed)) {
+        localSettingsRef.current = { ...localSettingsRef.current, [key]: parsed }
+      }
+    }
+    forceUpdate()
+  }
 
-  useEffect(() => {
-    setTempVadSettings(vadSettings);
-  }, [vadSettings]);
+  const handleSave = (): void => {
+    updateSettings(localSettingsRef.current)
+    originalSettingsRef.current = localSettingsRef.current
+    originalVoiceInterruptionOnRef.current = voiceInterruptionOn
+  }
 
-  useEffect(() => {
-    setTempAsrValues(asrValues);
-  }, [asrValues]);
-
-  const handleVadSettingChange = (key: keyof typeof vadSettings, value: any) => {
-    setTempVadSettings({
-      ...tempVadSettings,
-      [key]: value,
-    });
-  };
-
-  const handleASRValueChange = (path: string[], value: any) => {
-    const newValues = JSON.parse(JSON.stringify(tempAsrValues)); // 深拷贝
-    set(newValues, path, value);
-    setTempAsrValues(newValues);
-  };
-
-  const saveSettings = () => {
-    updateVadSettings(tempVadSettings);
-    setAsrValues(tempAsrValues);
-    return true;
-  };
-
-  const resetSettings = () => {
-    setTempVadSettings(vadSettings);
-    setTempAsrValues(asrValues);
-  };
+  const handleCancel = (): void => {
+    localSettingsRef.current = originalSettingsRef.current
+    setVoiceInterruptionOn(originalVoiceInterruptionOnRef.current)
+    forceUpdate()
+  }
 
   return {
-    vadSettings: tempVadSettings,
-    onVadSettingChange: handleVadSettingChange,
-    asrSchema,
-    asrValues: tempAsrValues,
-    onASRValueChange: handleASRValueChange,
-    saveSettings,
-    resetSettings,
-  };
-};
+    localSettings: localSettingsRef.current,
+    voiceInterruptionOn,
+    setVoiceInterruptionOn,
+    handleInputChange,
+    handleSave,
+    handleCancel
+  }
+} 

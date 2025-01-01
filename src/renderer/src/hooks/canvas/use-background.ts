@@ -1,4 +1,4 @@
-import { useBgUrl } from '@/context/setting/bgurl-context'
+import { useBgUrl } from '@/context/bgurl-context'
 import { useMemo } from 'react'
 
 export const useBackground = () => {

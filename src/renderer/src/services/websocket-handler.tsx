@@ -1,20 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { wsService } from '@/services/websocket-service';
 import { WebSocketContext } from '@/context/websocket-context';
 import { useAiState } from '@/context/ai-state-context';
-import { useL2D } from '@/context/setting/live2d-context';
+import { useL2D } from '@/context/l2d-context';
 import { useSubtitle } from '@/context/subtitle-context';
 import { audioTaskQueue } from '@/utils/task-queue';
 import { useResponse } from '@/context/response-context';
 import { useAudioTask } from '@/components/canvas/live2d';
-import { useBgUrl } from '@/context/setting/bgurl-context';
-import { useCharacter } from '@/context/setting/character-context';
+import { useBgUrl } from '@/context/bgurl-context';
+import { useConfig } from '@/context/config-context';
 import { useChatHistory } from '@/context/chat-history-context';
 import { toaster } from "@/components/ui/toaster";
 import { HistoryInfo } from '@/context/websocket-context';
 import { useVAD } from '@/context/vad-context';
 import { MessageEvent } from '@/services/websocket-service';
 import { wsUrl, baseUrl } from '@/context/websocket-context';
+import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch';
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const [wsState, setWsState] = useState<string>('CLOSED');
@@ -22,25 +23,10 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { setModelInfo } = useL2D();
   const { setSubtitleText } = useSubtitle();
   const { clearResponse } = useResponse();
+  const modelRef = useRef<Live2DModel | null>(null);
   const { addAudioTask } = useAudioTask();
   const bgUrlContext = useBgUrl();
-  const { 
-    setConfName, 
-    setConfUid, 
-    setConfigFiles, 
-    setCharacterSchema, 
-    setSystemSchema, 
-    setLlmSchema, 
-    setAsrSchema, 
-    setTtsSchema, 
-    setTranslatorSchema,
-    setSystemValues,
-    setCharacterValues,
-    setLlmValues,
-    setAsrValues,
-    setTtsValues,
-    setTranslatorValues
-  } = useCharacter();
+  const { setConfName, setConfUid, setConfigFiles } = useConfig();
   const { setCurrentHistoryUid, setMessages, setHistoryList, appendHumanMessage } = useChatHistory();
   const { startMic, stopMic } = useVAD();
 
@@ -88,7 +74,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const handleWebSocketMessage = (message: MessageEvent) => {
     console.log('Received message from server:', message);
     switch (message.type) {
-      case "control":
+      case 'control':
         if (message.text) {
           handleControlMessage(message.text);
         }
@@ -99,106 +85,91 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           const modelUrl = baseUrl + message.model_info.url; // model_info.url must begin with /
           message.model_info.url = modelUrl;
         }
-        setAiState("loading");
+        setAiState('loading');
         setModelInfo(message.model_info);
-        setAiState("idle");
+        setAiState('idle');
         break;
-      case "full-text":
+      case 'full-text':
         if (message.text) {
           setSubtitleText(message.text);
         }
         break;
-      case "config-files":
+      case 'config-files':
         if (message.configs) {
           setConfigFiles(message.configs);
         }
         break;
-      case "config-switched":
-        setAiState("idle");
+      case 'config-switched':
+        setAiState('idle');
         startMic();
 
         toaster.create({
-          title: "Character switched",
-          type: "success",
+          title: 'Character switched',
+          type: 'success',
           duration: 2000,
         });
 
-        wsService.sendMessage({ type: "fetch-conf-schemas" });
+        wsService.sendMessage({ type: "fetch-conf-info" });
         wsService.sendMessage({ type: "fetch-history-list" });
         wsService.sendMessage({ type: "create-new-history" });
         break;
-      case "background-files":
+      case 'background-files':
         if (message.files) {
           bgUrlContext?.setBackgroundFiles(message.files);
         }
         break;
-      case "audio":
+      case 'audio':
         // sendMessage({
         //   type: "fetch-history-list",
         // });
-        if (aiState === "interrupted") {
-          console.log("Audio playback intercepted. Sentence:", message.text);
+        if (aiState === 'interrupted') {
+          console.log('Audio playback intercepted. Sentence:', message.text);
         } else {
           addAudioTask({
-            audio_base64: message.audio || "",
+            audio_base64: message.audio || '',
             volumes: message.volumes || [],
             slice_length: message.slice_length || 0,
             text: message.text || null,
-            expression_list: message.expressions || null,
+            expression_list: message.expressions || null
           });
         }
         break;
-      case "conf-schemas":
-        if (message.schemas) {
-          setConfName(message.schemas.character_config.current_values.conf_name);
-          setConfUid(message.schemas.character_config.current_values.conf_uid);
-          
-          setCharacterSchema(message.schemas.character_config.schema);
-          setSystemSchema(message.schemas.system_config.schema);
-          setLlmSchema(message.schemas.llm_config.schema);
-          setAsrSchema(message.schemas.asr_config.schema);
-          setTtsSchema(message.schemas.tts_config.schema);
-          
-          setCharacterValues(message.schemas.character_config.current_values);
-          setSystemValues(message.schemas.system_config.current_values);
-          setLlmValues(message.schemas.llm_config.current_values);
-          setAsrValues(message.schemas.asr_config.current_values);
-          setTtsValues(message.schemas.tts_config.current_values);
-          
-          if (message.schemas.translator_config) {
-            setTranslatorSchema(message.schemas.translator_config.schema);
-            setTranslatorValues(message.schemas.translator_config.current_values);
-          }
+      case 'config-info':
+        if (message.conf_name) {
+          setConfName(message.conf_name);
+        }
+        if (message.conf_uid) {
+          setConfUid(message.conf_uid);
         }
         break;
-      case "history-data":
+      case 'history-data':
         if (message.messages) {
           setMessages(message.messages);
         }
         toaster.create({
-          title: "History loaded",
-          type: "success",
+          title: 'History loaded',
+          type: 'success',
           duration: 2000,
         });
         break;
-      case "new-history-created":
+      case 'new-history-created':
         if (message.history_uid) {
           setCurrentHistoryUid(message.history_uid);
           setMessages([]);
           const newHistory: HistoryInfo = {
             uid: message.history_uid,
             latest_message: null,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date().toISOString()
           };
           setHistoryList((prev: HistoryInfo[]) => [newHistory, ...prev]);
           toaster.create({
-            title: "New chat history created",
-            type: "success",
+            title: 'New chat history created',
+            type: 'success',
             duration: 2000,
           });
         }
         break;
-      case "history-deleted":
+      case 'history-deleted':
         toaster.create({
           title: message.success
             ? "History deleted successfully"
@@ -207,7 +178,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           duration: 2000,
         });
         break;
-      case "history-list":
+      case 'history-list':
         if (message.histories) {
           setHistoryList(message.histories);
           if (message.histories.length > 0) {
@@ -215,21 +186,21 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           }
         }
         break;
-      case "user-input-transcription":
+      case 'user-input-transcription':
         console.log("user-input-transcription: ", message.text);
         if (message.text) {
           appendHumanMessage(message.text);
         }
         break;
-      case "error":
+      case 'error':
         toaster.create({
           title: message.message,
-          type: "error",
+          type: 'error',
           duration: 2000,
         });
         break;
       default:
-        console.warn("Unknown message type:", message.type);
+        console.warn('Unknown message type:', message.type);
     }
   };
 

@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { Live2DModel } from "pixi-live2d-display-lipsyncpatch";
 import * as PIXI from "pixi.js";
-import { ModelInfo } from "@/context/setting/live2d-context";
+import { ModelInfo } from "@/context/l2d-context";
 
 export const useLive2DResize = (
   containerRef: React.RefObject<HTMLDivElement>,

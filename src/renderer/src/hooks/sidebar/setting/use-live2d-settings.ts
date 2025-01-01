@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ModelInfo, useL2D } from '@/context/setting/live2d-context'
+import { ModelInfo, useL2D } from '@/context/l2d-context'
 import { toaster } from '@/components/ui/toaster'
 
 interface UseLive2dSettingsProps {
@@ -83,12 +83,11 @@ export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
     })
   }
 
-  const handleSave = (): boolean => {
+  const handleSave = (): void => {
     if (l2dContext && modelInfo) {
       l2dContext.setModelInfo(modelInfo)
       setOriginalModelInfo(modelInfo)
     }
-    return true
   }
 
   const handleCancel = (): void => {
