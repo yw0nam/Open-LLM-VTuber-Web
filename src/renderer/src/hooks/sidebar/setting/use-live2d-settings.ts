@@ -40,18 +40,19 @@ export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
   }, [modelInfo, Live2DConfigContext, activeTab])
 
   const handleInputChange = (key: keyof ModelInfo, value: ModelInfo[keyof ModelInfo]): void => {
-    const now = Date.now()
-    if (now - lastUpdateTime < 500) {
-      toaster.create({
-        title: 'Please slow down',
-        description: 'Changes are being applied too quickly. Display error may occur.',
-        type: 'warning',
-        duration: 1000
-      })
-      return
-    }
+    
+    // const now = Date.now()
+    // if (now - lastUpdateTime < 200) {
+    //   toaster.create({
+    //     title: 'Please slow down',
+    //     description: 'Changes are being applied too quickly. Display error may occur.',
+    //     type: 'warning',
+    //     duration: 1000
+    //   })
+    //   return
+    // }
 
-    setLastUpdateTime(now)
+    // setLastUpdateTime(now)
     setModelInfoState((prev) => ({ ...prev, [key]: value }))
   }
 

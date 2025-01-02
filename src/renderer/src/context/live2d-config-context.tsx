@@ -24,16 +24,16 @@ export interface ModelInfo {
   url: string;
   
   /** Scale factor */
-  kScale: number;
+  kScale: number | string;
   
   /** Initial X position shift */
-  initialXshift: number;
+  initialXshift: number | string;
   
   /** Initial Y position shift */
-  initialYshift: number;
+  initialYshift: number | string;
   
   /** X-axis offset coefficient */
-  kXOffset?: number;
+  kXOffset?: number | string;
   
   /** Idle motion group name */
   idleMotionGroupName?: string;

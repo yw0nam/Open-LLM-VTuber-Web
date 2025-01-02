@@ -22,7 +22,7 @@ interface Live2dProps {
 
 interface NumberFieldProps {
   label: string;
-  value: number | undefined;
+  value: number | string | undefined;
   onChange: (value: number | string) => void;
   step?: number;
 }
@@ -43,10 +43,10 @@ const NumberField = ({
       value={value?.toString() ?? ""}
       onValueChange={(details) => {
         const val = details.value;
-        if (val === "" || val === "-") {
+        if (val === "" || val === "-" || val === "." || val === "-." || /^\d*\.?\d*$/.test(val)) {
           onChange(val);
         } else {
-          const parsed = Number(val);
+          const parsed = parseFloat(val);
           if (!isNaN(parsed)) {
             onChange(parsed);
           }

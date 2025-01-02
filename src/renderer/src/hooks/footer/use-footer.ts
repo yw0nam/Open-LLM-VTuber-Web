@@ -1,5 +1,5 @@
 import { useVAD } from '@/context/vad-context'
-import { useTextInput } from '@/hooks/footer/use-text-input'
+import { useTextInput } from "@/hooks/footer/use-text-input";
 import { useInterrupt } from '@/hooks/utils/use-interrupt'
 import { useMicToggle } from '@/hooks/utils/use-mic-toggle'
 import { ChangeEvent, KeyboardEvent } from 'react'
@@ -18,11 +18,11 @@ export const useFooter = () => {
   const { handleMicToggle, micOn } = useMicToggle()
 
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    handleChange(e as unknown as ChangeEvent<HTMLInputElement>)
+    handleChange(e)
   }
 
   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    handleKey(e as unknown as KeyboardEvent<HTMLInputElement>)
+    handleKey(e)
   }
 
   const handleInterrupt = () => {

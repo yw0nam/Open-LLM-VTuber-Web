@@ -4,6 +4,10 @@ import { Live2DModel } from "pixi-live2d-display-lipsyncpatch";
 import { ModelInfo, useLive2DConfig } from "@/context/live2d-config-context";
 import { useLive2DModel as useModelContext } from "@/context/live2d-model-context";
 import { adjustModelSizeAndPosition } from "./use-live2d-resize";
+import {
+  MotionPreloadStrategy,
+  MotionPriority,
+} from "pixi-live2d-display-lipsyncpatch";
 
 interface UseLive2DModelProps {
   isPet: boolean;
@@ -78,7 +82,9 @@ export const useLive2DModel = ({
         autoHitTest: modelInfo.pointerInteractive ?? false,
         autoFocus: modelInfo.pointerInteractive ?? false,
         autoUpdate: true,
-        ticker: PIXI.Ticker.shared
+        ticker: PIXI.Ticker.shared,
+        motionPreload: MotionPreloadStrategy.IDLE,
+        idleMotionGroup: modelInfo.idleMotionGroupName,
       });
 
       setupModel(model);
