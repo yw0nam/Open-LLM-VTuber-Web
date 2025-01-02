@@ -10,6 +10,22 @@ interface EmotionMap {
 }
 
 /**
+ * Motion weight mapping interface
+ * @interface MotionWeightMap
+ */
+export interface MotionWeightMap {
+  [key: string]: number;
+}
+
+/**
+ * Tap motion mapping interface
+ * @interface TapMotionMap
+ */
+export interface TapMotionMap {
+  [key: string]: MotionWeightMap;
+}
+
+/**
  * Live2D model information interface
  * @interface ModelInfo
  */
@@ -43,6 +59,9 @@ export interface ModelInfo {
   
   /** Enable pointer interactivity */
   pointerInteractive?: boolean;
+  
+  /** Tap motion mapping configuration */
+  tapMotions?: TapMotionMap;
 }
 
 /**

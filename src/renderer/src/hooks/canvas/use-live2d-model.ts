@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as PIXI from "pixi.js";
 import { Live2DModel } from "pixi-live2d-display-lipsyncpatch";
-import { ModelInfo, useLive2DConfig } from "@/context/live2d-config-context";
+import { ModelInfo, useLive2DConfig, MotionWeightMap, TapMotionMap } from "@/context/live2d-config-context";
 import { useLive2DModel as useModelContext } from "@/context/live2d-model-context";
 import { adjustModelSizeAndPosition } from "./use-live2d-resize";
 import {
@@ -79,7 +79,7 @@ export const useLive2DModel = ({
       setIsLoading(true);
 
       const model = await Live2DModel.from(modelInfo.url, {
-        autoHitTest: modelInfo.pointerInteractive ?? false,
+        autoHitTest: true,
         autoFocus: modelInfo.pointerInteractive ?? false,
         autoUpdate: true,
         ticker: PIXI.Ticker.shared,
@@ -138,10 +138,13 @@ export const useLive2DModel = ({
     let dragging = false;
     let pointerX = 0;
     let pointerY = 0;
+    let isTap = false;
+    const dragThreshold = 5; 
 
     model.on("pointerdown", (e) => {
       if (e.data.button === 0) {
         dragging = true;
+        isTap = true;
         pointerX = e.data.global.x - model.x;
         pointerY = e.data.global.y - model.y;
       }
@@ -149,13 +152,85 @@ export const useLive2DModel = ({
 
     model.on("pointermove", (e) => {
       if (dragging) {
-        model.position.x = e.data.global.x - pointerX;
-        model.position.y = e.data.global.y - pointerY;
+        const newX = e.data.global.x - pointerX;
+        const newY = e.data.global.y - pointerY;
+        const dx = newX - model.x;
+        const dy = newY - model.y;
+
+        if (Math.hypot(dx, dy) > dragThreshold) {
+          isTap = false; 
+        }
+
+        model.position.x = newX;
+        model.position.y = newY;
       }
     });
 
-    model.on("pointerupoutside", () => (dragging = false));
-    model.on("pointerup", () => (dragging = false));
+    const playRandomMotion = (motionGroup: MotionWeightMap) => {
+      if (!motionGroup || Object.keys(motionGroup).length === 0) return;
+      
+      const totalWeight = Object.values(motionGroup).reduce((sum, weight) => sum + weight, 0);
+      
+      let random = Math.random() * totalWeight;
+      
+      for (const [motion, weight] of Object.entries(motionGroup)) {
+        random -= weight;
+        if (random <= 0) {
+          console.log(`Playing weighted motion: ${motion} (weight: ${weight}/${totalWeight})`);
+          model.motion(motion, undefined, MotionPriority.NORMAL);
+          break;
+        }
+      }
+    };
+
+    const getMergedMotionGroup = (tapMotions: TapMotionMap): MotionWeightMap => {
+      const mergedMotions: { [key: string]: { total: number; count: number } } = {};
+      
+      Object.values(tapMotions).forEach(motionGroup => {
+        Object.entries(motionGroup).forEach(([motion, weight]) => {
+          if (!mergedMotions[motion]) {
+            mergedMotions[motion] = { total: 0, count: 0 };
+          }
+          mergedMotions[motion].total += weight;
+          mergedMotions[motion].count += 1;
+        });
+      });
+      
+      return Object.entries(mergedMotions).reduce((acc, [motion, { total, count }]) => {
+        acc[motion] = total / count;
+        return acc;
+      }, {} as MotionWeightMap);
+    };
+
+    model.on("pointerup", (e) => {
+      if (dragging) {
+        dragging = false;
+
+        if (isTap) {
+          const hitAreas = model.hitTest(e.data.global.x, e.data.global.y);
+          
+          for (const area of hitAreas) {
+            const motionGroup = modelInfo?.tapMotions?.[area];
+            if (motionGroup) {
+              console.log(`Found motion group for area ${area}:`, motionGroup);
+              playRandomMotion(motionGroup);
+              return;
+            }
+          }
+
+          if (modelInfo?.tapMotions && Object.keys(modelInfo.tapMotions).length > 0) {
+            console.log("No specific hit area found, using merged motion groups");
+            const mergedMotions = getMergedMotionGroup(modelInfo.tapMotions);
+            console.log("Merged motion groups:", mergedMotions);
+            playRandomMotion(mergedMotions);
+          }
+        }
+      }
+    });
+
+    model.on("pointerupoutside", () => {
+      dragging = false;
+    });
 
     const { width, height } = appRef.current.screen;
     adjustModelSizeAndPosition(model, width, height, modelInfo, isPet);
