@@ -8,6 +8,7 @@ import {
   MotionPreloadStrategy,
   MotionPriority,
 } from "pixi-live2d-display-lipsyncpatch";
+import { audioTaskQueue } from "@/utils/task-queue";
 
 interface UseLive2DModelProps {
   isPet: boolean;
@@ -170,14 +171,19 @@ export const useLive2DModel = ({
       if (!motionGroup || Object.keys(motionGroup).length === 0) return;
       
       const totalWeight = Object.values(motionGroup).reduce((sum, weight) => sum + weight, 0);
-      
       let random = Math.random() * totalWeight;
       
       for (const [motion, weight] of Object.entries(motionGroup)) {
         random -= weight;
         if (random <= 0) {
-          console.log(`Playing weighted motion: ${motion} (weight: ${weight}/${totalWeight})`);
-          model.motion(motion, undefined, MotionPriority.NORMAL);
+          const priority = audioTaskQueue.hasTask() ? 
+            MotionPriority.NORMAL : 
+            MotionPriority.FORCE;
+          
+          console.log(
+            `Playing weighted motion: ${motion} (weight: ${weight}/${totalWeight}, priority: ${priority})`
+          );
+          model.motion(motion, undefined, priority);
           break;
         }
       }

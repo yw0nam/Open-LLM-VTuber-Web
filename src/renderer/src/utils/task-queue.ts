@@ -35,6 +35,10 @@ export class TaskQueue {
     this.running = false;
     setTimeout(() => this.runNextTask(), this.taskInterval);
   }
+
+  public hasTask(): boolean {
+    return this.queue.length > 0;
+  }
 }
 
 export const audioTaskQueue = new TaskQueue(20); 
