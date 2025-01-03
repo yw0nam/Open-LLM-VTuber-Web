@@ -40,6 +40,10 @@ function setupIPC(): void {
       }
     }
   });
+
+  ipcMain.on("update-component-hover", (_event, componentId: string, isHovering: boolean) => {
+    windowManager.updateComponentHover(componentId, isHovering);
+  });
 }
 
 app.whenReady().then(() => {

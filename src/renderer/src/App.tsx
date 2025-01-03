@@ -17,8 +17,9 @@ import { ConfigProvider } from './context/character-config-context'
 import { Toaster } from './components/ui/toaster'
 import { VADProvider } from './context/vad-context'
 import { Live2D } from './components/canvas/live2d'
-import TitleBar from './components/title-bar'
+import TitleBar from './components/electron/title-bar'
 import { Live2DModelProvider } from './context/live2d-model-context'
+import { InputSubtitle } from './components/electron/input-subtitle'
 
 const App: React.FC = () => {
   const [showSidebar, setShowSidebar] = useState(true)
@@ -64,6 +65,7 @@ const App: React.FC = () => {
                                   <Box {...layoutStyles.mainContent}>
                                     {/* <Box {...layoutStyles.canvas}> */}
                                       <Canvas/>
+                                      {/* <InputSubtitle isPet={false} /> */}
                                     {/* </Box> */}
                                     <Box
                                       {...layoutStyles.footer}
@@ -78,7 +80,10 @@ const App: React.FC = () => {
                                 </Flex>
                               </>
                             ) : (
-                              <Live2D isPet={mode === 'pet'} />
+                              <>
+                                <Live2D isPet={mode === 'pet'} />
+                                {mode === 'pet' && <InputSubtitle isPet={mode === 'pet'} />}
+                              </>
                             )}
                           </WebSocketHandler>
                         </ChatHistoryProvider>
@@ -94,5 +99,5 @@ const App: React.FC = () => {
     </ChakraProvider>
   )
 }
-
 export default App
+

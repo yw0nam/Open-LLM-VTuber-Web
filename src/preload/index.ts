@@ -21,6 +21,14 @@ const api = {
     const handler = (_event: any) => callback()
     ipcRenderer.on('interrupt', handler)
     return () => ipcRenderer.removeListener('interrupt', handler)
+  },
+  updateComponentHover: (componentId: string, isHovering: boolean) => {
+    ipcRenderer.send('update-component-hover', componentId, isHovering)
+  },
+  onToggleInputSubtitle: (callback: () => void) => {
+    const handler = (_event: any) => callback()
+    ipcRenderer.on('toggle-input-subtitle', handler)
+    return () => ipcRenderer.removeListener('toggle-input-subtitle', handler)
   }
 }
 

@@ -9,6 +9,8 @@ declare global {
       showContextMenu: (x: number, y: number) => void
       onMicToggle: (callback: () => void) => void
       onInterrupt: (callback: () => void) => void
+      updateComponentHover: (componentId: string, isHovering: boolean) => void
+      onToggleInputSubtitle: (callback: () => void) => void
     }
   }
 }

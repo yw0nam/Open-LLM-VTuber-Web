@@ -79,48 +79,56 @@ export class MenuManager {
     this.tray.setContextMenu(contextMenu)
   }
 
+  private getContextMenuItems(event: Electron.IpcMainEvent, micOn: boolean): MenuItemConstructorOptions[] {
+    const template: MenuItemConstructorOptions[] = [
+      {
+        label: micOn ? "Turn Off Microphone" : "Turn On Microphone",
+        click: () => {
+          event.sender.send("mic-toggle");
+        },
+      },
+      {
+        label: "Interrupt",
+        click: () => {
+          event.sender.send("interrupt");
+        },
+      },
+      { type: "separator" },
+      // Only show this item in pet mode
+      ...(this.currentMode === 'pet' ? [{
+        label: "Toggle InputBox and Subtitle",
+        click: () => {
+          event.sender.send("toggle-input-subtitle");
+        },
+      }] : []),
+      { type: "separator" },
+      ...this.getModeMenuItems(),
+      { type: "separator" },
+      {
+        label: "Hide",
+        click: () => {
+          const windows = BrowserWindow.getAllWindows();
+          windows.forEach((window) => {
+            window.hide();
+          });
+        },
+      },
+      {
+        label: "Exit",
+        click: () => {
+          app.quit();
+        },
+      },
+    ];
+    return template;
+  }
+
   private setupContextMenu(): void {
     ipcMain.on('show-context-menu', (event, { micOn }) => {
-    //   console.log('Received micOn state in main process:', micOn)
       const win = BrowserWindow.fromWebContents(event.sender)
-      
       if (win) {
         const screenPoint = screen.getCursorScreenPoint()
-
-        const template: MenuItemConstructorOptions[] = [
-          {
-            label: micOn ? "Turn Off Microphone" : "Turn On Microphone",
-            click: () => {
-              event.sender.send("mic-toggle");
-            },
-          },
-          {
-            label: "Interrupt",
-            click: () => {
-              event.sender.send("interrupt");
-            },
-          },
-          { type: "separator" },
-          ...this.getModeMenuItems(),
-          { type: "separator" },
-          {
-            label: "Hide",
-            click: () => {
-              const windows = BrowserWindow.getAllWindows();
-              windows.forEach((window) => {
-                window.hide();
-              });
-            },
-          },
-          {
-            label: "Exit",
-            click: () => {
-              app.quit();
-            },
-          },
-        ];
-
-        const menu = Menu.buildFromTemplate(template)
+        const menu = Menu.buildFromTemplate(this.getContextMenuItems(event, micOn))
         menu.popup({
           window: win,
           x: Math.round(screenPoint.x),

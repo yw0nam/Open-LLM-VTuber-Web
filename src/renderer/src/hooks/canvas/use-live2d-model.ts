@@ -121,12 +121,12 @@ export const useLive2DModel = ({
 
     if (isPet) {
       model.on("pointerenter", () => {
-        window.api?.setIgnoreMouseEvents(false);
+        (window.api as any)?.updateComponentHover('live2d-model', true)
       });
 
       model.on("pointerleave", () => {
         if (!dragging) {
-          window.api?.setIgnoreMouseEvents(true);
+          (window.api as any)?.updateComponentHover('live2d-model', false)
         }
       });
 
@@ -143,18 +143,18 @@ export const useLive2DModel = ({
     const dragThreshold = 5; 
 
     model.on("pointerdown", (e) => {
-      if (e.data.button === 0) {
+      if (e.button === 0) {
         dragging = true;
         isTap = true;
-        pointerX = e.data.global.x - model.x;
-        pointerY = e.data.global.y - model.y;
+        pointerX = e.global.x - model.x;
+        pointerY = e.global.y - model.y;
       }
     });
 
     model.on("pointermove", (e) => {
       if (dragging) {
-        const newX = e.data.global.x - pointerX;
-        const newY = e.data.global.y - pointerY;
+        const newX = e.global.x - pointerX;
+        const newY = e.global.y - pointerY;
         const dx = newX - model.x;
         const dy = newY - model.y;
 
@@ -211,9 +211,11 @@ export const useLive2DModel = ({
     model.on("pointerup", (e) => {
       if (dragging) {
         dragging = false;
-
+        if (!model.containsPoint(new PIXI.Point(e.global.x, e.global.y))) {
+          (window.api as any)?.updateComponentHover('live2d-model', false)
+        }
         if (isTap) {
-          const hitAreas = model.hitTest(e.data.global.x, e.data.global.y);
+          const hitAreas = model.hitTest(e.global.x, e.global.y);
           
           for (const area of hitAreas) {
             const motionGroup = modelInfo?.tapMotions?.[area];
@@ -236,6 +238,7 @@ export const useLive2DModel = ({
 
     model.on("pointerupoutside", () => {
       dragging = false;
+      (window.api as any)?.updateComponentHover('live2d-model', false)
     });
 
     const { width, height } = appRef.current.screen;

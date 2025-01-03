@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Box, IconButton } from '@chakra-ui/react'
 import { FiMinus, FiMaximize2, FiMinimize2, FiX } from 'react-icons/fi'
-import { layoutStyles } from '../layout'
+import { layoutStyles } from '@/layout'
 
 const TitleBar = (): JSX.Element => {
   const [isMaximized, setIsMaximized] = useState(false)

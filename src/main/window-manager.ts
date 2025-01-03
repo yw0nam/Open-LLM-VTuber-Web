@@ -13,6 +13,7 @@ export class WindowManager {
     width: number;
     height: number;
   } | null = null;
+  private hoveringComponents: Set<string> = new Set()
 
   constructor() {}
 
@@ -178,7 +179,8 @@ export class WindowManager {
     if (!this.window) return;
 
     if (isMac) {
-      this.window.setIgnoreMouseEvents(ignore);
+      // this.window.setIgnoreMouseEvents(ignore);
+      this.window.setIgnoreMouseEvents(ignore, { forward: true });
     } else {
       this.window.setIgnoreMouseEvents(ignore, { forward: true });
     }
@@ -206,5 +208,22 @@ export class WindowManager {
     const bounds = this.window.getBounds();
     const { width, height } = screen.getPrimaryDisplay().workArea;
     return bounds.width >= width && bounds.height >= height;
+  }
+
+  updateComponentHover(componentId: string, isHovering: boolean): void {
+    if (isHovering) {
+      this.hoveringComponents.add(componentId)
+    } else {
+      this.hoveringComponents.delete(componentId)
+    }
+
+    if (this.window) {
+      const shouldIgnore = this.hoveringComponents.size === 0
+      if (isMac) {
+        this.window.setIgnoreMouseEvents(shouldIgnore, { forward: true })
+      } else {
+        this.window.setIgnoreMouseEvents(shouldIgnore, { forward: true })
+      }
+    }
   }
 }
