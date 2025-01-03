@@ -44,6 +44,8 @@ export function useInputSubtitle() {
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
+    console.log('handleKeyPress', e.key)
+    console.log('isComposing', isComposing)
     if (isComposing) return
 
     if (e.key === "Enter" && !e.shiftKey) {
@@ -52,8 +54,14 @@ export function useInputSubtitle() {
     }
   }
 
-  const handleCompositionStart = () => setIsComposing(true)
-  const handleCompositionEnd = () => setIsComposing(false)
+  const handleCompositionStart = () => {
+    console.log('handleCompositionStart')
+    setIsComposing(true)
+  }
+  const handleCompositionEnd = () => {
+    console.log('handleCompositionEnd')
+    setIsComposing(false)
+  }
 
   const handleInterrupt = () => {
     interrupt()

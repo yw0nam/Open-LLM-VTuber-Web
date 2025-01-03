@@ -29,16 +29,6 @@ export function useDraggable({ isPet = false, componentId }: UseDraggableProps) 
   }
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    // Skip if clicking on input elements
-    if (
-      e.target instanceof HTMLInputElement || 
-      e.target instanceof HTMLTextAreaElement ||
-      e.target instanceof HTMLButtonElement ||
-      (e.target as HTMLElement).closest('button') // For IconButton components
-    ) {
-      return
-    }
-
     setIsDragging(true)
     dragStartRef.current = {
       x: e.clientX - positionRef.current.x,
@@ -59,7 +49,7 @@ export function useDraggable({ isPet = false, componentId }: UseDraggableProps) 
     const handleMouseUp = () => {
       setIsDragging(false)
       if (isPet && !elementRef.current?.matches(':hover')) {
-        (window.api as any)?.updateComponentHover(componentId, false)
+        // (window.api as any)?.updateComponentHover(componentId, false)
       }
       document.removeEventListener('mousemove', handleMouseMove, true)
       document.removeEventListener('mouseup', handleMouseUp, true)

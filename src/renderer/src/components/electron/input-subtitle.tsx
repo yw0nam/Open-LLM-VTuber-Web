@@ -52,7 +52,7 @@ export function InputSubtitle({ isPet = false }) {
         if (isVisible) {
           handleClose()
         } else {
-          setIsVisible(true)
+          handleOpen()
         }
       })
       return () => cleanup?.()
@@ -60,12 +60,27 @@ export function InputSubtitle({ isPet = false }) {
     return () => {}
   }, [isPet, isVisible])
 
+  const handleOpen = () => {
+    setIsVisible(true)
+  }
+
   const handleClose = () => {
-    if (isPet) {
-      (window.api as any)?.updateComponentHover('input-subtitle', false)
-    }
+    // if (isPet) {
+    //   (window.api as any)?.updateComponentHover('input-subtitle', false)
+    // }
     setIsVisible(false)
   }
+
+  useEffect(() => {
+    ;(window as any).inputSubtitle = {
+      open: handleOpen,
+      close: handleClose
+    }
+
+    return () => {
+      delete (window as any).inputSubtitle
+    }
+  }, [isPet])
 
   if (!isVisible) return null
 
@@ -133,7 +148,7 @@ export function InputSubtitle({ isPet = false }) {
             <Input
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               onCompositionStart={handleCompositionStart}
               onCompositionEnd={handleCompositionEnd}
               placeholder="Type your message..."

@@ -179,8 +179,8 @@ export class WindowManager {
     if (!this.window) return;
 
     if (isMac) {
-      // this.window.setIgnoreMouseEvents(ignore);
-      this.window.setIgnoreMouseEvents(ignore, { forward: true });
+      this.window.setIgnoreMouseEvents(ignore);
+      // this.window.setIgnoreMouseEvents(ignore, { forward: true });
     } else {
       this.window.setIgnoreMouseEvents(ignore, { forward: true });
     }
@@ -220,7 +220,7 @@ export class WindowManager {
     if (this.window) {
       const shouldIgnore = this.hoveringComponents.size === 0
       if (isMac) {
-        this.window.setIgnoreMouseEvents(shouldIgnore, { forward: true })
+        this.window.setIgnoreMouseEvents(shouldIgnore)
       } else {
         this.window.setIgnoreMouseEvents(shouldIgnore, { forward: true })
       }

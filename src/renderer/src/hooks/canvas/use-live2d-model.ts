@@ -212,7 +212,7 @@ export const useLive2DModel = ({
       if (dragging) {
         dragging = false;
         if (!model.containsPoint(new PIXI.Point(e.global.x, e.global.y))) {
-          (window.api as any)?.updateComponentHover('live2d-model', false)
+          // (window.api as any)?.updateComponentHover('live2d-model', false)
         }
         if (isTap) {
           const hitAreas = model.hitTest(e.global.x, e.global.y);
@@ -238,7 +238,7 @@ export const useLive2DModel = ({
 
     model.on("pointerupoutside", () => {
       dragging = false;
-      (window.api as any)?.updateComponentHover('live2d-model', false)
+      // (window.api as any)?.updateComponentHover('live2d-model', false)
     });
 
     const { width, height } = appRef.current.screen;
