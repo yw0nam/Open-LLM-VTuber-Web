@@ -224,6 +224,9 @@ export class WindowManager {
       } else {
         this.window.setIgnoreMouseEvents(shouldIgnore, { forward: true })
       }
+      if (!shouldIgnore) {
+        this.window.setFocusable(true)
+      }
     }
   }
 }

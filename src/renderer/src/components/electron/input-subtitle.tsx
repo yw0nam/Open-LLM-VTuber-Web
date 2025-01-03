@@ -85,7 +85,7 @@ export function InputSubtitle({ isPet = false }) {
   if (!isVisible) return null
 
   return (
-    <Container
+    <Box
       ref={elementRef}
       {...inputSubtitleStyles.container}
       {...inputSubtitleStyles.draggableContainer(isDragging)}
@@ -163,6 +163,6 @@ export function InputSubtitle({ isPet = false }) {
           </Stack>
         </Box>
       </Box>
-    </Container>
+    </Box>
   )
 }

@@ -5,7 +5,7 @@ export const inputSubtitleStyles = {
     display: "flex",
     alignItems: "flex-end",
     justifyContent: "center",
-    maxW: "full",
+    maxW: "fit-content",
     position: "absolute" as const,
     bottom: "120px",
     left: "50%",
@@ -13,6 +13,7 @@ export const inputSubtitleStyles = {
     zIndex: 1000,
     userSelect: "none",
     willChange: "transform",
+    padding: 0,
   },
 
   box: {
