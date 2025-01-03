@@ -4,7 +4,6 @@ import { LuBell, LuSend, LuMic, LuMicOff, LuHand, LuX } from "react-icons/lu"
 import {
   Box,
   Button,
-  Container,
   Flex,
   Input,
   Stack,
@@ -15,7 +14,7 @@ import {
 import { useInputSubtitle } from '@/hooks/electron/use-input-subtitle'
 import { useDraggable } from '@/hooks/electron/use-draggable'
 import { inputSubtitleStyles } from './electron-style'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ChangeEvent } from 'react'
 
 export function InputSubtitle({ isPet = false }) {
   const {
@@ -147,7 +146,7 @@ export function InputSubtitle({ isPet = false }) {
           <Stack direction="row" gap="2" p="2">
             <Input
               value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
+              onChange={(e) => setInputText({ target: { value: e.target.value } } as ChangeEvent<HTMLInputElement>)}
               onKeyDown={handleKeyPress}
               onCompositionStart={handleCompositionStart}
               onCompositionEnd={handleCompositionEnd}

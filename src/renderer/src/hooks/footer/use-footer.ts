@@ -6,8 +6,8 @@ import { ChangeEvent, KeyboardEvent } from 'react'
 
 export const useFooter = () => {
   const {
-    inputValue,
-    handleInputChange: handleChange,
+    inputText: inputValue,
+    setInputText: handleChange,
     handleKeyPress: handleKey,
     handleCompositionStart,
     handleCompositionEnd
@@ -18,11 +18,11 @@ export const useFooter = () => {
   const { handleMicToggle, micOn } = useMicToggle()
 
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    handleChange(e)
+    handleChange({ target: { value: e.target.value } } as ChangeEvent<HTMLInputElement>)
   }
 
   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    handleKey(e)
+    handleKey(e as any)
   }
 
   const handleInterrupt = () => {

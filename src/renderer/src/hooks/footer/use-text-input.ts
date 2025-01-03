@@ -4,41 +4,40 @@ import { useAiState } from '@/context/ai-state-context';
 import { useInterrupt } from '@/components/canvas/live2d';
 import { useChatHistory } from '@/context/chat-history-context';
 import { useVAD } from '@/context/vad-context';
+
 export function useTextInput() {
-  const [inputValue, setInputValue] = useState('');
+  const [inputText, setInputText] = useState('');
   const [isComposing, setIsComposing] = useState(false);
   const wsContext = useWebSocket();
   const { aiState } = useAiState();
   const { interrupt } = useInterrupt();
   const { appendHumanMessage } = useChatHistory();
   const { stopMic, voiceInterruptionOn } = useVAD();
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInputValue(e.target.value);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputText(e.target.value);
   };
 
-  const handleSubmit = () => {
-    if (!inputValue.trim() || !wsContext) return;
-    if (aiState == 'thinking-speaking') {
-        interrupt();
+  const handleSend = () => {
+    if (!inputText.trim() || !wsContext) return;
+    if (aiState === 'thinking-speaking') {
+      interrupt();
     }
-    appendHumanMessage(inputValue.trim());
+    appendHumanMessage(inputText.trim());
     wsContext.sendMessage({
       type: 'text-input',
-      text: inputValue.trim()
+      text: inputText.trim()
     });
     if (!voiceInterruptionOn) stopMic();
-    setInputValue('');
+    setInputText('');
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (isComposing) return;
 
-    if (e.key === 'Enter') {
-      if (e.shiftKey) {
-        return;
-      }
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit();
+      handleSend();
     }
   };
 
@@ -46,9 +45,9 @@ export function useTextInput() {
   const handleCompositionEnd = () => setIsComposing(false);
 
   return {
-    inputValue,
-    handleInputChange,
-    handleSubmit,
+    inputText,
+    setInputText: handleInputChange,
+    handleSend,
     handleKeyPress,
     handleCompositionStart,
     handleCompositionEnd,

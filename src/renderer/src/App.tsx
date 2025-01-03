@@ -65,7 +65,7 @@ const App: React.FC = () => {
                                   <Box {...layoutStyles.mainContent}>
                                     {/* <Box {...layoutStyles.canvas}> */}
                                       <Canvas/>
-                                      <InputSubtitle isPet={false} />
+                                      {/* <InputSubtitle isPet={false} /> */}
                                     {/* </Box> */}
                                     <Box
                                       {...layoutStyles.footer}
