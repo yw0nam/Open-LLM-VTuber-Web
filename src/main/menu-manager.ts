@@ -79,10 +79,10 @@ export class MenuManager {
     this.tray.setContextMenu(contextMenu)
   }
 
-  private getContextMenuItems(event: Electron.IpcMainEvent, micOn: boolean): MenuItemConstructorOptions[] {
+  private getContextMenuItems(event: Electron.IpcMainEvent): MenuItemConstructorOptions[] {
     const template: MenuItemConstructorOptions[] = [
       {
-        label: micOn ? "Turn Off Microphone" : "Turn On Microphone",
+        label: "Toggle Microphone",
         click: () => {
           event.sender.send("mic-toggle");
         },
@@ -124,11 +124,11 @@ export class MenuManager {
   }
 
   private setupContextMenu(): void {
-    ipcMain.on('show-context-menu', (event, { micOn }) => {
+    ipcMain.on('show-context-menu', (event) => {
       const win = BrowserWindow.fromWebContents(event.sender)
       if (win) {
         const screenPoint = screen.getCursorScreenPoint()
-        const menu = Menu.buildFromTemplate(this.getContextMenuItems(event, micOn))
+        const menu = Menu.buildFromTemplate(this.getContextMenuItems(event))
         menu.popup({
           window: win,
           x: Math.round(screenPoint.x),

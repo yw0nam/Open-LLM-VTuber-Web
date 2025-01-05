@@ -20,7 +20,6 @@ interface UseLive2DModelProps {
 export const useLive2DModel = ({
   isPet,
   modelInfo,
-  micOn,
   onModelLoad,
 }: UseLive2DModelProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -132,7 +131,7 @@ export const useLive2DModel = ({
 
       model.on("rightdown", (e: any) => {
         e.data.originalEvent.preventDefault();
-        (window.api as any).showContextMenu({ micOn });
+        (window.api as any).showContextMenu();
       });
     }
 
