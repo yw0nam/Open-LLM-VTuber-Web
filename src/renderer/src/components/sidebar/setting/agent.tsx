@@ -33,7 +33,7 @@ function Agent({ onSave, onCancel }: AgentProps): JSX.Element {
       {settings.allowProactiveSpeak && (
         <Field
           {...settingStyles.common.field}
-          label={<Text {...settingStyles.common.fieldLabel}>Idle seconds allow AI to speak (s)</Text>}
+          label={<Text {...settingStyles.common.fieldLabel}>Idle seconds allow AI to speak</Text>}
         >
           <NumberInput.Root
             {...settingStyles.common.numberInput.root}

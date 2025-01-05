@@ -18,14 +18,14 @@ import { useState, useEffect } from 'react'
 
 export function InputSubtitle({ isPet = false }) {
   const {
-    inputText,
-    setInputText,
-    handleSend,
+    inputValue,
+    handleInputChange,
     handleKeyPress,
     handleCompositionStart,
     handleCompositionEnd,
     handleInterrupt,
     handleMicToggle,
+    handleSend,
     lastAIMessage,
     hasAIMessages,
     aiState,
@@ -145,8 +145,8 @@ export function InputSubtitle({ isPet = false }) {
         <Box {...inputSubtitleStyles.inputBox}>
           <Stack direction="row" gap="2" p="2">
             <Input
-              value={inputText}
-              onChange={(e) => setInputText({ target: { value: e.target.value } } as ChangeEvent<HTMLInputElement>)}
+              value={inputValue}
+              onChange={handleInputChange}
               onKeyDown={handleKeyPress}
               onCompositionStart={handleCompositionStart}
               onCompositionEnd={handleCompositionEnd}

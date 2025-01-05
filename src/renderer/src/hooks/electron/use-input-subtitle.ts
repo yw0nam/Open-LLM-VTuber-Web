@@ -2,23 +2,24 @@ import { useChatHistory } from '@/context/chat-history-context'
 import { useVAD } from '@/context/vad-context'
 import { useMicToggle } from '@/hooks/utils/use-mic-toggle'
 import { useTextInput } from '@/hooks/footer/use-text-input'
-import { useAiState } from '@/context/ai-state-context'
+import { useAiState, AiStateEnum } from '@/context/ai-state-context'
 import { useInterrupt } from '@/hooks/utils/use-interrupt'
+import { ChangeEvent, KeyboardEvent } from 'react'
 
 export function useInputSubtitle() {
   const {
-    inputText,
-    setInputText,
-    handleSend,
-    handleKeyPress,
+    inputText: inputValue,
+    setInputText: handleChange,
+    handleKeyPress: handleKey,
     handleCompositionStart,
-    handleCompositionEnd
+    handleCompositionEnd,
+    handleSend
   } = useTextInput()
 
   const { messages } = useChatHistory()
   const { startMic } = useVAD()
   const { handleMicToggle, micOn } = useMicToggle()
-  const { aiState } = useAiState()
+  const { aiState, setAiState } = useAiState()
   const { interrupt } = useInterrupt()
 
   const lastAIMessage = messages
@@ -33,10 +34,18 @@ export function useInputSubtitle() {
     startMic()
   }
 
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    handleChange({ target: { value: e.target.value } } as ChangeEvent<HTMLInputElement>)
+    setAiState(AiStateEnum.WAITING)
+  }
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    handleKey(e as any)
+  }
+
   return {
-    inputText,
-    setInputText,
-    handleSend,
+    inputValue,
+    handleInputChange,
     handleKeyPress,
     handleCompositionStart,
     handleCompositionEnd,
@@ -45,6 +54,7 @@ export function useInputSubtitle() {
     lastAIMessage,
     hasAIMessages,
     aiState,
-    micOn
+    micOn,
+    handleSend
   }
 } 
