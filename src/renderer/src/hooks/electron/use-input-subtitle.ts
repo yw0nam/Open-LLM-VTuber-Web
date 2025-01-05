@@ -14,6 +14,7 @@ export function useInputSubtitle() {
     handleCompositionStart,
     handleCompositionEnd,
     handleSend
+    
   } = useTextInput()
 
   const { messages } = useChatHistory()

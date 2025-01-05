@@ -15,39 +15,33 @@ import {
  */
 export const enum AiStateEnum {
   /**
-   * Default state when AI is not performing any action
    * - Can be triggered to speak proactively
    * - Ready to receive user input
    */
   IDLE = "idle",
 
   /**
-   * AI is processing user input and generating response
    * - Can be interrupted by user
    */
   THINKING_SPEAKING = "thinking-speaking",
 
   /**
-   * AI was interrupted during response
-   * - Triggered by sending text / speech detected / clicking interrupt button / create new chat history / switch character
+   * - Triggered by sending text / detecting speech / clicking interrupt button / creating new chat history / switching character
    * - Auto returns to IDLE after 2s
    */
   INTERRUPTED = "interrupted",
 
   /**
-   * Loading state for model/character changes
    * - Shows during initial load / character switching
    */
   LOADING = "loading",
 
   /**
-   * AI is actively listening to user speech
-   * - Microphone is active
+   * - Speech is detected
    */
   LISTENING = "listening",
 
   /**
-   * Temporary state indicating user activity
    * - Set when user is typing
    * - Auto returns to IDLE after 2s
    */
