@@ -64,9 +64,9 @@ export function InputSubtitle({ isPet = false }) {
   }
 
   const handleClose = () => {
-    // if (isPet) {
-    //   (window.api as any)?.updateComponentHover('input-subtitle', false)
-    // }
+    if (isPet) {
+      (window.api as any)?.updateComponentHover('input-subtitle', false)
+    }
     setIsVisible(false)
   }
 

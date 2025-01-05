@@ -129,6 +129,8 @@ export class WindowManager {
       });
     }
 
+    this.window?.setIgnoreMouseEvents(false, { forward: false });
+
     this.window.webContents.send("mode-changed", "window");
   }
 
