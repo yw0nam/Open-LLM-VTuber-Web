@@ -63,16 +63,16 @@ app.whenReady().then(() => {
     return false;
   });
 
-  globalShortcut.register("F12", () => {
-    const window = windowManager.getWindow();
-    if (!window) return;
+  // globalShortcut.register("F12", () => {
+  //   const window = windowManager.getWindow();
+  //   if (!window) return;
 
-    if (window.webContents.isDevToolsOpened()) {
-      window.webContents.closeDevTools();
-    } else {
-      window.webContents.openDevTools();
-    }
-  });
+  //   if (window.webContents.isDevToolsOpened()) {
+  //     window.webContents.closeDevTools();
+  //   } else {
+  //     window.webContents.openDevTools();
+  //   }
+  // });
 
   setupIPC();
 

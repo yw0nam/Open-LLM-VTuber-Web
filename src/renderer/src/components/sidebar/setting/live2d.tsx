@@ -35,11 +35,11 @@ const NumberField = ({
   step = 1,
 }: NumberFieldProps): JSX.Element => (
   <Field
-    {...settingStyles.live2d.field}
-    label={<Text {...settingStyles.live2d.fieldLabel}>{label}</Text>}
+    {...settingStyles.common.field}
+    label={<Text {...settingStyles.common.fieldLabel}>{label}</Text>}
   >
     <NumberInput.Root
-      {...settingStyles.live2d.numberInput.root}
+      {...settingStyles.common.numberInput.root}
       value={value?.toString() ?? ""}
       onValueChange={(details) => {
         const val = details.value;
@@ -55,7 +55,7 @@ const NumberField = ({
       step={step}
       allowMouseWheel
     >
-      <NumberInput.Input {...settingStyles.live2d.numberInput.input} />
+      <NumberInput.Input {...settingStyles.common.numberInput.input} />
       <NumberInput.Control>
         <NumberInput.IncrementTrigger />
         <NumberInput.DecrementTrigger />
@@ -77,19 +77,19 @@ const EmotionMapEntry = ({
 }): JSX.Element => (
   <HStack {...settingStyles.live2d.emotionMap.entry}>
     <Input
-      {...settingStyles.live2d.input}
+      {...settingStyles.common.input}
       value={emotionKey}
       onChange={(e) => onChange(e.target.value, value)}
       placeholder="Emotion Name"
     />
     <NumberInput.Root
-      {...settingStyles.live2d.numberInput.root}
+      {...settingStyles.common.numberInput.root}
       value={value?.toString() ?? ""}
       onValueChange={(details) => onChange(emotionKey, details.value)}
       step={1}
       allowMouseWheel
     >
-      <NumberInput.Input {...settingStyles.live2d.numberInput.input} />
+      <NumberInput.Input {...settingStyles.common.numberInput.input} />
       <NumberInput.Control>
         <NumberInput.IncrementTrigger />
         <NumberInput.DecrementTrigger />
@@ -129,29 +129,26 @@ function Live2d({ onSave, onCancel, activeTab }: Live2dProps): JSX.Element {
   }, [onSave, onCancel, handleSave, handleCancel]);
 
   return (
-    <Stack {...settingStyles.live2d.container}>
+    <Stack {...settingStyles.common.container}>
       <Field
-        {...settingStyles.live2d.field}
-        label={
-          <Text {...settingStyles.live2d.fieldLabel}>Pointer Interactive</Text>
-        }
+        {...settingStyles.common.field}
+        label={<Text {...settingStyles.common.fieldLabel}>Pointer Interactive</Text>}
       >
         <Switch
-          {...settingStyles.live2d.switch}
+          {...settingStyles.common.switch}
           checked={modelInfo.pointerInteractive ?? false}
           onCheckedChange={(details) =>
             handleInputChange("pointerInteractive", details.checked)
           }
-          value="pointer-interactive"
         />
       </Field>
 
       <Field
-        {...settingStyles.live2d.field}
-        label={<Text {...settingStyles.live2d.fieldLabel}>Model URL</Text>}
+        {...settingStyles.common.field}
+        label={<Text {...settingStyles.common.fieldLabel}>Model URL</Text>}
       >
         <Input
-          {...settingStyles.live2d.input}
+          {...settingStyles.common.input}
           value={modelInfo.url || ""}
           onChange={(e) => handleInputChange("url", e.target.value)}
           placeholder="Please enter the model URL"

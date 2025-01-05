@@ -28,6 +28,11 @@ interface CameraContextState {
   stopCamera: () => void;
   cameraConfig: CameraConfig;
   setCameraConfig: (config: CameraConfig) => void;
+  videoRef: React.RefObject<HTMLVideoElement>;
+  backgroundStream: MediaStream | null;
+  startBackgroundCamera: () => Promise<void>;
+  stopBackgroundCamera: () => void;
+  isBackgroundStreaming: boolean;
 }
 
 /**
@@ -51,14 +56,27 @@ const CameraContext = createContext<CameraContextState | null>(null);
 export function CameraProvider({ children }: { children: ReactNode }) {
   // State management
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isBackgroundStreaming, setIsBackgroundStreaming] = useState(false);
   const [cameraConfig, setCameraConfig] = useState<CameraConfig>(
     DEFAULT_CAMERA_CONFIG
   );
   const streamRef = useRef<MediaStream | null>(null);
+  const backgroundStreamRef = useRef<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // Start camera stream
   const startCamera = useCallback(async () => {
     try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera API is not supported on this device');
+      }
+
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasCamera = devices.some(device => device.kind === 'videoinput');
+      if (!hasCamera) {
+        throw new Error('No camera found on this device');
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: cameraConfig.width },
@@ -67,8 +85,10 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       });
 
       streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
       setIsStreaming(true);
-      // startStreamingToBackend(stream);
     } catch (err) {
       console.error("Failed to start camera:", err);
       throw err;
@@ -85,6 +105,41 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const startBackgroundCamera = useCallback(async () => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera API is not supported on this device')
+      }
+
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      const hasCamera = devices.some(device => device.kind === 'videoinput')
+      if (!hasCamera) {
+        throw new Error('No camera found on this device')
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: cameraConfig.width },
+          height: { ideal: cameraConfig.height },
+        },
+      })
+
+      backgroundStreamRef.current = stream
+      setIsBackgroundStreaming(true)
+    } catch (err) {
+      console.error("Failed to start background camera:", err)
+      throw err
+    }
+  }, [cameraConfig])
+
+  const stopBackgroundCamera = useCallback(() => {
+    if (backgroundStreamRef.current) {
+      backgroundStreamRef.current.getTracks().forEach((track) => track.stop())
+      backgroundStreamRef.current = null
+      setIsBackgroundStreaming(false)
+    }
+  }, [])
+
   // Memoized context value
   const contextValue = useMemo(
     () => ({
@@ -94,8 +149,13 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       stopCamera,
       cameraConfig,
       setCameraConfig,
+      videoRef,
+      backgroundStream: backgroundStreamRef.current,
+      startBackgroundCamera,
+      stopBackgroundCamera,
+      isBackgroundStreaming,
     }),
-    [isStreaming, startCamera, stopCamera, cameraConfig]
+    [isStreaming, startCamera, stopCamera, cameraConfig, isBackgroundStreaming, startBackgroundCamera, stopBackgroundCamera]
   );
 
   return (

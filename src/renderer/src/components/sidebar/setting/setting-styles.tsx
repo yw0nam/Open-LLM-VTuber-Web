@@ -130,12 +130,7 @@ export const settingStyles = {
       color: "gray.600",
     },
   },
-  live2d: {
-    container: {
-      gap: 8,
-      maxW: "sm",
-      css: { "--field-label-width": "120px" },
-    },
+  common: {
     field: {
       orientation: "horizontal" as const,
     },
@@ -144,13 +139,10 @@ export const settingStyles = {
       color: "whiteAlpha.800",
       whiteSpace: "nowrap" as const,
     },
-    input: {
-      flex: 1,
-      bg: "whiteAlpha.100",
-      borderColor: "whiteAlpha.200",
-      _hover: {
-        bg: "whiteAlpha.200",
-      },
+    switch: {
+      size: "md" as const,
+      colorPalette: "blue" as const,
+      variant: "solid" as const,
     },
     numberInput: {
       root: {
@@ -164,6 +156,25 @@ export const settingStyles = {
           bg: "whiteAlpha.200",
         },
       },
+    },
+    container: {
+      gap: 8,
+      maxW: "sm",
+      css: { "--field-label-width": "120px" },
+    },
+    input: {
+      bg: "whiteAlpha.100",
+      borderColor: "whiteAlpha.200",
+      _hover: {
+        bg: "whiteAlpha.200",
+      },
+    },
+  },
+  live2d: {
+    container: {
+      gap: 8,
+      maxW: "sm",
+      css: { "--field-label-width": "120px" },
     },
     emotionMap: {
       title: {
@@ -180,11 +191,6 @@ export const settingStyles = {
       deleteButton: {
         colorPalette: "red",
       },
-    },
-    switch: {
-      size: "md" as const,
-      colorPalette: "blue" as const,
-      variant: "solid" as const,
     },
   },
 };

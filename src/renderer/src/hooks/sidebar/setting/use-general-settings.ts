@@ -7,6 +7,7 @@ interface GeneralSettings {
   selectedBgUrl: string[]
   backgroundUrl: string
   selectedCharacterPreset: string[]
+  useCameraBackground: boolean;
 }
 
 interface UseGeneralSettingsProps {
@@ -34,7 +35,8 @@ export const useGeneralSettings = ({
       : '',
     selectedBgUrl: getCurrentBgKey(),
     backgroundUrl: bgUrlContext?.backgroundUrl || '',
-    selectedCharacterPreset: []
+    selectedCharacterPreset: [],
+    useCameraBackground: bgUrlContext?.useCameraBackground || false,
   }
 
   const [settings, setSettings] = useState<GeneralSettings>(initialSettings)

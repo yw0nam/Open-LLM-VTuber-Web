@@ -1,7 +1,10 @@
 import React, { useContext } from 'react';
 import { wsService } from '@/services/websocket-service';
-export const wsUrl = "ws://127.0.0.1:12393/client-ws";
-export const baseUrl = "http://127.0.0.1:12393";
+export const wsUrl = "ws://192.168.1.97:12393/client-ws";
+export const baseUrl = "http://192.168.1.97:12393";
+
+// export const wsUrl = "ws://127.0.0.1:12393/client-ws";
+// export const baseUrl = "http://127.0.0.1:12393";
 
 export interface HistoryInfo {
   uid: string;

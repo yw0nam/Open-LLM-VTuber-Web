@@ -1,37 +1,49 @@
 import { Box, Image } from '@chakra-ui/react'
 import { canvasStyles } from './canvas-styles'
-import { useBackground } from '@/hooks/canvas/use-background'
-import { memo } from 'react'
+import { memo, useEffect, useRef } from 'react'
+import { useCamera } from '@/context/camera-context'
+import { useBgUrl } from '@/context/bgurl-context'
 
-// Type definitions
-interface BackgroundProps {
-  children?: React.ReactNode
-}
+const Background = memo(({ children }: { children?: React.ReactNode }) => {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const { backgroundStream, isBackgroundStreaming, startBackgroundCamera, stopBackgroundCamera } = useCamera()
+  const { useCameraBackground, backgroundUrl } = useBgUrl()
 
-interface BackgroundImageProps {
-  url: string
-}
+  useEffect(() => {
+    if (useCameraBackground) {
+      startBackgroundCamera()
+    } else {
+      stopBackgroundCamera()
+    }
+  }, [useCameraBackground, startBackgroundCamera, stopBackgroundCamera])
 
-// Reusable components
-const BackgroundImage = memo(({ url }: BackgroundImageProps) => (
-  <Image 
-    src={url} 
-    alt="Background" 
-    {...canvasStyles.background.image} 
-  />
-))
-
-BackgroundImage.displayName = 'BackgroundImage'
-
-// Main component
-const Background = memo(({ children }: BackgroundProps): JSX.Element | null => {
-  const { backgroundUrl, isLoaded } = useBackground()
-
-  if (!isLoaded) return null
+  useEffect(() => {
+    if (videoRef.current && backgroundStream) {
+      videoRef.current.srcObject = backgroundStream
+    }
+  }, [backgroundStream])
 
   return (
     <Box {...canvasStyles.background.container}>
-      {backgroundUrl && <BackgroundImage url={backgroundUrl} />}
+      {useCameraBackground ? (
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          style={{
+            ...canvasStyles.background.video,
+            display: isBackgroundStreaming ? 'block' : 'none',
+            transform: 'scaleX(-1)'
+          }}
+        />
+      ) : (
+        <Image
+          {...canvasStyles.background.image}
+          src={backgroundUrl}
+          alt="background"
+        />
+      )}
       {children}
     </Box>
   )

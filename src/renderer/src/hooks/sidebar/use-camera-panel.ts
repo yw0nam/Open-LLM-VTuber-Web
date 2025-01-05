@@ -16,7 +16,11 @@ export const useCameraPanel = () => {
       }
       setError('')
     } catch (error) {
-      setError(`Unable to access camera: ${error}`)
+      let errorMessage = 'Unable to access camera'
+      if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      setError(errorMessage)
     }
   }
 

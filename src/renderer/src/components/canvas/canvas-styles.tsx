@@ -15,6 +15,16 @@ export const canvasStyles = {
       height: '100%',
       objectFit: 'cover',
       zIndex: 1
+    },
+    video: {
+      position: 'absolute' as const,
+      top: '0',
+      left: '0',
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover' as const,
+      zIndex: 1,
+      transform: 'scaleX(-1)' as const
     }
   },
   canvas: {

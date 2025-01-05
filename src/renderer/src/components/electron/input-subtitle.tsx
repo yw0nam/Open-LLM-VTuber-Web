@@ -14,7 +14,7 @@ import {
 import { useInputSubtitle } from '@/hooks/electron/use-input-subtitle'
 import { useDraggable } from '@/hooks/electron/use-draggable'
 import { inputSubtitleStyles } from './electron-style'
-import { useState, useEffect, ChangeEvent } from 'react'
+import { useState, useEffect } from 'react'
 
 export function InputSubtitle({ isPet = false }) {
   const {

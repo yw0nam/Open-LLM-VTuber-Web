@@ -15,6 +15,8 @@ import { useConfig } from '@/context/character-config-context'
 import { useSwitchCharacter } from '@/hooks/utils/use-switch-character'
 import { baseUrl } from '@/context/websocket-context'
 import { useGeneralSettings } from '@/hooks/sidebar/setting/use-general-settings'
+import { useCamera } from '@/context/camera-context'
+import { Switch } from "@/components/ui/switch"
 
 // Type definitions
 interface GeneralProps {
@@ -97,6 +99,8 @@ const useCollections = () => {
 
 // Main component
 function General({ onSave, onCancel }: GeneralProps): JSX.Element {
+  const { useCameraBackground, setUseCameraBackground } = useBgUrl()
+  const { startBackgroundCamera, stopBackgroundCamera } = useCamera()
   const bgUrlContext = useBgUrl()
   const { confName, configFiles } = useConfig()
   const { switchCharacter } = useSwitchCharacter()
@@ -144,8 +148,22 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
     }
   }
 
+  const handleCameraToggle = async (checked: boolean) => {
+    setUseCameraBackground(checked)
+    if (checked) {
+      try {
+        await startBackgroundCamera()
+      } catch (error) {
+        console.error('Failed to start camera:', error)
+        setUseCameraBackground(false)
+      }
+    } else {
+      stopBackgroundCamera()
+    }
+  }
+
   return (
-    <Stack {...settingStyles.general.container}>
+    <Stack {...settingStyles.common.container}>
       <SelectField
         label="Language"
         value={settings.language}
@@ -154,25 +172,40 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
         placeholder="Select language"
       />
 
-      <SelectField
-        label="Background Image"
-        value={settings.selectedBgUrl}
-        onChange={(value) => handleSettingChange('selectedBgUrl', value)}
-        collection={collections.backgrounds}
-        placeholder="Select from available backgrounds"
-      />
-
       <Field
-        {...settingStyles.general.field}
-        label={<Text {...settingStyles.general.field.label}>Or enter a custom background URL</Text>}
+        {...settingStyles.common.field}
+        label={<Text {...settingStyles.common.fieldLabel}>Use Camera Background</Text>}
       >
-        <Input
-          {...settingStyles.general.input}
-          placeholder="Enter image URL"
-          value={settings.customBgUrl}
-          onChange={(e) => handleSettingChange('customBgUrl', e.target.value)}
+        <Switch
+          {...settingStyles.common.switch}
+          checked={useCameraBackground}
+          onCheckedChange={({ checked }) => handleCameraToggle(checked)}
         />
       </Field>
+
+      {!useCameraBackground && (
+        <>
+          <SelectField
+            label="Background Image"
+            value={settings.selectedBgUrl}
+            onChange={(value) => handleSettingChange('selectedBgUrl', value)}
+            collection={collections.backgrounds}
+            placeholder="Select from available backgrounds"
+          />
+
+          <Field
+            {...settingStyles.general.field}
+            label={<Text {...settingStyles.general.field.label}>Or enter a custom background URL</Text>}
+          >
+            <Input
+              {...settingStyles.general.input}
+              placeholder="Enter image URL"
+              value={settings.customBgUrl}
+              onChange={(e) => handleSettingChange('customBgUrl', e.target.value)}
+            />
+          </Field>
+        </>
+      )}
 
       <SelectField
         label="Character Preset"

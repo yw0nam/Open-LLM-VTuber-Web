@@ -247,5 +247,13 @@ export const sidebarStyles = {
       overflow: "hidden",
       transition: "all 0.2s",
     },
+    video: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover' as const,
+      transform: 'scaleX(-1)',
+      borderRadius: '8px',
+      display: 'block',
+    } as const,
   },
 };

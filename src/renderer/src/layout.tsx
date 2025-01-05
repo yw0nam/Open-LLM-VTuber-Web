@@ -1,18 +1,30 @@
 const isElectron = window.api !== undefined
+
+// 添加一个辅助函数来处理移动端高度
+const getAppHeight = () => {
+  // 移动端使用 window.innerHeight 来获取实际可视高度
+  if (typeof window !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent)) {
+    return `${window.innerHeight}px`
+  }
+  // 桌面端保持原来的逻辑
+  return isElectron ? 'calc(100vh - 30px)' : '100vh'
+}
+
 export const layoutStyles = {
   appContainer: {
     width: '100vw',
-    height: isElectron ? 'calc(100vh - 30px)' : '100vh',
+    height: getAppHeight(),
     bg: 'gray.900',
     color: 'white',
     overflow: 'hidden',
     position: 'relative',
-    display: 'flex'
+    display: 'flex',
+    flexDirection: { base: 'column', md: 'row' } // 移动端改为纵向布局
   },
   sidebar: {
     position: 'relative' as const,
-    width: '440px',
-    height: '100%',
+    width: { base: '100%', md: '440px' }, // 移动端宽度100%
+    height: { base: 'auto', md: '100%' }, // 移动端高度自适应
     bg: 'gray.800',
     borderRight: '1px solid',
     borderColor: 'whiteAlpha.200',
@@ -22,7 +34,7 @@ export const layoutStyles = {
   },
   mainContent: {
     flex: 1,
-    height: '100%',
+    height: { base: 'calc(100% - 120px)', md: '100%' }, // 移动端减去footer高度
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
@@ -40,7 +52,7 @@ export const layoutStyles = {
   },
   footer: {
     width: '100%',
-    height: '120px',
+    height: { base: '100px', md: '120px' }, // 移动端稍微降低高度
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     willChange: 'transform',
     position: 'relative',
@@ -73,7 +85,7 @@ export const layoutStyles = {
     zIndex: 10
   },
   collapsedFooter: {
-    height: '24px',
+    height: { base: '20px', md: '24px' }, // 移动端收起时更小
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   },
   windowsTitleBar: {

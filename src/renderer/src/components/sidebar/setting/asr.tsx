@@ -22,17 +22,17 @@ interface NumberFieldProps {
 // Reusable components
 const NumberField = ({ label, value, onChange, min, max }: NumberFieldProps): JSX.Element => (
   <Field
-    {...settingStyles.live2d.field}
-    label={<Text {...settingStyles.live2d.fieldLabel}>{label}</Text>}
+    {...settingStyles.common.field}
+    label={<Text {...settingStyles.common.fieldLabel}>{label}</Text>}
   >
     <NumberInput.Root
-      {...settingStyles.live2d.numberInput.root}
+      {...settingStyles.common.numberInput.root}
       value={value.toString()}
       onValueChange={(details) => onChange(details.value)}
       min={min}
       max={max}
     >
-      <NumberInput.Input {...settingStyles.live2d.numberInput.input} />
+      <NumberInput.Input {...settingStyles.common.numberInput.input} />
       <NumberInput.Control>
         <NumberInput.IncrementTrigger />
         <NumberInput.DecrementTrigger />
@@ -65,16 +65,15 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
   }, [onSave, onCancel, handleSave, handleCancel])
 
   return (
-    <Stack {...settingStyles.live2d.container}>
+    <Stack {...settingStyles.common.container}>
       <Field
-        {...settingStyles.live2d.field}
-        label={<Text {...settingStyles.live2d.fieldLabel}>Voice Interruption</Text>}
+        {...settingStyles.common.field}
+        label={<Text {...settingStyles.common.fieldLabel}>Voice Interruption</Text>}
       >
         <Switch
-          {...settingStyles.live2d.switch}
+          {...settingStyles.common.switch}
           checked={voiceInterruptionOn}
           onCheckedChange={(details) => setVoiceInterruptionOn(details.checked)}
-          value="voice-interruption"
         />
       </Field>
 
