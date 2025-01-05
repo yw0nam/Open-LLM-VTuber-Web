@@ -14,10 +14,10 @@ import { CloseButton } from "@/components/ui/close-button";
 
 import { settingStyles } from "./setting-styles";
 import General from "./general";
-import Live2d from "./live2d";
+import Live2D from "./live2d";
 import ASR from "./asr";
 import TTS from "./tts";
-import LLM from "./llm";
+import Agent from "./agent";
 import About from "./about";
 import { useState, useMemo, useCallback } from "react";
 
@@ -66,7 +66,7 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
           />
         </Tabs.Content>
         <Tabs.Content value="live2d" {...settingStyles.settingUI.tabs.content}>
-          <Live2d
+          <Live2D
             onSave={handleSaveCallback}
             onCancel={handleCancelCallback}
             activeTab={activeTab}
@@ -78,8 +78,11 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
         <Tabs.Content value="tts" {...settingStyles.settingUI.tabs.content}>
           <TTS />
         </Tabs.Content>
-        <Tabs.Content value="llm" {...settingStyles.settingUI.tabs.content}>
-          <LLM />
+        <Tabs.Content value="agent" {...settingStyles.settingUI.tabs.content}>
+          <Agent 
+            onSave={handleSaveCallback}
+            onCancel={handleCancelCallback}
+          />
         </Tabs.Content>
         <Tabs.Content value="about" {...settingStyles.settingUI.tabs.content}>
           <About />
@@ -115,7 +118,7 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
             onValueChange={(details) => setActiveTab(details.value)}
             {...settingStyles.settingUI.tabs.root}
           >
-            <Tabs.List>
+            <Tabs.List {...settingStyles.settingUI.tabs.list}>
               <Tabs.Trigger
                 value="general"
                 {...settingStyles.settingUI.tabs.trigger}
@@ -126,7 +129,7 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
                 value="live2d"
                 {...settingStyles.settingUI.tabs.trigger}
               >
-                Live2d
+                Live2D
               </Tabs.Trigger>
               <Tabs.Trigger
                 value="asr"
@@ -141,10 +144,10 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
                 TTS
               </Tabs.Trigger>
               <Tabs.Trigger
-                value="llm"
+                value="agent"
                 {...settingStyles.settingUI.tabs.trigger}
               >
-                LLM
+                Agent
               </Tabs.Trigger>
               <Tabs.Trigger
                 value="about"

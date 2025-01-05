@@ -14,7 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { useLive2dSettings } from "@/hooks/sidebar/setting/use-live2d-settings";
 
 // Type definitions
-interface Live2dProps {
+interface live2DProps {
   onSave?: (callback: () => void) => () => void;
   onCancel?: (callback: () => void) => () => void;
   activeTab: string;
@@ -105,7 +105,7 @@ const EmotionMapEntry = ({
 );
 
 // Main component
-function Live2d({ onSave, onCancel, activeTab }: Live2dProps): JSX.Element {
+function live2D({ onSave, onCancel, activeTab }: live2DProps): JSX.Element {
   const {
     modelInfo,
     handleInputChange,
@@ -206,4 +206,4 @@ function Live2d({ onSave, onCancel, activeTab }: Live2dProps): JSX.Element {
   );
 }
 
-export default Live2d;
+export default live2D;

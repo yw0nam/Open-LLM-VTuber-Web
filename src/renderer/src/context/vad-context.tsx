@@ -153,6 +153,7 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
     if (aiStateRef.current === "thinking-speaking") {
       interruptRef.current();
     }
+    setAiStateRef.current("listening");
   }, []);
 
   /**

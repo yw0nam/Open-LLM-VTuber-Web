@@ -49,6 +49,15 @@ export const settingStyles = {
           color: "white",
         },
       },
+      list: {
+        display: "flex",
+        justifyContent: "flex-start",
+        width: "100%",
+        borderBottom: "1px solid",
+        borderColor: "whiteAlpha.200",
+        mb: 4,
+        pl: 0,
+      },
     },
     footer: {
       width: "100%",
