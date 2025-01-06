@@ -27,7 +27,6 @@ export const enum AiStateEnum {
 
   /**
    * - Triggered by sending text / detecting speech / clicking interrupt button / creating new chat history / switching character
-   * - Auto returns to IDLE after 2s
    */
   INTERRUPTED = "interrupted",
 
@@ -83,7 +82,7 @@ export function AiStateProvider({ children }: { children: ReactNode }) {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const setAiState = useCallback((newState: AiState) => {
-    if (newState === AiStateEnum.INTERRUPTED || newState === AiStateEnum.WAITING) {
+    if (newState === AiStateEnum.WAITING) {
       setAiStateInternal(newState);
 
       if (timerRef.current) {

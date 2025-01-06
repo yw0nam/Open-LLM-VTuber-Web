@@ -20,6 +20,7 @@ export const useInterrupt = () => {
       text: fullResponse
     })
     setAiState('interrupted')
+    audioTaskQueue.clearQueue();
     if (currentModel) {
       currentModel.stopSpeaking()
     }
@@ -30,7 +31,6 @@ export const useInterrupt = () => {
     if (subtitleText == "Thinking...") {
       setSubtitleText("");
     }
-    audioTaskQueue.clearQueue()
     console.log('Interrupted!')
   }
 

@@ -36,51 +36,10 @@ export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
     if (activeTab === 'live2d' && modelInfo && Live2DConfigContext) {
       Live2DConfigContext.setModelInfo(modelInfo)
     }
-  }, [modelInfo,activeTab])
+  }, [activeTab])
 
   const handleInputChange = (key: keyof ModelInfo, value: ModelInfo[keyof ModelInfo]): void => {
-    
-    // const now = Date.now()
-    // if (now - lastUpdateTime < 200) {
-    //   toaster.create({
-    //     title: 'Please slow down',
-    //     description: 'Changes are being applied too quickly. Display error may occur.',
-    //     type: 'warning',
-    //     duration: 1000
-    //   })
-    //   return
-    // }
-
-    // setLastUpdateTime(now)
     setModelInfoState((prev) => ({ ...prev, [key]: value }))
-  }
-
-  const handleEmotionMapAdd = (): void => {
-    setModelInfoState((prev) => ({
-      ...prev,
-      emotionMap: { ...prev.emotionMap, '': 0 }
-    }))
-  }
-
-  const handleEmotionMapRemove = (key: string): void => {
-    setModelInfoState((prev) => {
-      const updatedEmotionMap = { ...prev.emotionMap }
-      delete updatedEmotionMap[key]
-      return { ...prev, emotionMap: updatedEmotionMap }
-    })
-  }
-
-  const handleEmotionMapChange = (
-    key: string,
-    newKey: string,
-    value: number | string
-  ): void => {
-    setModelInfoState((prev) => {
-      const newEmotionMap = { ...prev.emotionMap }
-      delete newEmotionMap[key]
-      newEmotionMap[newKey] = value
-      return { ...prev, emotionMap: newEmotionMap }
-    })
   }
 
   const handleSave = (): void => {
@@ -100,9 +59,6 @@ export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
   return {
     modelInfo,
     handleInputChange,
-    handleEmotionMapAdd,
-    handleEmotionMapRemove,
-    handleEmotionMapChange,
     handleSave,
     handleCancel
   }
