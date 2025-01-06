@@ -1,19 +1,20 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useCallback } from 'react'
 import { useChatHistory } from '@/context/chat-history-context'
+import { Message } from '@/types/message'
 
-export const useChatHistoryPanel = () => {
+export function useChatHistoryPanel() {
   const { messages } = useChatHistory()
   const messageListRef = useRef<HTMLDivElement>(null)
 
-  // Auto scroll to bottom when new messages arrive
-  useEffect(() => {
+  const handleMessageUpdate = useCallback((message: Message) => {
     if (messageListRef.current) {
       messageListRef.current.scrollTop = messageListRef.current.scrollHeight
     }
-  }, [messages])
+  }, [])
 
   return {
     messages,
-    messageListRef
+    messageListRef,
+    handleMessageUpdate
   }
 } 

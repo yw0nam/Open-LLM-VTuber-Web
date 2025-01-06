@@ -14,10 +14,12 @@ import { toaster } from "@/components/ui/toaster";
 import { HistoryInfo } from '@/context/websocket-context';
 import { useVAD } from '@/context/vad-context';
 import { MessageEvent } from '@/services/websocket-service';
-import { wsUrl, baseUrl } from '@/context/websocket-context';
+import { defaultWsUrl, defaultBaseUrl } from '@/context/websocket-context';
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const [wsState, setWsState] = useState<string>('CLOSED');
+  const [wsUrl, setWsUrl] = useState(defaultWsUrl);
+  const [baseUrl, setBaseUrl] = useState(defaultBaseUrl);
   const { aiState, setAiState } = useAiState();
   const { setModelInfo } = useLive2DConfig();
   const { setSubtitleText } = useSubtitle();
@@ -38,7 +40,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       stateSubscription.unsubscribe();
       messageSubscription.unsubscribe();
     };
-  }, []);
+  }, [wsUrl]);
 
   const handleControlMessage = (controlText: string) => {
     switch (controlText) {
@@ -210,6 +212,10 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
     sendMessage: wsService.sendMessage.bind(wsService),
     wsState,
     reconnect: () => wsService.connect(wsUrl),
+    wsUrl,
+    setWsUrl,
+    baseUrl,
+    setBaseUrl,
   };
 
   return (

@@ -84,15 +84,23 @@ export const sidebarStyles = {
       flex: 1,
       overflow: "hidden",
       px: 4,
+      display: "flex",
+      flexDirection: "column",
     },
     title: commonStyles.title,
     messageList: {
       ...commonStyles.panel,
       p: 4,
       width: "97%",
-      height: "400px",
+      flex: 1,
       overflowY: "auto",
-      css: commonStyles.scrollbar,
+      css: {
+        ...commonStyles.scrollbar,
+        scrollPaddingBottom: "1rem",
+      },
+      display: "flex",
+      flexDirection: "column",
+      gap: 2,
     },
   },
 
@@ -129,6 +137,9 @@ export const sidebarStyles = {
       _hover: {
         bg: "whiteAlpha.50",
       },
+      py: 1,
+      px: 2,
+      borderRadius: "md",
     },
     message: {
       maxW: "90%",

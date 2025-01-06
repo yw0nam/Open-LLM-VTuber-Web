@@ -120,7 +120,6 @@ export function AiStateProvider({ children }: { children: ReactNode }) {
     setAiState(AiStateEnum.IDLE);
   }, [setAiState]);
 
-  // 组件卸载时清理计时器
   useEffect(() => {
     return () => {
       if (timerRef.current) {

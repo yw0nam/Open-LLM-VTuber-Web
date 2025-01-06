@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BgUrlContextState } from '@/context/bgurl-context'
+import { defaultBaseUrl, defaultWsUrl } from '@/context/websocket-context'
 
 interface GeneralSettings {
   language: string[]
@@ -7,19 +8,27 @@ interface GeneralSettings {
   selectedBgUrl: string[]
   backgroundUrl: string
   selectedCharacterPreset: string[]
-  useCameraBackground: boolean;
+  useCameraBackground: boolean
+  wsUrl: string
+  baseUrl: string
 }
 
 interface UseGeneralSettingsProps {
   bgUrlContext: BgUrlContextState | null
   confName: string | undefined
   baseUrl: string
+  wsUrl: string
+  onWsUrlChange: (url: string) => void
+  onBaseUrlChange: (url: string) => void
 }
 
 export const useGeneralSettings = ({
   bgUrlContext,
   confName,
-  baseUrl
+  baseUrl,
+  wsUrl,
+  onWsUrlChange,
+  onBaseUrlChange
 }: UseGeneralSettingsProps) => {
   const getCurrentBgKey = (): string[] => {
     if (!bgUrlContext?.backgroundUrl) return []
@@ -37,6 +46,8 @@ export const useGeneralSettings = ({
     backgroundUrl: bgUrlContext?.backgroundUrl || '',
     selectedCharacterPreset: [],
     useCameraBackground: bgUrlContext?.useCameraBackground || false,
+    wsUrl: wsUrl || defaultWsUrl,
+    baseUrl: baseUrl || defaultBaseUrl,
   }
 
   const [settings, setSettings] = useState<GeneralSettings>(initialSettings)
@@ -68,6 +79,13 @@ export const useGeneralSettings = ({
     value: GeneralSettings[keyof GeneralSettings]
   ): void => {
     setSettings((prev) => ({ ...prev, [key]: value }))
+    
+    // 处理 URL 变更
+    if (key === 'wsUrl') {
+      onWsUrlChange(value as string)
+    } else if (key === 'baseUrl') {
+      onBaseUrlChange(value as string)
+    }
   }
 
   const handleSave = (): void => {

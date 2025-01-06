@@ -13,10 +13,10 @@ import { settingStyles } from './setting-styles'
 import { createListCollection } from '@chakra-ui/react'
 import { useConfig } from '@/context/character-config-context'
 import { useSwitchCharacter } from '@/hooks/utils/use-switch-character'
-import { baseUrl } from '@/context/websocket-context'
 import { useGeneralSettings } from '@/hooks/sidebar/setting/use-general-settings'
 import { useCamera } from '@/context/camera-context'
 import { Switch } from "@/components/ui/switch"
+import { useWebSocket } from '@/context/websocket-context'
 
 // Type definitions
 interface GeneralProps {
@@ -105,6 +105,7 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
   const { confName, configFiles } = useConfig()
   const { switchCharacter } = useSwitchCharacter()
   const collections = useCollections()
+  const { wsUrl, setWsUrl, baseUrl, setBaseUrl } = useWebSocket()
   
   const {
     settings,
@@ -114,7 +115,10 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
   } = useGeneralSettings({
     bgUrlContext,
     confName,
-    baseUrl
+    baseUrl,
+    wsUrl,
+    onWsUrlChange: setWsUrl,
+    onBaseUrlChange: setBaseUrl
   })
 
   // Save and cancel side effects
@@ -214,6 +218,30 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
         collection={collections.characterPresets}
         placeholder={confName || 'Select character preset'}
       />
+
+      <Field
+        {...settingStyles.general.field}
+        label={<Text {...settingStyles.general.field.label}>WebSocket URL</Text>}
+      >
+        <Input
+          {...settingStyles.general.input}
+          placeholder="Enter WebSocket URL"
+          value={settings.wsUrl}
+          onChange={(e) => handleSettingChange('wsUrl', e.target.value)}
+        />
+      </Field>
+
+      <Field
+        {...settingStyles.general.field}
+        label={<Text {...settingStyles.general.field.label}>Base URL</Text>}
+      >
+        <Input
+          {...settingStyles.general.input}
+          placeholder="Enter Base URL"
+          value={settings.baseUrl}
+          onChange={(e) => handleSettingChange('baseUrl', e.target.value)}
+        />
+      </Field>
     </Stack>
   )
 }

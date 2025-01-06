@@ -72,10 +72,11 @@ export function ChatHistoryProvider({ children }: { children: React.ReactNode })
       const lastMessage = prevMessages[prevMessages.length - 1];
 
       if (lastMessage && lastMessage.role === "ai") {
-        // Update existing AI message
+        // Update existing AI message with new ID to trigger re-render
         const updatedMessage = {
           ...lastMessage,
           content: lastMessage.content + content,
+          id: Date.now().toString(),
         };
         const updatedMessages = [...prevMessages];
         updatedMessages[updatedMessages.length - 1] = updatedMessage;

@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { wsService } from '@/services/websocket-service';
-export const wsUrl = "ws://127.0.0.1:12393/client-ws";
-export const baseUrl = "http://127.0.0.1:12393";
+
+const DEFAULT_WS_URL = "ws://127.0.0.1:12393/client-ws";
+const DEFAULT_BASE_URL = "http://127.0.0.1:12393";
 
 export interface HistoryInfo {
   uid: string;
@@ -17,12 +18,20 @@ interface WebSocketContextProps {
   sendMessage: (message: object) => void;
   wsState: string;
   reconnect: () => void;
+  wsUrl: string;
+  setWsUrl: (url: string) => void;
+  baseUrl: string;
+  setBaseUrl: (url: string) => void;
 }
 
 export const WebSocketContext = React.createContext<WebSocketContextProps>({
   sendMessage: wsService.sendMessage.bind(wsService),
   wsState: 'CLOSED',
-  reconnect: () => wsService.connect('ws://127.0.0.1:12393/client-ws'),
+  reconnect: () => wsService.connect(DEFAULT_WS_URL),
+  wsUrl: DEFAULT_WS_URL,
+  setWsUrl: () => {},
+  baseUrl: DEFAULT_BASE_URL,
+  setBaseUrl: () => {},
 });
 
 export function useWebSocket() {
@@ -32,3 +41,6 @@ export function useWebSocket() {
   }
   return context;
 }
+
+export const defaultWsUrl = DEFAULT_WS_URL;
+export const defaultBaseUrl = DEFAULT_BASE_URL;
