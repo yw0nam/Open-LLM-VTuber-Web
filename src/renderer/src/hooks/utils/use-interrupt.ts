@@ -1,6 +1,6 @@
 import { useAiState } from '@/context/ai-state-context'
 import { useWebSocket } from '@/context/websocket-context'
-import { useResponse } from '@/context/response-context'
+import { useChatHistory } from '@/context/chat-history-context'
 import { audioTaskQueue } from '@/utils/task-queue'
 import { useLive2DModel } from '@/context/live2d-model-context'
 import { useSubtitle } from '@/context/subtitle-context';
@@ -8,7 +8,7 @@ import { useSubtitle } from '@/context/subtitle-context';
 export const useInterrupt = () => {
   const { aiState, setAiState } = useAiState()
   const { sendMessage } = useWebSocket()
-  const { fullResponse, clearResponse } = useResponse()
+  const { fullResponse, clearResponse } = useChatHistory()
   const { currentModel } = useLive2DModel()
   const { subtitleText, setSubtitleText } = useSubtitle();
   const interrupt = () => {

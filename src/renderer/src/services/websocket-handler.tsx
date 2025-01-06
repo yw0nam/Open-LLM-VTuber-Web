@@ -5,7 +5,6 @@ import { useAiState } from '@/context/ai-state-context';
 import { useLive2DConfig } from '@/context/live2d-config-context';
 import { useSubtitle } from '@/context/subtitle-context';
 import { audioTaskQueue } from '@/utils/task-queue';
-import { useResponse } from '@/context/response-context';
 import { useAudioTask } from '@/components/canvas/live2d';
 import { useBgUrl } from '@/context/bgurl-context';
 import { useConfig } from '@/context/character-config-context';
@@ -23,7 +22,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { aiState, setAiState } = useAiState();
   const { setModelInfo } = useLive2DConfig();
   const { setSubtitleText } = useSubtitle();
-  const { clearResponse } = useResponse();
+  const { clearResponse } = useChatHistory();
   const { addAudioTask } = useAudioTask();
   const bgUrlContext = useBgUrl();
   const { setConfName, setConfUid, setConfigFiles } = useConfig();

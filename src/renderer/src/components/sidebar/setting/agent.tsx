@@ -1,9 +1,7 @@
-import { Stack, Text } from '@chakra-ui/react'
-import { Field } from '@/components/ui/field'
-import { Switch } from '@/components/ui/switch'
-import { NumberInput } from '@chakra-ui/react'
+import { Stack } from '@chakra-ui/react'
 import { settingStyles } from './setting-styles'
 import { useAgentSettings } from '@/hooks/sidebar/setting/use-agent-settings'
+import { SwitchField, NumberField } from './common'
 
 interface AgentProps {
   onSave?: (callback: () => void) => () => void
@@ -19,37 +17,21 @@ function Agent({ onSave, onCancel }: AgentProps): JSX.Element {
 
   return (
     <Stack {...settingStyles.common.container}>
-      <Field
-        {...settingStyles.common.field}
-        label={<Text {...settingStyles.common.fieldLabel}>Allow AI to Speak Proactively</Text>}
-      >
-        <Switch
-          {...settingStyles.common.switch}
-          checked={settings.allowProactiveSpeak}
-          onCheckedChange={(details) => handleAllowProactiveSpeakChange(details.checked)}
-        />
-      </Field>
+      <SwitchField
+        label="Allow AI to Speak Proactively"
+        checked={settings.allowProactiveSpeak}
+        onChange={handleAllowProactiveSpeakChange}
+      />
 
       {settings.allowProactiveSpeak && (
-        <Field
-          {...settingStyles.common.field}
-          label={<Text {...settingStyles.common.fieldLabel}>Idle seconds allow AI to speak</Text>}
-        >
-          <NumberInput.Root
-            {...settingStyles.common.numberInput.root}
-            value={settings.idleSecondsToSpeak.toString()}
-            onValueChange={(details) => handleIdleSecondsChange(Number(details.value))}
-            min={0}
-            step={0.1}
-            allowMouseWheel
-          >
-            <NumberInput.Input {...settingStyles.common.numberInput.input} />
-            <NumberInput.Control>
-              <NumberInput.IncrementTrigger />
-              <NumberInput.DecrementTrigger />
-            </NumberInput.Control>
-          </NumberInput.Root>
-        </Field>
+        <NumberField
+          label="Idle seconds allow AI to speak"
+          value={settings.idleSecondsToSpeak}
+          onChange={(value) => handleIdleSecondsChange(Number(value))}
+          min={0}
+          step={0.1}
+          allowMouseWheel
+        />
       )}
     </Stack>
   )

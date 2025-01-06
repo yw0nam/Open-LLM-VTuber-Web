@@ -9,7 +9,6 @@ import { SubtitleProvider } from "./context/subtitle-context";
 import { BgUrlProvider } from "./context/bgurl-context";
 import { layoutStyles } from "./layout";
 import WebSocketHandler from "./services/websocket-handler";
-import { ResponseProvider } from "./context/response-context";
 import { useState, useEffect } from "react";
 import { CameraProvider } from "./context/camera-context";
 import { ChatHistoryProvider } from "./context/chat-history-context";
@@ -51,7 +50,7 @@ const App: React.FC = () => {
     <ChakraProvider value={defaultSystem}>
       <Live2DModelProvider>
         <CameraProvider>
-          <ResponseProvider>
+          <ChatHistoryProvider>
             <AiStateProvider>
               <ProactiveSpeakProvider>
                 <CharacterConfigProvider>
@@ -59,56 +58,54 @@ const App: React.FC = () => {
                     <SubtitleProvider>
                       <VADProvider>
                         <BgUrlProvider>
-                          <ChatHistoryProvider>
-                            <WebSocketHandler>
-                              <Toaster />
-                              {mode === "window" ? (
-                                <>
-                                  {isElectron && <TitleBar />}
-                                  <Flex {...layoutStyles.appContainer}>
+                          <WebSocketHandler>
+                            <Toaster />
+                            {mode === "window" ? (
+                              <>
+                                {isElectron && <TitleBar />}
+                                <Flex {...layoutStyles.appContainer}>
+                                  <Box
+                                    {...layoutStyles.sidebar}
+                                    {...(!showSidebar && { width: "24px" })}
+                                  >
+                                    <Sidebar
+                                      isCollapsed={!showSidebar}
+                                      onToggle={() =>
+                                        setShowSidebar(!showSidebar)
+                                      }
+                                    />
+                                  </Box>
+                                  <Box {...layoutStyles.mainContent}>
+                                    {/* <Box {...layoutStyles.canvas}> */}
+                                    <Canvas />
+                                    {/* <InputSubtitle isPet={false} /> */}
+                                    {/* </Box> */}
                                     <Box
-                                      {...layoutStyles.sidebar}
-                                      {...(!showSidebar && { width: "24px" })}
+                                      {...layoutStyles.footer}
+                                      {...(isFooterCollapsed &&
+                                        layoutStyles.collapsedFooter)}
                                     >
-                                      <Sidebar
-                                        isCollapsed={!showSidebar}
+                                      <Footer
+                                        isCollapsed={isFooterCollapsed}
                                         onToggle={() =>
-                                          setShowSidebar(!showSidebar)
+                                          setIsFooterCollapsed(
+                                            !isFooterCollapsed
+                                          )
                                         }
                                       />
                                     </Box>
-                                    <Box {...layoutStyles.mainContent}>
-                                      {/* <Box {...layoutStyles.canvas}> */}
-                                      <Canvas />
-                                      {/* <InputSubtitle isPet={false} /> */}
-                                      {/* </Box> */}
-                                      <Box
-                                        {...layoutStyles.footer}
-                                        {...(isFooterCollapsed &&
-                                          layoutStyles.collapsedFooter)}
-                                      >
-                                        <Footer
-                                          isCollapsed={isFooterCollapsed}
-                                          onToggle={() =>
-                                            setIsFooterCollapsed(
-                                              !isFooterCollapsed
-                                            )
-                                          }
-                                        />
-                                      </Box>
-                                    </Box>
-                                  </Flex>
-                                </>
-                              ) : (
-                                <>
-                                  <Live2D isPet={mode === "pet"} />
-                                  {mode === "pet" && (
-                                    <InputSubtitle isPet={mode === "pet"} />
-                                  )}
-                                </>
-                              )}
-                            </WebSocketHandler>
-                          </ChatHistoryProvider>
+                                  </Box>
+                                </Flex>
+                              </>
+                            ) : (
+                              <>
+                                <Live2D isPet={mode === "pet"} />
+                                {mode === "pet" && (
+                                  <InputSubtitle isPet={mode === "pet"} />
+                                )}
+                              </>
+                            )}
+                          </WebSocketHandler>
                         </BgUrlProvider>
                       </VADProvider>
                     </SubtitleProvider>
@@ -116,7 +113,7 @@ const App: React.FC = () => {
                 </CharacterConfigProvider>
               </ProactiveSpeakProvider>
             </AiStateProvider>
-          </ResponseProvider>
+          </ChatHistoryProvider>
         </CameraProvider>
       </Live2DModelProvider>
     </ChakraProvider>

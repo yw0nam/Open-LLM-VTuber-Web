@@ -18,6 +18,10 @@ interface ChatHistoryState {
   ) => void;
   setCurrentHistoryUid: (uid: string | null) => void;
   updateHistoryList: (uid: string, latestMessage: Message | null) => void;
+  fullResponse: string;
+  setFullResponse: (text: string) => void;
+  appendResponse: (text: string) => void;
+  clearResponse: () => void;
 }
 
 /**
@@ -27,6 +31,7 @@ const DEFAULT_HISTORY = {
   messages: [] as Message[],
   historyList: [] as HistoryInfo[],
   currentHistoryUid: null as string | null,
+  fullResponse: "",
 };
 
 /**
@@ -48,6 +53,7 @@ export function ChatHistoryProvider({ children }: { children: React.ReactNode })
   const [currentHistoryUid, setCurrentHistoryUid] = useState<string | null>(
     DEFAULT_HISTORY.currentHistoryUid
   );
+  const [fullResponse, setFullResponse] = useState(DEFAULT_HISTORY.fullResponse);
 
   /**
    * Append a human message to the chat history
@@ -130,6 +136,14 @@ export function ChatHistoryProvider({ children }: { children: React.ReactNode })
     [currentHistoryUid]
   );
 
+  const appendResponse = useCallback((text: string) => {
+    setFullResponse((prev) => prev + (text || ""));
+  }, []);
+
+  const clearResponse = useCallback(() => {
+    setFullResponse(DEFAULT_HISTORY.fullResponse);
+  }, []);
+
   // Memoized context value
   const contextValue = useMemo(
     () => ({
@@ -142,6 +156,10 @@ export function ChatHistoryProvider({ children }: { children: React.ReactNode })
       setHistoryList,
       setCurrentHistoryUid,
       updateHistoryList,
+      fullResponse,
+      setFullResponse,
+      appendResponse,
+      clearResponse,
     }),
     [
       messages,
@@ -150,6 +168,9 @@ export function ChatHistoryProvider({ children }: { children: React.ReactNode })
       appendHumanMessage,
       appendAIMessage,
       updateHistoryList,
+      fullResponse,
+      appendResponse,
+      clearResponse,
     ]
   );
 

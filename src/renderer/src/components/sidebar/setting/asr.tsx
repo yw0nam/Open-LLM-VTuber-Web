@@ -1,47 +1,14 @@
-import { Stack, Text, NumberInput } from '@chakra-ui/react'
-import { Field } from '@/components/ui/field'
-import { Switch } from '@/components/ui/switch'
+import { Stack } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { settingStyles } from './setting-styles'
 import { useASRSettings } from '@/hooks/sidebar/setting/use-asr-settings'
+import { SwitchField, NumberField } from './common'
 
-// Type definitions
 interface ASRProps {
   onSave?: (callback: () => void) => () => void
   onCancel?: (callback: () => void) => () => void
 }
 
-interface NumberFieldProps {
-  label: string
-  value: number | string
-  onChange: (value: string) => void
-  min?: number
-  max?: number
-}
-
-// Reusable components
-const NumberField = ({ label, value, onChange, min, max }: NumberFieldProps): JSX.Element => (
-  <Field
-    {...settingStyles.common.field}
-    label={<Text {...settingStyles.common.fieldLabel}>{label}</Text>}
-  >
-    <NumberInput.Root
-      {...settingStyles.common.numberInput.root}
-      value={value.toString()}
-      onValueChange={(details) => onChange(details.value)}
-      min={min}
-      max={max}
-    >
-      <NumberInput.Input {...settingStyles.common.numberInput.input} />
-      <NumberInput.Control>
-        <NumberInput.IncrementTrigger />
-        <NumberInput.DecrementTrigger />
-      </NumberInput.Control>
-    </NumberInput.Root>
-  </Field>
-)
-
-// Main component
 function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
   const {
     localSettings,
@@ -66,16 +33,11 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
 
   return (
     <Stack {...settingStyles.common.container}>
-      <Field
-        {...settingStyles.common.field}
-        label={<Text {...settingStyles.common.fieldLabel}>Voice Interruption</Text>}
-      >
-        <Switch
-          {...settingStyles.common.switch}
-          checked={voiceInterruptionOn}
-          onCheckedChange={(details) => setVoiceInterruptionOn(details.checked)}
-        />
-      </Field>
+      <SwitchField
+        label="Voice Interruption"
+        checked={voiceInterruptionOn}
+        onChange={setVoiceInterruptionOn}
+      />
 
       <NumberField
         label="Speech Prob. Threshold"

@@ -1,9 +1,8 @@
-import { Stack, Text } from '@chakra-ui/react'
-import { Field } from '@/components/ui/field'
-import { Switch } from "@/components/ui/switch"
+import { Stack } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { settingStyles } from './setting-styles'
 import { useLive2dSettings } from '@/hooks/sidebar/setting/use-live2d-settings'
+import { SwitchField } from './common'
 
 interface live2DProps {
   onSave?: (callback: () => void) => () => void
@@ -32,31 +31,17 @@ function live2D({ onSave, onCancel }: live2DProps): JSX.Element {
 
   return (
     <Stack {...settingStyles.common.container}>
-      <Field
-        {...settingStyles.common.field}
-        label={<Text {...settingStyles.common.fieldLabel}>Pointer Interactive</Text>}
-      >
-        <Switch
-          {...settingStyles.common.switch}
-          checked={modelInfo.pointerInteractive ?? false}
-          onCheckedChange={(details) =>
-            handleInputChange("pointerInteractive", details.checked)
-          }
-        />
-      </Field>
+      <SwitchField
+        label="Pointer Interactive"
+        checked={modelInfo.pointerInteractive ?? false}
+        onChange={(checked) => handleInputChange("pointerInteractive", checked)}
+      />
 
-      <Field
-        {...settingStyles.common.field}
-        label={<Text {...settingStyles.common.fieldLabel}>Enable Scroll to Resize</Text>}
-      >
-        <Switch
-          {...settingStyles.common.switch}
-          checked={modelInfo.scrollToResize ?? true}
-          onCheckedChange={(details) =>
-            handleInputChange("scrollToResize", details.checked)
-          }
-        />
-      </Field>
+      <SwitchField
+        label="Enable Scroll to Resize"
+        checked={modelInfo.scrollToResize ?? true}
+        onChange={(checked) => handleInputChange("scrollToResize", checked)}
+      />
     </Stack>
   );
 }

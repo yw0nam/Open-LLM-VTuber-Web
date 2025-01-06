@@ -1,7 +1,6 @@
 import { useRef } from 'react'
 import { useAiState } from '@/context/ai-state-context'
 import { useSubtitle } from '@/context/subtitle-context'
-import { useResponse } from '@/context/response-context'
 import { useChatHistory } from '@/context/chat-history-context'
 import { audioTaskQueue } from '@/utils/task-queue'
 import { useLive2DModel } from '@/context/live2d-model-context'
@@ -17,8 +16,7 @@ interface AudioTaskOptions {
 export const useAudioTask = () => {
   const { aiState } = useAiState()
   const { setSubtitleText } = useSubtitle()
-  const { appendResponse } = useResponse()
-  const { appendAIMessage } = useChatHistory()
+  const { appendResponse, appendAIMessage } = useChatHistory()
   const { currentModel } = useLive2DModel()
   
   const stateRef = useRef({
