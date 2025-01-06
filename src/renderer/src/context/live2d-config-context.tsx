@@ -158,7 +158,6 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
   const updateModelScale = (newScale: number) => {
     if (modelInfo) {
       const storageKey = getStorageKey(confUid, isPet);
-      // 更新scale记忆
       setScaleMemory(prev => ({
         ...prev,
         [storageKey]: Number(newScale.toFixed(8))

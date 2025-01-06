@@ -77,7 +77,7 @@ export const Live2D = memo(({ isPet }: Live2DProps): JSX.Element => {
     });
 
     return () => unsubscribe?.();
-  }, [isPet]);
+  }, [isPet, switchCharacter]);
 
   // Export these hooks for global use
   useInterrupt();

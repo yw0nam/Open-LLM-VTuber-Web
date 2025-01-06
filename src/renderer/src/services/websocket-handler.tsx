@@ -120,9 +120,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         }
         break;
       case 'audio':
-        // sendMessage({
-        //   type: "fetch-history-list",
-        // });
         if (aiState == "interrupted" || aiState == "listening") {
           console.log('Audio playback intercepted. Sentence:', message.text);
         } else {

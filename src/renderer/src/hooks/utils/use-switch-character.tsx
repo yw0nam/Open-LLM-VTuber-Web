@@ -7,12 +7,20 @@ import { useSubtitle } from '@/context/subtitle-context';
 import { useAiState } from '@/context/ai-state-context';
 export function useSwitchCharacter() {
   const { sendMessage } = useWebSocket();
-  const { configFiles } = useConfig();
+  const { confName, getFilenameByName } = useConfig();
   const { interrupt } = useInterrupt();
   const { stopMic } = useVAD();
   const { setSubtitleText } = useSubtitle();
   const { setAiState } = useAiState();
+
   const switchCharacter = useCallback((fileName: string) => {
+    const currentFilename = getFilenameByName(confName);
+    
+    if (currentFilename === fileName) {
+      console.log("Skipping character switch - same configuration file");
+      return;
+    }
+    
     setSubtitleText("New Character Loading...");
     interrupt();
     stopMic();
@@ -22,7 +30,7 @@ export function useSwitchCharacter() {
       file: fileName
     });
     console.log("Switch Character fileName: ", fileName);
-  }, [configFiles, sendMessage]);
+  }, [confName, getFilenameByName, sendMessage, interrupt, stopMic, setSubtitleText, setAiState]);
 
   return { switchCharacter };
 }

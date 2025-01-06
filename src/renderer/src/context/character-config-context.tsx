@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useEffect } from "react";
+import { createContext, useContext, useMemo, useEffect, useCallback } from "react";
 import { useLocalStorage } from "@/hooks/utils/use-local-storage";
 
 /**
@@ -21,6 +21,7 @@ interface CharacterConfigState {
   setConfName: (name: string) => void;
   setConfUid: (uid: string) => void;
   setConfigFiles: (files: ConfigFile[]) => void;
+  getFilenameByName: (name: string) => string | undefined;
 }
 
 /**
@@ -57,6 +58,10 @@ export function CharacterConfigProvider({ children }: { children: React.ReactNod
     DEFAULT_CONFIG.configFiles
   );
 
+  const getFilenameByName = useCallback((name: string) => {
+    return configFiles.find(config => config.name === name)?.filename;
+  }, [configFiles]);
+
   // Memoized context value
   const contextValue = useMemo(
     () => ({
@@ -66,8 +71,9 @@ export function CharacterConfigProvider({ children }: { children: React.ReactNod
       setConfName,
       setConfUid,
       setConfigFiles,
+      getFilenameByName,
     }),
-    [confName, confUid, configFiles, setConfName, setConfUid, setConfigFiles]
+    [confName, confUid, configFiles, setConfName, setConfUid, setConfigFiles, getFilenameByName]
   );
 
   useEffect(() => {

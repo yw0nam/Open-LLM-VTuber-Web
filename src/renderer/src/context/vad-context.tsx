@@ -194,9 +194,9 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
     console.log("VAD misfire detected");
     setPreviousTriggeredProbability(0);
     
-    // if (aiStateRef.current === "interrupted") {
-    //   setAiStateRef.current("idle");
-    // }
+    if (aiStateRef.current === "interrupted" || aiStateRef.current === "listening") {
+      setAiStateRef.current("idle");
+    }
     setSubtitleTextRef.current("The LLM can't hear you.");
   }, []);
 

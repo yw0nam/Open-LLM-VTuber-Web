@@ -102,7 +102,7 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
   const { useCameraBackground, setUseCameraBackground } = useBgUrl()
   const { startBackgroundCamera, stopBackgroundCamera } = useCamera()
   const bgUrlContext = useBgUrl()
-  const { confName, configFiles } = useConfig()
+  const { confName, configFiles, getFilenameByName } = useConfig()
   const { switchCharacter } = useSwitchCharacter()
   const collections = useCollections()
   const { wsUrl, setWsUrl, baseUrl, setBaseUrl } = useWebSocket()
@@ -143,12 +143,18 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
 
   // Preset change handler
   const handleCharacterPresetChange = (value: string[]): void => {
-    const selectedFilename = value[0]
-    const selectedConfig = configFiles.find(config => config.filename === selectedFilename)
+    const selectedFilename = value[0];
+    const selectedConfig = configFiles.find(config => config.filename === selectedFilename);
+    const currentFilename = getFilenameByName(confName);
+    
+    handleSettingChange('selectedCharacterPreset', value);
+    
+    if (currentFilename === selectedFilename) {
+      return;
+    }
     
     if (selectedConfig && selectedConfig.name !== confName) {
-      switchCharacter(selectedFilename)
-      handleSettingChange('selectedCharacterPreset', value)
+      switchCharacter(selectedFilename);
     }
   }
 
