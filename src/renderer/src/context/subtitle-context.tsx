@@ -10,6 +10,12 @@ interface SubtitleState {
   
   /** Set subtitle text */
   setSubtitleText: (text: string) => void
+
+  /** Whether to show subtitle */
+  showSubtitle: boolean
+
+  /** Toggle subtitle visibility */
+  setShowSubtitle: (show: boolean) => void
 }
 
 /**
@@ -35,14 +41,17 @@ export const SubtitleContext = createContext<SubtitleState | null>(null)
 export const SubtitleProvider = memo(({ children }: { children: React.ReactNode }) => {
   // State management
   const [subtitleText, setSubtitleText] = useState<string>(DEFAULT_SUBTITLE.text)
+  const [showSubtitle, setShowSubtitle] = useState<boolean>(true)
 
   // Memoized context value
   const contextValue = useMemo(
     () => ({
       subtitleText,
       setSubtitleText,
+      showSubtitle,
+      setShowSubtitle
     }),
-    [subtitleText]
+    [subtitleText, showSubtitle]
   )
 
   return (

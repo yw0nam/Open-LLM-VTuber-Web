@@ -7,14 +7,11 @@ import {
   SelectTrigger,
   SelectValueText
 } from '@/components/ui/select'
-import { useEffect } from 'react'
 import { useBgUrl } from '@/context/bgurl-context'
 import { settingStyles } from './setting-styles'
 import { createListCollection } from '@chakra-ui/react'
 import { useConfig } from '@/context/character-config-context'
-import { useSwitchCharacter } from '@/hooks/utils/use-switch-character'
 import { useGeneralSettings } from '@/hooks/sidebar/setting/use-general-settings'
-import { useCamera } from '@/context/camera-context'
 import { Switch } from "@/components/ui/switch"
 import { useWebSocket } from '@/context/websocket-context'
 
@@ -99,78 +96,28 @@ const useCollections = () => {
 
 // Main component
 function General({ onSave, onCancel }: GeneralProps): JSX.Element {
-  const { useCameraBackground, setUseCameraBackground } = useBgUrl()
-  const { startBackgroundCamera, stopBackgroundCamera } = useCamera()
   const bgUrlContext = useBgUrl()
-  const { confName, configFiles, getFilenameByName } = useConfig()
-  const { switchCharacter } = useSwitchCharacter()
-  const collections = useCollections()
+  const { confName } = useConfig()
   const { wsUrl, setWsUrl, baseUrl, setBaseUrl } = useWebSocket()
-  
+  const collections = useCollections()
+
   const {
     settings,
     handleSettingChange,
-    handleSave,
-    handleCancel
+    handleCameraToggle,
+    handleCharacterPresetChange,
+    showSubtitle,
+    setShowSubtitle
   } = useGeneralSettings({
     bgUrlContext,
     confName,
     baseUrl,
     wsUrl,
     onWsUrlChange: setWsUrl,
-    onBaseUrlChange: setBaseUrl
+    onBaseUrlChange: setBaseUrl,
+    onSave,
+    onCancel
   })
-
-  // Save and cancel side effects
-  useEffect(() => {
-    if (!onSave || !onCancel) return
-
-    const cleanupSave = onSave(() => {
-      console.log('Saving general settings...')
-      handleSave()
-    })
-
-    const cleanupCancel = onCancel(() => {
-      console.log('Canceling general settings...')
-      handleCancel()
-    })
-
-    return () => {
-      cleanupSave?.()
-      cleanupCancel?.()
-    }
-  }, [onSave, onCancel, handleSave, handleCancel])
-
-  // Preset change handler
-  const handleCharacterPresetChange = (value: string[]): void => {
-    const selectedFilename = value[0];
-    const selectedConfig = configFiles.find(config => config.filename === selectedFilename);
-    const currentFilename = getFilenameByName(confName);
-    
-    handleSettingChange('selectedCharacterPreset', value);
-    
-    if (currentFilename === selectedFilename) {
-      return;
-    }
-    
-    if (selectedConfig && selectedConfig.name !== confName) {
-      switchCharacter(selectedFilename);
-    }
-  }
-
-  const handleCameraToggle = async (checked: boolean) => {
-    setUseCameraBackground(checked)
-    if (checked) {
-      try {
-        await startBackgroundCamera()
-      } catch (error) {
-        console.error('Failed to start camera:', error)
-        setUseCameraBackground(false)
-      }
-    } else {
-      stopBackgroundCamera()
-    }
-  }
 
   return (
     <Stack {...settingStyles.common.container}>
@@ -188,12 +135,23 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
       >
         <Switch
           {...settingStyles.common.switch}
-          checked={useCameraBackground}
+          checked={settings.useCameraBackground}
           onCheckedChange={({ checked }) => handleCameraToggle(checked)}
         />
       </Field>
 
-      {!useCameraBackground && (
+      <Field
+        {...settingStyles.common.field}
+        label={<Text {...settingStyles.common.fieldLabel}>Show Subtitle</Text>}
+      >
+        <Switch
+          {...settingStyles.common.switch}
+          checked={showSubtitle}
+          onCheckedChange={({ checked }) => setShowSubtitle(checked)}
+        />
+      </Field>
+
+      {!settings.useCameraBackground && (
         <>
           <SelectField
             label="Background Image"
