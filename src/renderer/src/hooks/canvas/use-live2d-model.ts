@@ -43,6 +43,8 @@ export const useLive2DModel = ({
         clearBeforeRender: true,
         preserveDrawingBuffer: false,
         powerPreference: "high-performance",
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
       });
 
       app.ticker.add(() => {

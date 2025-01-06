@@ -62,12 +62,17 @@ export const adjustModelSizeAndPosition = (
 ) => {
   if (!model || !modelInfo) return
 
-  const initXshift = modelInfo?.initialXshift || 0
-  const initYshift = modelInfo?.initialYshift || 0
+  const initXshift = Number(modelInfo?.initialXshift || 0)
+  const initYshift = Number(modelInfo?.initialYshift || 0)
 
-  const scaleX = width * (modelInfo?.kScale || 0)
-  const scaleY = height * (modelInfo?.kScale || 0)
-  const newScale = Math.min(scaleX, scaleY) * (isPet ? 0.5 : 1)
+  const dpr = Number(window.devicePixelRatio || 1)
+  const kScale = Number(modelInfo?.kScale || 0)
+  const scaleX = width * kScale * dpr
+  const scaleY = height * kScale * dpr
+  
+  const petScaleFactor = isPet ? 0.5 : 1
+  const qualityScaleFactor = 1.2
+  const newScale = Math.min(scaleX, scaleY) * petScaleFactor * qualityScaleFactor
 
   model.scale.set(newScale)
   
@@ -75,4 +80,12 @@ export const adjustModelSizeAndPosition = (
   const targetY = (height - model.height) / 2 + initYshift
   
   model.position.set(targetX, targetY)
+
+  if (model.filters) {
+    model.filters.forEach(filter => {
+      if (filter.resolution !== undefined) {
+        filter.resolution = dpr;
+      }
+    });
+  }
 }
