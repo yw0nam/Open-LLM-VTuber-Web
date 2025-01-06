@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ModelInfo, useLive2DConfig } from '@/context/live2d-config-context'
 
-interface UseLive2dSettingsProps {
-  activeTab: string
-}
-
-export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
+export const useLive2dSettings = () => {
   const Live2DConfigContext = useLive2DConfig()
   
   const initialModelInfo: ModelInfo = {
@@ -26,17 +22,11 @@ export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
   )
 
   useEffect(() => {
-    if (Live2DConfigContext?.modelInfo && activeTab !== 'live2d') {
+    if (Live2DConfigContext?.modelInfo) {
       setOriginalModelInfo(Live2DConfigContext.modelInfo)
       setModelInfoState(Live2DConfigContext.modelInfo)
     }
   }, [Live2DConfigContext?.modelInfo])
-
-  useEffect(() => {
-    if (activeTab === 'live2d' && modelInfo && Live2DConfigContext) {
-      Live2DConfigContext.setModelInfo(modelInfo)
-    }
-  }, [activeTab])
 
   const handleInputChange = (key: keyof ModelInfo, value: ModelInfo[keyof ModelInfo]): void => {
     setModelInfoState((prev) => ({ ...prev, [key]: value }))

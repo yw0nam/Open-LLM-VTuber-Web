@@ -91,7 +91,8 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
 
   // Persistent state management
   const [micOn, setMicOn] = useLocalStorage("micOn", DEFAULT_VAD_STATE.micOn);
-  const [voiceInterruptionOn, setVoiceInterruptionOn] = useLocalStorage(
+  const voiceInterruptionRef = useRef(false);
+  const [voiceInterruptionOn, setVoiceInterruptionOnState] = useLocalStorage(
     "voiceInterruptionOn",
     DEFAULT_VAD_STATE.voiceInterruptionOn
   );
@@ -137,6 +138,10 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
     setAiStateRef.current = setAiState;
   }, [setAiState]);
 
+  useEffect(() => {
+    voiceInterruptionRef.current = voiceInterruptionOn;
+  }, []);
+
   /**
    * Update previous triggered probability and force re-render
    */
@@ -172,7 +177,7 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
     console.log("Speech ended");
     audioTaskQueue.clearQueue();
     
-    if (!voiceInterruptionOn) {
+    if (!voiceInterruptionRef.current) {
       stopMic();
     } else {
       console.log("Voice interruption is on, keeping mic active");
@@ -180,7 +185,7 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
     
     setPreviousTriggeredProbability(0);
     sendAudioPartitionRef.current(audio);
-  }, [voiceInterruptionOn]);
+  }, []);
 
   /**
    * Handle VAD misfire event
@@ -260,10 +265,19 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
     setMicOn(false);
   }, []);
 
+  /**
+   * Set voice interruption state
+   */
+  const setVoiceInterruptionOn = useCallback((value: boolean) => {
+    voiceInterruptionRef.current = value;
+    setVoiceInterruptionOnState(value);
+    forceUpdate();
+  }, []);
+
   // Memoized context value
   const contextValue = useMemo(
     () => ({
-      voiceInterruptionOn,
+      voiceInterruptionOn: voiceInterruptionRef.current,
       micOn,
       setMicOn,
       setVoiceInterruptionOn,
@@ -275,7 +289,6 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
       updateSettings,
     }),
     [
-      voiceInterruptionOn,
       micOn,
       startMic,
       stopMic,

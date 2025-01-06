@@ -8,16 +8,15 @@ import { useLive2dSettings } from '@/hooks/sidebar/setting/use-live2d-settings'
 interface live2DProps {
   onSave?: (callback: () => void) => () => void
   onCancel?: (callback: () => void) => () => void
-  activeTab: string
 }
 
-function live2D({ onSave, onCancel, activeTab }: live2DProps): JSX.Element {
+function live2D({ onSave, onCancel }: live2DProps): JSX.Element {
   const {
     modelInfo,
     handleInputChange,
     handleSave,
     handleCancel,
-  } = useLive2dSettings({ activeTab });
+  } = useLive2dSettings();
 
   useEffect(() => {
     if (!onSave || !onCancel) return;

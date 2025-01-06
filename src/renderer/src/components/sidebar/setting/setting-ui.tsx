@@ -69,7 +69,6 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
           <Live2D
             onSave={handleSaveCallback}
             onCancel={handleCancelCallback}
-            activeTab={activeTab}
           />
         </Tabs.Content>
         <Tabs.Content value="asr" {...settingStyles.settingUI.tabs.content}>
@@ -89,7 +88,7 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
         </Tabs.Content>
       </Tabs.ContentGroup>
     ),
-    [activeTab, handleSaveCallback, handleCancelCallback]
+    [handleSaveCallback, handleCancelCallback]
   );
 
   return (
