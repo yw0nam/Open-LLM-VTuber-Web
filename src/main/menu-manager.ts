@@ -94,6 +94,12 @@ export class MenuManager {
         },
       },
       { type: "separator" },
+      {
+        label: "Toggle Scrolling to Resize",
+        click: () => {
+          event.sender.send("toggle-scroll-to-resize");
+        },
+      },
       // Only show this item in pet mode
       ...(this.currentMode === 'pet' ? [{
         label: "Toggle InputBox and Subtitle",

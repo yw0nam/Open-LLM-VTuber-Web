@@ -29,6 +29,11 @@ const api = {
     const handler = (_event: any) => callback()
     ipcRenderer.on('toggle-input-subtitle', handler)
     return () => ipcRenderer.removeListener('toggle-input-subtitle', handler)
+  },
+  onToggleScrollToResize: (callback: () => void) => {
+    const handler = (_event: any) => callback()
+    ipcRenderer.on('toggle-scroll-to-resize', handler)
+    return () => ipcRenderer.removeListener('toggle-scroll-to-resize', handler)
   }
 }
 

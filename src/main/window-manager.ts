@@ -14,6 +14,7 @@ export class WindowManager {
     height: number;
   } | null = null;
   private hoveringComponents: Set<string> = new Set()
+  private currentMode: 'window' | 'pet' = 'window';
 
   constructor() {}
 
@@ -89,7 +90,8 @@ export class WindowManager {
 
   setWindowMode(mode: "window" | "pet"): void {
     if (!this.window) return;
-
+    
+    this.currentMode = mode;
     this.window.setOpacity(0);
 
     if (mode === "window") {
@@ -129,7 +131,7 @@ export class WindowManager {
       });
     }
 
-    this.window?.setIgnoreMouseEvents(false, { forward: false });
+    this.window?.setIgnoreMouseEvents(false, { forward: true });
 
     this.window.webContents.send("mode-changed", "window");
   }
@@ -213,6 +215,8 @@ export class WindowManager {
   }
 
   updateComponentHover(componentId: string, isHovering: boolean): void {
+    if (this.currentMode === 'window') return;
+
     if (isHovering) {
       this.hoveringComponents.add(componentId)
     } else {

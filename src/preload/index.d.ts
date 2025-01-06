@@ -11,6 +11,7 @@ declare global {
       onInterrupt: (callback: () => void) => void
       updateComponentHover: (componentId: string, isHovering: boolean) => void
       onToggleInputSubtitle: (callback: () => void) => void
+      onToggleScrollToResize: (callback: () => void) => void
     }
   }
 }

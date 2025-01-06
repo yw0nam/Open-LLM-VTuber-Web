@@ -62,6 +62,9 @@ export interface ModelInfo {
   
   /** Tap motion mapping configuration */
   tapMotions?: TapMotionMap;
+  
+  /** Enable scroll to resize */
+  scrollToResize?: boolean;
 }
 
 /**
@@ -73,13 +76,16 @@ interface Live2DConfigState {
   setModelInfo: (info: ModelInfo | undefined) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
+  updateModelScale: (newScale: number) => void;
 }
 
 /**
  * Default values and constants
  */
 const DEFAULT_CONFIG = {
-  modelInfo: undefined as ModelInfo | undefined,
+  modelInfo: {
+    scrollToResize: true,
+  } as ModelInfo | undefined,
   isLoading: false,
 };
 
@@ -95,13 +101,38 @@ export const Live2DConfigContext = createContext<Live2DConfigState | null>(null)
  */
 export function Live2DConfigProvider({ children }: { children: React.ReactNode }) {
   // State management with local storage persistence
-  const [modelInfo, setModelInfo] = useLocalStorage<ModelInfo | undefined>(
+  const [modelInfo, setModelInfoState] = useLocalStorage<ModelInfo | undefined>(
     "modelInfo",
     DEFAULT_CONFIG.modelInfo
   );
   
   // Loading state
   const [isLoading, setIsLoading] = useState(DEFAULT_CONFIG.isLoading);
+
+  const setModelInfo = (info: ModelInfo | undefined) => {
+    if (info) {
+      setModelInfoState({
+        ...info,
+        pointerInteractive: 'pointerInteractive' in info 
+          ? info.pointerInteractive 
+          : modelInfo?.pointerInteractive ?? false,
+        scrollToResize: 'scrollToResize' in info 
+          ? info.scrollToResize 
+          : modelInfo?.scrollToResize ?? true,
+      });
+    } else {
+      setModelInfoState(undefined);
+    }
+  };
+
+  const updateModelScale = (newScale: number) => {
+    if (modelInfo) {
+      setModelInfo({
+        ...modelInfo,
+        kScale: Number(newScale.toFixed(8))
+      });
+    }
+  };
 
   // Memoized context value
   const contextValue = useMemo(
@@ -110,6 +141,7 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
       setModelInfo,
       isLoading,
       setIsLoading,
+      updateModelScale
     }),
     [modelInfo, isLoading]
   );

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { ModelInfo, useLive2DConfig } from '@/context/live2d-config-context'
-import { toaster } from '@/components/ui/toaster'
 
 interface UseLive2dSettingsProps {
   activeTab: string
@@ -8,7 +7,6 @@ interface UseLive2dSettingsProps {
 
 export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
   const Live2DConfigContext = useLive2DConfig()
-  const [lastUpdateTime, setLastUpdateTime] = useState<number>(0)
   
   const initialModelInfo: ModelInfo = {
     url: '',
@@ -16,7 +14,8 @@ export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
     initialXshift: 0,
     initialYshift: 0,
     kXOffset: 1150,
-    emotionMap: {}
+    emotionMap: {},
+    scrollToResize: true
   }
 
   const [modelInfo, setModelInfoState] = useState<ModelInfo>(
@@ -37,7 +36,7 @@ export const useLive2dSettings = ({ activeTab }: UseLive2dSettingsProps) => {
     if (activeTab === 'live2d' && modelInfo && Live2DConfigContext) {
       Live2DConfigContext.setModelInfo(modelInfo)
     }
-  }, [modelInfo, Live2DConfigContext, activeTab])
+  }, [modelInfo,activeTab])
 
   const handleInputChange = (key: keyof ModelInfo, value: ModelInfo[keyof ModelInfo]): void => {
     

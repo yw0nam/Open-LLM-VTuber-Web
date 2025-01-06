@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react";
+import { memo, useMemo, useEffect } from "react";
 import { useLive2DConfig } from "@/context/live2d-config-context";
 import { useVAD } from "@/context/vad-context";
 import { useIpcHandlers } from "@/hooks/utils/use-ipc-handlers";
@@ -14,7 +14,7 @@ interface Live2DProps {
 
 // Main component
 export const Live2D = memo(({ isPet }: Live2DProps): JSX.Element => {
-  const { modelInfo, isLoading } = useLive2DConfig();
+  const { modelInfo, isLoading, updateModelScale, setModelInfo } = useLive2DConfig();
   const { micOn } = useVAD();
 
   useIpcHandlers();
@@ -32,6 +32,38 @@ export const Live2D = memo(({ isPet }: Live2DProps): JSX.Element => {
     useLive2DModel(modelConfig);
 
   useLive2DResize(containerRef, appRef, modelRef, modelInfo, isPet);
+
+  const handleWheel = (e: WheelEvent) => {
+    if (!modelInfo || !modelInfo.scrollToResize) return;
+    
+    const currentScale = Number(modelInfo.kScale || 0);
+    const delta = e.deltaY > 0 ? -0.000005 : 0.000005;
+    const newScale = Math.max(0.0001, currentScale + delta);
+    
+    updateModelScale(newScale);
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.addEventListener('wheel', handleWheel);
+      return () => canvas.removeEventListener('wheel', handleWheel);
+    }
+    return () => {}
+  }, [modelInfo]);
+
+  useEffect(() => {
+    const unsubscribe = (window.api as any)?.onToggleScrollToResize(() => {
+      if (modelInfo) {
+        setModelInfo({
+          ...modelInfo,
+          scrollToResize: !modelInfo.scrollToResize
+        });
+      }
+    });
+
+    return () => unsubscribe?.();
+  }, [modelInfo]);
 
   // Export these hooks for global use
   useInterrupt();

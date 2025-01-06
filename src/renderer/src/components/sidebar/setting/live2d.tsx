@@ -132,13 +132,32 @@ function live2D({ onSave, onCancel, activeTab }: live2DProps): JSX.Element {
     <Stack {...settingStyles.common.container}>
       <Field
         {...settingStyles.common.field}
-        label={<Text {...settingStyles.common.fieldLabel}>Pointer Interactive</Text>}
+        label={
+          <Text {...settingStyles.common.fieldLabel}>Pointer Interactive</Text>
+        }
       >
         <Switch
           {...settingStyles.common.switch}
           checked={modelInfo.pointerInteractive ?? false}
           onCheckedChange={(details) =>
             handleInputChange("pointerInteractive", details.checked)
+          }
+        />
+      </Field>
+
+      <Field
+        {...settingStyles.common.field}
+        label={
+          <Text {...settingStyles.common.fieldLabel}>
+            Enable Scroll to Resize
+          </Text>
+        }
+      >
+        <Switch
+          {...settingStyles.common.switch}
+          checked={modelInfo.scrollToResize ?? true}
+          onCheckedChange={(details) =>
+            handleInputChange("scrollToResize", details.checked)
           }
         />
       </Field>
