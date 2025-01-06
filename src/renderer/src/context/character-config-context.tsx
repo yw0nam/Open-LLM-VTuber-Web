@@ -42,7 +42,7 @@ export const ConfigContext = createContext<CharacterConfigState | null>(null);
  * @param {Object} props - Provider props
  * @param {React.ReactNode} props.children - Child components
  */
-export function ConfigProvider({ children }: { children: React.ReactNode }) {
+export function CharacterConfigProvider({ children }: { children: React.ReactNode }) {
   // Local storage state management
   const [confName, setConfName] = useLocalStorage<string>(
     "confName",
@@ -87,13 +87,13 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
 
 /**
  * Custom hook to use the character configuration context
- * @throws {Error} If used outside of ConfigProvider
+ * @throws {Error} If used outside of CharacterConfigProvider
  */
 export function useConfig() {
   const context = useContext(ConfigContext);
 
   if (!context) {
-    throw new Error("useConfig must be used within a ConfigProvider");
+    throw new Error("useConfig must be used within a CharacterConfigProvider");
   }
 
   return context;

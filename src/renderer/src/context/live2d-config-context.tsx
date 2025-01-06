@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useMemo } from "react";
+import { createContext, useContext, useState, useMemo, useEffect } from "react";
 import { useLocalStorage } from "@/hooks/utils/use-local-storage";
+import { useConfig } from "@/context/character-config-context";
 
 /**
  * Model emotion mapping interface
@@ -100,19 +101,48 @@ export const Live2DConfigContext = createContext<Live2DConfigState | null>(null)
  * @param {React.ReactNode} props.children - Child components
  */
 export function Live2DConfigProvider({ children }: { children: React.ReactNode }) {
-  // State management with local storage persistence
+  const { confUid } = useConfig();
+  const [isPet, setIsPet] = useState(false);
+  const [isLoading, setIsLoading] = useState(DEFAULT_CONFIG.isLoading);
+
+  useEffect(() => {
+    const unsubscribe = (window.api as any)?.onModeChanged((mode: string) => {
+      setIsPet(mode === 'pet');
+    });
+    return () => unsubscribe?.();
+  }, []);
+
+  const getStorageKey = (uid: string, isPet: boolean) => 
+    `modelInfo_${uid}_${isPet ? 'pet' : 'window'}`;
+
   const [modelInfo, setModelInfoState] = useLocalStorage<ModelInfo | undefined>(
     "modelInfo",
     DEFAULT_CONFIG.modelInfo
   );
-  
-  // Loading state
-  const [isLoading, setIsLoading] = useState(DEFAULT_CONFIG.isLoading);
+
+  const [scaleMemory, setScaleMemory] = useLocalStorage<Record<string, number>>(
+    "scale_memory",
+    {}
+  );
 
   const setModelInfo = (info: ModelInfo | undefined) => {
     if (info) {
+      const storageKey = getStorageKey(confUid, isPet);
+      let finalScale: number;
+
+      if (storageKey in scaleMemory) {
+        finalScale = scaleMemory[storageKey];
+      } else {
+        finalScale = Number(info.kScale || 0);
+        setScaleMemory(prev => ({
+          ...prev,
+          [storageKey]: finalScale
+        }));
+      }
+
       setModelInfoState({
         ...info,
+        kScale: finalScale,
         pointerInteractive: 'pointerInteractive' in info 
           ? info.pointerInteractive 
           : modelInfo?.pointerInteractive ?? false,
@@ -127,12 +157,33 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
 
   const updateModelScale = (newScale: number) => {
     if (modelInfo) {
+      const storageKey = getStorageKey(confUid, isPet);
+      // 更新scale记忆
+      setScaleMemory(prev => ({
+        ...prev,
+        [storageKey]: Number(newScale.toFixed(8))
+      }));
+
       setModelInfo({
         ...modelInfo,
         kScale: Number(newScale.toFixed(8))
       });
     }
   };
+
+  useEffect(() => {
+    if (modelInfo) {
+      const storageKey = getStorageKey(confUid, isPet);
+      const memorizedScale = scaleMemory[storageKey];
+      
+      if (memorizedScale !== undefined && memorizedScale !== Number(modelInfo.kScale)) {
+        setModelInfo({
+          ...modelInfo,
+          kScale: memorizedScale
+        });
+      }
+    }
+  }, [confUid, isPet]);
 
   // Memoized context value
   const contextValue = useMemo(

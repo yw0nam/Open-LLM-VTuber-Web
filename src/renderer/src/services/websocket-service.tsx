@@ -52,9 +52,6 @@ class WebSocketService {
       type: "fetch-configs",
     });
     this.sendMessage({
-      type: "fetch-conf-info"
-    });
-    this.sendMessage({
       type: "fetch-history-list"
     });
     this.sendMessage({
