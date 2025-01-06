@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useContext, useMemo, useEffect } from "react";
 import { useLocalStorage } from "@/hooks/utils/use-local-storage";
 
 /**
@@ -69,6 +69,14 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
     }),
     [confName, confUid, configFiles, setConfName, setConfUid, setConfigFiles]
   );
+
+  useEffect(() => {
+    (window.api as any)?.updateConfigFiles?.(configFiles);
+  }, []); 
+
+  useEffect(() => {
+    (window.api as any)?.updateConfigFiles?.(configFiles);
+  }, [configFiles]);
 
   return (
     <ConfigContext.Provider value={contextValue}>

@@ -12,6 +12,7 @@ declare global {
       updateComponentHover: (componentId: string, isHovering: boolean) => void
       onToggleInputSubtitle: (callback: () => void) => void
       onToggleScrollToResize: (callback: () => void) => void
+      onSwitchCharacter: (callback: (filename: string) => void) => void
     }
   }
 }

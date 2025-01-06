@@ -6,6 +6,7 @@ import { useLive2DModel } from "@/hooks/canvas/use-live2d-model";
 import { useLive2DResize } from "@/hooks/canvas/use-live2d-resize";
 import { useInterrupt } from "@/hooks/utils/use-interrupt";
 import { useAudioTask } from "@/hooks/utils/use-audio-task";
+import { useSwitchCharacter } from "@/hooks/utils/use-switch-character";
 
 // Type definitions
 interface Live2DProps {
@@ -16,6 +17,7 @@ interface Live2DProps {
 export const Live2D = memo(({ isPet }: Live2DProps): JSX.Element => {
   const { modelInfo, isLoading, updateModelScale, setModelInfo } = useLive2DConfig();
   const { micOn } = useVAD();
+  const { switchCharacter } = useSwitchCharacter();
 
   useIpcHandlers();
 
@@ -53,6 +55,8 @@ export const Live2D = memo(({ isPet }: Live2DProps): JSX.Element => {
   }, [modelInfo]);
 
   useEffect(() => {
+    if (!isPet) return;
+
     const unsubscribe = (window.api as any)?.onToggleScrollToResize(() => {
       if (modelInfo) {
         setModelInfo({
@@ -64,6 +68,16 @@ export const Live2D = memo(({ isPet }: Live2DProps): JSX.Element => {
 
     return () => unsubscribe?.();
   }, [modelInfo]);
+
+  useEffect(() => {
+    if (!isPet) return;
+
+    const unsubscribe = (window.api as any)?.onSwitchCharacter((filename: string) => {
+      switchCharacter(filename);
+    });
+
+    return () => unsubscribe?.();
+  }, [isPet]);
 
   // Export these hooks for global use
   useInterrupt();

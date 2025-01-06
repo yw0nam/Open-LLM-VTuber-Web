@@ -44,6 +44,16 @@ function setupIPC(): void {
   ipcMain.on("update-component-hover", (_event, componentId: string, isHovering: boolean) => {
     windowManager.updateComponentHover(componentId, isHovering);
   });
+
+  ipcMain.handle('get-config-files', () => {
+    const configFiles = JSON.parse(localStorage.getItem('configFiles') || '[]');
+    menuManager.updateConfigFiles(configFiles);
+    return configFiles;
+  });
+
+  ipcMain.on('update-config-files', (_event, files) => {
+    menuManager.updateConfigFiles(files);
+  });
 }
 
 app.whenReady().then(() => {

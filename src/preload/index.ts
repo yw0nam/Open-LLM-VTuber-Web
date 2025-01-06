@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-
+import { ConfigFile } from '../main/menu-manager'
 const api = {
   setIgnoreMouseEvents: (ignore: boolean) => {
     ipcRenderer.send('set-ignore-mouse-events', ignore)
@@ -34,6 +34,17 @@ const api = {
     const handler = (_event: any) => callback()
     ipcRenderer.on('toggle-scroll-to-resize', handler)
     return () => ipcRenderer.removeListener('toggle-scroll-to-resize', handler)
+  },
+  onSwitchCharacter: (callback: (filename: string) => void) => {
+    const handler = (_event: any, filename: string) => callback(filename)
+    ipcRenderer.on('switch-character', handler)
+    return () => ipcRenderer.removeListener('switch-character', handler)
+  },
+  getConfigFiles: () => {
+    return ipcRenderer.invoke('get-config-files')
+  },
+  updateConfigFiles: (files: ConfigFile[]) => {
+    ipcRenderer.send('update-config-files', files)
   }
 }
 
