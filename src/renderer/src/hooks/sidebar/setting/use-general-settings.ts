@@ -21,6 +21,7 @@ interface GeneralSettings {
 interface UseGeneralSettingsProps {
   bgUrlContext: BgUrlContextState | null
   confName: string | undefined
+  setConfName: (name: string) => void
   baseUrl: string
   wsUrl: string
   onWsUrlChange: (url: string) => void
@@ -32,6 +33,7 @@ interface UseGeneralSettingsProps {
 export const useGeneralSettings = ({
   bgUrlContext,
   confName,
+  setConfName,
   baseUrl,
   wsUrl,
   onWsUrlChange,
@@ -68,6 +70,7 @@ export const useGeneralSettings = ({
 
   const [settings, setSettings] = useState<GeneralSettings>(initialSettings)
   const [originalSettings, setOriginalSettings] = useState<GeneralSettings>(initialSettings)
+  let originalConfName = confName
 
   useEffect(() => {
     setShowSubtitle(settings.showSubtitle)
@@ -134,6 +137,11 @@ export const useGeneralSettings = ({
     onWsUrlChange(originalSettings.wsUrl)
     onBaseUrlChange(originalSettings.baseUrl)
     
+    // Restore original character preset
+    if (originalConfName) {
+      setConfName(originalConfName)
+    }
+    
     // Handle camera state
     if (originalSettings.useCameraBackground) {
       startBackgroundCamera()
@@ -150,10 +158,10 @@ export const useGeneralSettings = ({
     handleSettingChange('selectedCharacterPreset', value)
 
     if (currentFilename === selectedFilename) {
-      return
+      return 
     }
 
-    if (selectedConfig && selectedConfig.name !== confName) {
+    if (selectedConfig) {
       switchCharacter(selectedFilename)
     }
   }

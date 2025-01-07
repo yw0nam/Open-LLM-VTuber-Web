@@ -47,7 +47,7 @@ const useCollections = () => {
 
 function General({ onSave, onCancel }: GeneralProps): JSX.Element {
   const bgUrlContext = useBgUrl()
-  const { confName } = useConfig()
+  const { confName, setConfName } = useConfig()
   const { wsUrl, setWsUrl, baseUrl, setBaseUrl } = useWebSocket()
   const collections = useCollections()
 
@@ -61,6 +61,7 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
   } = useGeneralSettings({
     bgUrlContext,
     confName,
+    setConfName,
     baseUrl,
     wsUrl,
     onWsUrlChange: setWsUrl,
