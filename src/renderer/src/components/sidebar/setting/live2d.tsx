@@ -27,7 +27,7 @@ function live2D({ onSave, onCancel }: live2DProps): JSX.Element {
       cleanupSave?.();
       cleanupCancel?.();
     };
-  }, [onSave, onCancel, handleSave, handleCancel]);
+  }, [onSave, onCancel]);
 
   return (
     <Stack {...settingStyles.common.container}>
