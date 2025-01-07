@@ -29,8 +29,25 @@ const App: React.FC = () => {
 
   if (isElectron) {
     useEffect(() => {
+      window.electron.ipcRenderer.on("pre-mode-changed", (_event, newMode) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            window.electron.ipcRenderer.send("renderer-ready-for-mode-change", newMode);
+          });
+        });
+      });
+    }, []);
+  }
+
+  if (isElectron) {
+    useEffect(() => {
       window.electron.ipcRenderer.on("mode-changed", (_event, newMode) => {
         setMode(newMode);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            window.electron.ipcRenderer.send("mode-change-rendered");
+          });
+        });
       });
     }, []);
   }

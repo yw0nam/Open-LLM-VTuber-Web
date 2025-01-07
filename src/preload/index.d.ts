@@ -19,4 +19,5 @@ declare global {
 
 interface IpcRenderer {
   on(channel: 'mode-changed', func: (_event: any, mode: 'pet' | 'window') => void): void;
+  send(channel: string, ...args: any[]): void;
 }

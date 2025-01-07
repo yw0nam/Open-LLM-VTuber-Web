@@ -107,14 +107,29 @@ export class MenuManager {
         },
       },
       // Only show this item in pet mode
-      ...(this.currentMode === 'pet' ? [{
-        label: "Toggle InputBox and Subtitle",
-        click: () => {
-          event.sender.send("toggle-input-subtitle");
-        },
-      }] : []),
+      ...(this.currentMode === "pet"
+        ? [
+            {
+              label: "Toggle InputBox and Subtitle",
+              click: () => {
+                event.sender.send("toggle-input-subtitle");
+              },
+            },
+          ]
+        : []),
       { type: "separator" },
       ...this.getModeMenuItems(),
+      { type: "separator" },
+      {
+        label: "Switch Character",
+        visible: this.currentMode === "pet",
+        submenu: this.configFiles.map((config) => ({
+          label: config.name,
+          click: () => {
+            event.sender.send("switch-character", config.filename);
+          },
+        })),
+      },
       { type: "separator" },
       {
         label: "Hide",
@@ -131,17 +146,6 @@ export class MenuManager {
           app.quit();
         },
       },
-      {
-        label: "Switch Character",
-        visible: this.currentMode === 'pet',
-        submenu: this.configFiles.map(config => ({
-          label: config.name,
-          click: () => {
-            event.sender.send("switch-character", config.filename);
-          }
-        }))
-      },
-      { type: "separator" },
     ];
     return template;
   }

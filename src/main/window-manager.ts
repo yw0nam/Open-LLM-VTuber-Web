@@ -1,4 +1,4 @@
-import { BrowserWindow, screen, shell } from "electron";
+import { BrowserWindow, screen, shell, ipcMain } from "electron";
 import { join } from "path";
 import { is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
@@ -13,10 +13,19 @@ export class WindowManager {
     width: number;
     height: number;
   } | null = null;
-  private hoveringComponents: Set<string> = new Set()
-  private currentMode: 'window' | 'pet' = 'window';
+  private hoveringComponents: Set<string> = new Set();
+  private currentMode: "window" | "pet" = "window";
 
-  constructor() {}
+  constructor() {
+    ipcMain.on("renderer-ready-for-mode-change", (_event, newMode) => {
+      if (newMode === "pet") this.continueSetWindowModePet();
+      else this.continueSetWindowModeWindow();
+    });
+
+    ipcMain.on("mode-change-rendered", () => {
+      this.window?.setOpacity(1);
+    });
+  }
 
   createWindow(): BrowserWindow {
     this.window = new BrowserWindow({
@@ -90,7 +99,7 @@ export class WindowManager {
 
   setWindowMode(mode: "window" | "pet"): void {
     if (!this.window) return;
-    
+
     this.currentMode = mode;
     this.window.setOpacity(0);
 
@@ -99,21 +108,10 @@ export class WindowManager {
     } else {
       this.setWindowModePet();
     }
-
-    setTimeout(() => {
-      this.window?.setOpacity(1);
-    }, 1200);
   }
 
   private setWindowModeWindow(): void {
     if (!this.window) return;
-
-    if (this.windowedBounds) {
-      this.window.setBounds(this.windowedBounds);
-    } else {
-      this.window.setSize(900, 670);
-      this.window.center();
-    }
 
     this.window.setAlwaysOnTop(false);
     this.window.setIgnoreMouseEvents(false);
@@ -123,6 +121,17 @@ export class WindowManager {
     this.window.setAlwaysOnTop(false);
 
     this.window.setBackgroundColor("#ffffff");
+    this.window.webContents.send("pre-mode-changed", "window");
+  }
+
+  private continueSetWindowModeWindow(): void {
+    if (!this.window) return;
+    if (this.windowedBounds) {
+      this.window.setBounds(this.windowedBounds);
+    } else {
+      this.window.setSize(900, 670);
+      this.window.center();
+    }
 
     if (isMac) {
       this.window.setWindowButtonVisibility(true);
@@ -141,7 +150,6 @@ export class WindowManager {
 
     this.windowedBounds = this.window.getBounds();
 
-    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
     if (this.window.isFullScreen()) {
       this.window.setFullScreen(false);
     }
@@ -151,28 +159,31 @@ export class WindowManager {
     this.window.setAlwaysOnTop(true, "screen-saver");
     this.window.setPosition(0, 0);
 
-    setTimeout(() => {
-      this.window?.setSize(width, height);
+    this.window.webContents.send("pre-mode-changed", "pet");
+  }
 
-      if (isMac) this.window?.setWindowButtonVisibility(false);
-      this.window?.setResizable(false);
-      this.window?.setSkipTaskbar(true);
-      this.window?.setFocusable(false);
+  private continueSetWindowModePet(): void {
+    if (!this.window) return;
 
-      if (isMac) {
-        this.window?.setIgnoreMouseEvents(true);
-        this.window?.setVisibleOnAllWorkspaces(true, {
-          visibleOnFullScreen: true,
-        });
-      } else {
-        this.window?.setIgnoreMouseEvents(true, { forward: true });
-      }
+    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
-      setTimeout(() => {
-        this.window?.setBackgroundColor("#00000000");
-        this.window?.webContents.send("mode-changed", "pet");
-      }, 550);
-    }, 350);
+    this.window.setSize(width, height);
+
+    if (isMac) this.window.setWindowButtonVisibility(false);
+    this.window.setResizable(false);
+    this.window.setSkipTaskbar(true);
+    this.window.setFocusable(false);
+
+    if (isMac) {
+      this.window.setIgnoreMouseEvents(true);
+      this.window.setVisibleOnAllWorkspaces(true, {
+        visibleOnFullScreen: true,
+      });
+    } else {
+      this.window.setIgnoreMouseEvents(true, { forward: true });
+    }
+
+    this.window.webContents.send("mode-changed", "pet");
   }
 
   getWindow(): BrowserWindow | null {
@@ -215,23 +226,23 @@ export class WindowManager {
   }
 
   updateComponentHover(componentId: string, isHovering: boolean): void {
-    if (this.currentMode === 'window') return;
+    if (this.currentMode === "window") return;
 
     if (isHovering) {
-      this.hoveringComponents.add(componentId)
+      this.hoveringComponents.add(componentId);
     } else {
-      this.hoveringComponents.delete(componentId)
+      this.hoveringComponents.delete(componentId);
     }
 
     if (this.window) {
-      const shouldIgnore = this.hoveringComponents.size === 0
+      const shouldIgnore = this.hoveringComponents.size === 0;
       if (isMac) {
-        this.window.setIgnoreMouseEvents(shouldIgnore)
+        this.window.setIgnoreMouseEvents(shouldIgnore);
       } else {
-        this.window.setIgnoreMouseEvents(shouldIgnore, { forward: true })
+        this.window.setIgnoreMouseEvents(shouldIgnore, { forward: true });
       }
       if (!shouldIgnore) {
-        this.window.setFocusable(true)
+        this.window.setFocusable(true);
       }
     }
   }
