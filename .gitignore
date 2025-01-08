@@ -11,7 +11,7 @@ lerna-debug.log*
 # Dependencies
 node_modules
 .yarn
-/package-lock.json
+package-lock.json
 
 # Build
 dist
@@ -50,26 +50,11 @@ packages/react-devtools-extensions/firefox/*.pem
 packages/react-devtools-extensions/shared/build
 packages/react-devtools-extensions/.tempUserDataDir
 
-# Docusaurus specific
-.changelog
-.history
-.eslintcache
-types
-test-website*
-packages/create-docusaurus/lib/
-packages/lqip-loader/lib/
-packages/docusaurus*/lib/
-packages/eslint-plugin/lib/
-packages/stylelint-copyright/lib/
-website/netlifyDeployPreview/*
-!website/netlifyDeployPreview/index.html
-!website/netlifyDeployPreview/_redirects
-website/_dogfooding/_swizzle_theme_tests
-CrowdinTranslations_*.zip
-website/.cpu-prof
-.netlify
-
 # Temp files
 *~
 *.pyc
 .grunt
+out
+
+# Cursor files
+.cursorrules
