@@ -11,7 +11,7 @@ lerna-debug.log*
 # Dependencies
 node_modules
 .yarn
-package-lock.json
+# package-lock.json
 
 # Build
 dist
