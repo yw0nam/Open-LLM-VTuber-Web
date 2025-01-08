@@ -1,6 +1,8 @@
 export class TaskQueue {
   private queue: (() => Promise<void>)[] = [];
+
   private running = false;
+
   private taskInterval: number;
 
   constructor(taskIntervalMs = 3000) {
@@ -20,7 +22,7 @@ export class TaskQueue {
   private async runNextTask() {
     if (this.running || this.queue.length === 0) {
       if (this.queue.length === 0) {
-        console.log("Queue is empty");
+        console.log('Queue is empty');
       }
       return;
     }
@@ -41,4 +43,4 @@ export class TaskQueue {
   }
 }
 
-export const audioTaskQueue = new TaskQueue(20); 
+export const audioTaskQueue = new TaskQueue(20);

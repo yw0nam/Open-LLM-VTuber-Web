@@ -1,15 +1,16 @@
-import { Text, Input, NumberInput } from '@chakra-ui/react'
-import { Field } from '@/components/ui/field'
-import { Switch } from '@/components/ui/switch'
+import {
+  Text, Input, NumberInput, createListCollection,
+} from '@chakra-ui/react';
+import { Field } from '@/components/ui/field';
+import { Switch } from '@/components/ui/switch';
 import {
   SelectContent,
   SelectItem,
   SelectRoot,
   SelectTrigger,
-  SelectValueText
-} from '@/components/ui/select'
-import { settingStyles } from './setting-styles'
-import { createListCollection } from '@chakra-ui/react'
+  SelectValueText,
+} from '@/components/ui/select';
+import { settingStyles } from './setting-styles';
 
 // Common Props Types
 interface SelectFieldProps {
@@ -44,96 +45,104 @@ interface InputFieldProps {
 }
 
 // Reusable Components
-export const SelectField = ({
+export function SelectField({
   label,
   value,
   onChange,
   collection,
-  placeholder
-}: SelectFieldProps): JSX.Element => (
-  <Field
-    {...settingStyles.general.field}
-    label={<Text {...settingStyles.general.field.label}>{label}</Text>}
-  >
-    <SelectRoot
-      {...settingStyles.general.select.root}
-      collection={collection}
-      value={value}
-      onValueChange={(e) => onChange(e.value)}
+  placeholder,
+}: SelectFieldProps): JSX.Element {
+  return (
+    <Field
+      {...settingStyles.general.field}
+      label={<Text {...settingStyles.general.field.label}>{label}</Text>}
     >
-      <SelectTrigger {...settingStyles.general.select.trigger}>
-        <SelectValueText placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent>
-        {collection.items.map((item) => (
-          <SelectItem key={item.value} item={item}>
-            {item.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </SelectRoot>
-  </Field>
-)
+      <SelectRoot
+        {...settingStyles.general.select.root}
+        collection={collection}
+        value={value}
+        onValueChange={(e) => onChange(e.value)}
+      >
+        <SelectTrigger {...settingStyles.general.select.trigger}>
+          <SelectValueText placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {collection.items.map((item) => (
+            <SelectItem key={item.value} item={item}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </SelectRoot>
+    </Field>
+  );
+}
 
-export const NumberField = ({
+export function NumberField({
   label,
   value,
   onChange,
   min,
   max,
   step,
-  allowMouseWheel
-}: NumberFieldProps): JSX.Element => (
-  <Field
-    {...settingStyles.common.field}
-    label={<Text {...settingStyles.common.fieldLabel}>{label}</Text>}
-  >
-    <NumberInput.Root
-      {...settingStyles.common.numberInput.root}
-      value={value.toString()}
-      onValueChange={(details) => onChange(details.value)}
-      min={min}
-      max={max}
-      step={step}
-      allowMouseWheel={allowMouseWheel}
+  allowMouseWheel,
+}: NumberFieldProps): JSX.Element {
+  return (
+    <Field
+      {...settingStyles.common.field}
+      label={<Text {...settingStyles.common.fieldLabel}>{label}</Text>}
     >
-      <NumberInput.Input {...settingStyles.common.numberInput.input} />
-      <NumberInput.Control>
-        <NumberInput.IncrementTrigger />
-        <NumberInput.DecrementTrigger />
-      </NumberInput.Control>
-    </NumberInput.Root>
-  </Field>
-)
+      <NumberInput.Root
+        {...settingStyles.common.numberInput.root}
+        value={value.toString()}
+        onValueChange={(details) => onChange(details.value)}
+        min={min}
+        max={max}
+        step={step}
+        allowMouseWheel={allowMouseWheel}
+      >
+        <NumberInput.Input {...settingStyles.common.numberInput.input} />
+        <NumberInput.Control>
+          <NumberInput.IncrementTrigger />
+          <NumberInput.DecrementTrigger />
+        </NumberInput.Control>
+      </NumberInput.Root>
+    </Field>
+  );
+}
 
-export const SwitchField = ({ label, checked, onChange }: SwitchFieldProps): JSX.Element => (
-  <Field
-    {...settingStyles.common.field}
-    label={<Text {...settingStyles.common.fieldLabel}>{label}</Text>}
-  >
-    <Switch
-      {...settingStyles.common.switch}
-      checked={checked}
-      onCheckedChange={(details) => onChange(details.checked)}
-    />
-  </Field>
-)
+export function SwitchField({ label, checked, onChange }: SwitchFieldProps): JSX.Element {
+  return (
+    <Field
+      {...settingStyles.common.field}
+      label={<Text {...settingStyles.common.fieldLabel}>{label}</Text>}
+    >
+      <Switch
+        {...settingStyles.common.switch}
+        checked={checked}
+        onCheckedChange={(details) => onChange(details.checked)}
+      />
+    </Field>
+  );
+}
 
-export const InputField = ({
+export function InputField({
   label,
   value,
   onChange,
-  placeholder
-}: InputFieldProps): JSX.Element => (
-  <Field
-    {...settingStyles.general.field}
-    label={<Text {...settingStyles.general.field.label}>{label}</Text>}
-  >
-    <Input
-      {...settingStyles.general.input}
-      placeholder={placeholder}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    />
-  </Field>
-)
+  placeholder,
+}: InputFieldProps): JSX.Element {
+  return (
+    <Field
+      {...settingStyles.general.field}
+      label={<Text {...settingStyles.general.field.label}>{label}</Text>}
+    >
+      <Input
+        {...settingStyles.general.input}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </Field>
+  );
+}

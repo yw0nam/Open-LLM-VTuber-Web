@@ -1,12 +1,14 @@
-import { Box, Button } from '@chakra-ui/react'
-import { FiSettings, FiClock, FiPlus, FiChevronLeft } from 'react-icons/fi'
-import { sidebarStyles } from './sidebar-styles'
-import SettingUI from './setting/setting-ui'
-import ChatHistoryPanel from './chat-history-panel'
-import CameraPanel from './camera-panel'
-import HistoryDrawer from './history-drawer'
-import { useSidebar } from '@/hooks/sidebar/use-sidebar'
-import { memo } from 'react'
+import { Box, Button } from '@chakra-ui/react';
+import {
+  FiSettings, FiClock, FiPlus, FiChevronLeft,
+} from 'react-icons/fi';
+import { memo } from 'react';
+import { sidebarStyles } from './sidebar-styles';
+import SettingUI from './setting/setting-ui';
+import ChatHistoryPanel from './chat-history-panel';
+import CameraPanel from './camera-panel';
+import HistoryDrawer from './history-drawer';
+import { useSidebar } from '@/hooks/sidebar/use-sidebar';
 
 // Type definitions
 interface SidebarProps {
@@ -20,22 +22,22 @@ interface HeaderButtonsProps {
 }
 
 // Reusable components
-const ToggleButton = memo(({ isCollapsed, onToggle }: { 
+const ToggleButton = memo(({ isCollapsed, onToggle }: {
   isCollapsed: boolean
-  onToggle: () => void 
+  onToggle: () => void
 }) => (
   <Box
     {...sidebarStyles.sidebar.toggleButton}
     style={{
-      transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)'
+      transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)',
     }}
     onClick={onToggle}
   >
     <FiChevronLeft />
   </Box>
-))
+));
 
-ToggleButton.displayName = 'ToggleButton'
+ToggleButton.displayName = 'ToggleButton';
 
 const HeaderButtons = memo(({ onSettingsOpen, onNewHistory }: HeaderButtonsProps) => (
   <Box display="flex" gap={1}>
@@ -53,24 +55,24 @@ const HeaderButtons = memo(({ onSettingsOpen, onNewHistory }: HeaderButtonsProps
       <FiPlus />
     </Button>
   </Box>
-))
+));
 
-HeaderButtons.displayName = 'HeaderButtons'
+HeaderButtons.displayName = 'HeaderButtons';
 
 const SidebarContent = memo(({ onSettingsOpen, onNewHistory }: HeaderButtonsProps) => (
   <Box {...sidebarStyles.sidebar.content}>
     <Box {...sidebarStyles.sidebar.header}>
-      <HeaderButtons 
-        onSettingsOpen={onSettingsOpen} 
-        onNewHistory={onNewHistory} 
+      <HeaderButtons
+        onSettingsOpen={onSettingsOpen}
+        onNewHistory={onNewHistory}
       />
     </Box>
     <ChatHistoryPanel />
     <CameraPanel />
   </Box>
-))
+));
 
-SidebarContent.displayName = 'SidebarContent'
+SidebarContent.displayName = 'SidebarContent';
 
 // Main component
 function Sidebar({ isCollapsed = false, onToggle }: SidebarProps): JSX.Element {
@@ -78,29 +80,29 @@ function Sidebar({ isCollapsed = false, onToggle }: SidebarProps): JSX.Element {
     settingsOpen,
     onSettingsOpen,
     onSettingsClose,
-    createNewHistory
-  } = useSidebar()
+    createNewHistory,
+  } = useSidebar();
 
   return (
     <Box {...sidebarStyles.sidebar.container(isCollapsed)}>
       <ToggleButton isCollapsed={isCollapsed} onToggle={onToggle} />
 
       {!isCollapsed && !settingsOpen && (
-        <SidebarContent 
-          onSettingsOpen={onSettingsOpen} 
-          onNewHistory={createNewHistory} 
+        <SidebarContent
+          onSettingsOpen={onSettingsOpen}
+          onNewHistory={createNewHistory}
         />
       )}
 
       {!isCollapsed && settingsOpen && (
-        <SettingUI 
-          open={settingsOpen} 
-          onClose={onSettingsClose} 
-          onToggle={onToggle} 
+        <SettingUI
+          open={settingsOpen}
+          onClose={onSettingsClose}
+          onToggle={onToggle}
         />
       )}
     </Box>
-  )
+  );
 }
 
-export default Sidebar
+export default Sidebar;

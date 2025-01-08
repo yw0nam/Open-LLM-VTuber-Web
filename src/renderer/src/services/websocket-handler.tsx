@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { wsService } from '@/services/websocket-service';
-import { WebSocketContext } from '@/context/websocket-context';
+import { wsService, MessageEvent } from '@/services/websocket-service';
+import {
+  WebSocketContext, HistoryInfo, defaultWsUrl, defaultBaseUrl,
+} from '@/context/websocket-context';
 import { useAiState } from '@/context/ai-state-context';
 import { useLive2DConfig } from '@/context/live2d-config-context';
 import { useSubtitle } from '@/context/subtitle-context';
@@ -9,11 +11,8 @@ import { useAudioTask } from '@/components/canvas/live2d';
 import { useBgUrl } from '@/context/bgurl-context';
 import { useConfig } from '@/context/character-config-context';
 import { useChatHistory } from '@/context/chat-history-context';
-import { toaster } from "@/components/ui/toaster";
-import { HistoryInfo } from '@/context/websocket-context';
+import { toaster } from '@/components/ui/toaster';
 import { useVAD } from '@/context/vad-context';
-import { MessageEvent } from '@/services/websocket-service';
-import { defaultWsUrl, defaultBaseUrl } from '@/context/websocket-context';
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const [wsState, setWsState] = useState<string>('CLOSED');
@@ -26,7 +25,9 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { addAudioTask } = useAudioTask();
   const bgUrlContext = useBgUrl();
   const { setConfName, setConfUid, setConfigFiles } = useConfig();
-  const { setCurrentHistoryUid, setMessages, setHistoryList, appendHumanMessage } = useChatHistory();
+  const {
+    setCurrentHistoryUid, setMessages, setHistoryList, appendHumanMessage,
+  } = useChatHistory();
   const { startMic, stopMic } = useVAD();
 
   useEffect(() => {
@@ -44,11 +45,11 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const handleControlMessage = (controlText: string) => {
     switch (controlText) {
       case 'start-mic':
-        console.log("Starting microphone...");
+        console.log('Starting microphone...');
         startMic();
         break;
       case 'stop-mic':
-        console.log("Stopping microphone...");
+        console.log('Stopping microphone...');
         stopMic();
         break;
       case 'conversation-chain-start':
@@ -57,13 +58,11 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         clearResponse();
         break;
       case 'conversation-chain-end':
-        audioTaskQueue.addTask(() =>
-          new Promise<void>((resolve) => {
-            setAiState('idle');
-            startMic();
-            resolve();
-          })
-        );
+        audioTaskQueue.addTask(() => new Promise<void>((resolve) => {
+          setAiState('idle');
+          startMic();
+          resolve();
+        }));
         break;
       default:
         console.warn('Unknown control command:', controlText);
@@ -78,9 +77,9 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           handleControlMessage(message.text);
         }
         break;
-      case "set-model":
-        console.log("set-model: ", message.model_info);
-        if (message.model_info && !message.model_info.url.startsWith("http")) {
+      case 'set-model':
+        console.log('set-model: ', message.model_info);
+        if (message.model_info && !message.model_info.url.startsWith('http')) {
           const modelUrl = baseUrl + message.model_info.url; // model_info.url must begin with /
           message.model_info.url = modelUrl;
         }
@@ -100,7 +99,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         break;
       case 'config-switched':
         setAiState('idle');
-        setSubtitleText("New Character Loaded");
+        setSubtitleText('New Character Loaded');
         startMic();
 
         toaster.create({
@@ -109,9 +108,9 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           duration: 2000,
         });
 
-        wsService.sendMessage({ type: "fetch-conf-info" });
-        wsService.sendMessage({ type: "fetch-history-list" });
-        wsService.sendMessage({ type: "create-new-history" });
+        wsService.sendMessage({ type: 'fetch-conf-info' });
+        wsService.sendMessage({ type: 'fetch-history-list' });
+        wsService.sendMessage({ type: 'create-new-history' });
         break;
       case 'background-files':
         if (message.files) {
@@ -119,7 +118,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         }
         break;
       case 'audio':
-        if (aiState == "interrupted" || aiState == "listening") {
+        if (aiState == 'interrupted' || aiState == 'listening') {
           console.log('Audio playback intercepted. Sentence:', message.text);
         } else {
           addAudioTask({
@@ -127,7 +126,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
             volumes: message.volumes || [],
             slice_length: message.slice_length || 0,
             text: message.text || null,
-            expression_list: message.expressions || null
+            expression_list: message.expressions || null,
           });
         }
         break;
@@ -151,7 +150,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         break;
       case 'new-history-created':
         setAiState('idle');
-        setSubtitleText("New Conversation Started");
+        setSubtitleText('New Conversation Started');
         // No need to open mic here
         if (message.history_uid) {
           setCurrentHistoryUid(message.history_uid);
@@ -159,7 +158,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           const newHistory: HistoryInfo = {
             uid: message.history_uid,
             latest_message: null,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           };
           setHistoryList((prev: HistoryInfo[]) => [newHistory, ...prev]);
           toaster.create({
@@ -172,9 +171,9 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       case 'history-deleted':
         toaster.create({
           title: message.success
-            ? "History deleted successfully"
-            : "Failed to delete history",
-          type: message.success ? "success" : "error",
+            ? 'History deleted successfully'
+            : 'Failed to delete history',
+          type: message.success ? 'success' : 'error',
           duration: 2000,
         });
         break;
@@ -187,7 +186,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         }
         break;
       case 'user-input-transcription':
-        console.log("user-input-transcription: ", message.text);
+        console.log('user-input-transcription: ', message.text);
         if (message.text) {
           appendHumanMessage(message.text);
         }

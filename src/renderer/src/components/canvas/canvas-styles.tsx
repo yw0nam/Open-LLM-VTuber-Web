@@ -5,7 +5,7 @@ export const canvasStyles = {
       width: '100%',
       height: '100%',
       overflow: 'hidden',
-      pointerEvents: 'auto'
+      pointerEvents: 'auto',
     },
     image: {
       position: 'absolute',
@@ -14,7 +14,7 @@ export const canvasStyles = {
       width: '100%',
       height: '100%',
       objectFit: 'cover',
-      zIndex: 1
+      zIndex: 1,
     },
     video: {
       position: 'absolute' as const,
@@ -24,8 +24,8 @@ export const canvasStyles = {
       height: '100%',
       objectFit: 'cover' as const,
       zIndex: 1,
-      transform: 'scaleX(-1)' as const
-    }
+      transform: 'scaleX(-1)' as const,
+    },
   },
   canvas: {
     container: {
@@ -33,8 +33,8 @@ export const canvasStyles = {
       width: '100%',
       height: '100%',
       zIndex: '1',
-      pointerEvents: 'auto'
-    }
+      pointerEvents: 'auto',
+    },
   },
   subtitle: {
     container: {
@@ -47,15 +47,15 @@ export const canvasStyles = {
       borderRadius: '12px',
       minWidth: '60%',
       maxWidth: '95%',
-      zIndex: 2
+      zIndex: 2,
     },
     text: {
       color: 'white',
       fontSize: '1.5rem',
       textAlign: 'center',
       lineHeight: '1.4',
-      whiteSpace: 'pre-wrap'
-    }
+      whiteSpace: 'pre-wrap',
+    },
   },
   wsStatus: {
     container: {
@@ -72,8 +72,8 @@ export const canvasStyles = {
       cursor: 'pointer',
       userSelect: 'none',
       _hover: {
-        opacity: 0.8
-      }
-    }
-  }
-}
+        opacity: 0.8,
+      },
+    },
+  },
+};

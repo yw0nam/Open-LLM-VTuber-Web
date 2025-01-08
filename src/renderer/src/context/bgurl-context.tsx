@@ -1,4 +1,6 @@
-import { createContext, useMemo, useContext, useState, useCallback } from 'react';
+import {
+  createContext, useMemo, useContext, useState, useCallback,
+} from 'react';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 import { useWebSocket } from './websocket-context';
 
@@ -45,7 +47,7 @@ export function BgUrlProvider({ children }: { children: React.ReactNode }) {
   // Local storage for persistent background URL
   const [backgroundUrl, setBackgroundUrl] = useLocalStorage<string>(
     'backgroundUrl',
-    DEFAULT_BACKGROUND
+    DEFAULT_BACKGROUND,
   );
 
   // State for background files list
@@ -58,18 +60,18 @@ export function BgUrlProvider({ children }: { children: React.ReactNode }) {
 
   // Add new background file
   const addBackgroundFile = useCallback((file: BackgroundFile) => {
-    setBackgroundFiles(prev => [...prev, file]);
+    setBackgroundFiles((prev) => [...prev, file]);
   }, []);
 
   // Remove background file
   const removeBackgroundFile = useCallback((name: string) => {
-    setBackgroundFiles(prev => prev.filter(file => file.name !== name));
+    setBackgroundFiles((prev) => prev.filter((file) => file.name !== name));
   }, []);
 
   // Check if current background is default
-  const isDefaultBackground = useMemo(() => 
-    backgroundUrl === DEFAULT_BACKGROUND,
-    [backgroundUrl, DEFAULT_BACKGROUND]
+  const isDefaultBackground = useMemo(
+    () => backgroundUrl === DEFAULT_BACKGROUND,
+    [backgroundUrl, DEFAULT_BACKGROUND],
   );
 
   const [useCameraBackground, setUseCameraBackground] = useState<boolean>(false);
@@ -109,10 +111,10 @@ export function BgUrlProvider({ children }: { children: React.ReactNode }) {
  */
 export function useBgUrl() {
   const context = useContext(BgUrlContext);
-  
+
   if (!context) {
     throw new Error('useBgUrl must be used within a BgUrlProvider');
   }
-  
+
   return context;
 }

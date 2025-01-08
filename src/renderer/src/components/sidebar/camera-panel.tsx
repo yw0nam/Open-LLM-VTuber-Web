@@ -1,49 +1,55 @@
-import { useEffect } from 'react'
-import { Box, Text } from '@chakra-ui/react'
-import { FiCamera } from 'react-icons/fi'
-import { Tooltip } from '@/components/ui/tooltip'
-import { sidebarStyles } from './sidebar-styles'
-import { useCameraPanel } from '@/hooks/sidebar/use-camera-panel'
+import { useEffect } from 'react';
+import { Box, Text } from '@chakra-ui/react';
+import { FiCamera } from 'react-icons/fi';
+import { Tooltip } from '@/components/ui/tooltip';
+import { sidebarStyles } from './sidebar-styles';
+import { useCameraPanel } from '@/hooks/sidebar/use-camera-panel';
 
 // Reusable components
-const LiveIndicator = () => (
-  <Box color="red.500" display="flex" alignItems="center" gap={2}>
-    <Box w="8px" h="8px" borderRadius="full" bg="red.500" animation="pulse 2s infinite" />
-    <Text fontSize="sm">Live</Text>
-  </Box>
-)
+function LiveIndicator() {
+  return (
+    <Box color="red.500" display="flex" alignItems="center" gap={2}>
+      <Box w="8px" h="8px" borderRadius="full" bg="red.500" animation="pulse 2s infinite" />
+      <Text fontSize="sm">Live</Text>
+    </Box>
+  );
+}
 
-const CameraPlaceholder = () => (
-  <Box
-    position="absolute"
-    display="flex"
-    flexDirection="column"
-    alignItems="center"
-    gap={2}
-  >
-    <FiCamera size={24} />
-    <Text color="whiteAlpha.600" fontSize="sm" textAlign="center">
-      Click to start camera
-    </Text>
-  </Box>
-)
+function CameraPlaceholder() {
+  return (
+    <Box
+      position="absolute"
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      gap={2}
+    >
+      <FiCamera size={24} />
+      <Text color="whiteAlpha.600" fontSize="sm" textAlign="center">
+        Click to start camera
+      </Text>
+    </Box>
+  );
+}
 
-const VideoStream = ({ 
-  videoRef, 
-  isStreaming 
+function VideoStream({
+  videoRef,
+  isStreaming,
 }: {
   videoRef: React.RefObject<HTMLVideoElement>
   isStreaming: boolean
-}) => (
-  <video
-    ref={videoRef}
-    autoPlay
-    playsInline
-    muted
-    style={sidebarStyles.cameraPanel.video}
-    {...(isStreaming ? {} : { display: 'none' })}
-  />
-)
+}) {
+  return (
+    <video
+      ref={videoRef}
+      autoPlay
+      playsInline
+      muted
+      style={sidebarStyles.cameraPanel.video}
+      {...(isStreaming ? {} : { display: 'none' })}
+    />
+  );
+}
 
 // Main component
 function CameraPanel(): JSX.Element {
@@ -55,14 +61,14 @@ function CameraPanel(): JSX.Element {
     stream,
     toggleCamera,
     handleMouseEnter,
-    handleMouseLeave
-  } = useCameraPanel()
+    handleMouseLeave,
+  } = useCameraPanel();
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.srcObject = stream
+      videoRef.current.srcObject = stream;
     }
-  }, [stream])
+  }, [stream]);
 
   return (
     <Box {...sidebarStyles.cameraPanel.container}>
@@ -84,7 +90,7 @@ function CameraPanel(): JSX.Element {
           cursor="pointer"
           position="relative"
           _hover={{
-            bg: 'whiteAlpha.100'
+            bg: 'whiteAlpha.100',
           }}
         >
           {error ? (
@@ -100,7 +106,7 @@ function CameraPanel(): JSX.Element {
         </Box>
       </Tooltip>
     </Box>
-  )
+  );
 }
 
-export default CameraPanel
+export default CameraPanel;

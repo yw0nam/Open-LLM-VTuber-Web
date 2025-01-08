@@ -1,9 +1,9 @@
-import { useVAD } from '@/context/vad-context'
-import { useTextInput } from "@/hooks/footer/use-text-input";
-import { useInterrupt } from '@/hooks/utils/use-interrupt'
-import { useMicToggle } from '@/hooks/utils/use-mic-toggle'
-import { ChangeEvent, KeyboardEvent } from 'react'
-import { useAiState, AiStateEnum } from '@/context/ai-state-context'
+import { ChangeEvent, KeyboardEvent } from 'react';
+import { useVAD } from '@/context/vad-context';
+import { useTextInput } from '@/hooks/footer/use-text-input';
+import { useInterrupt } from '@/hooks/utils/use-interrupt';
+import { useMicToggle } from '@/hooks/utils/use-mic-toggle';
+import { useAiState, AiStateEnum } from '@/context/ai-state-context';
 
 export const useFooter = () => {
   const {
@@ -11,29 +11,29 @@ export const useFooter = () => {
     setInputText: handleChange,
     handleKeyPress: handleKey,
     handleCompositionStart,
-    handleCompositionEnd
-  } = useTextInput()
-  
-  const { interrupt } = useInterrupt()
-  const { startMic, autoStartMicOn } = useVAD()
-  const { handleMicToggle, micOn } = useMicToggle()
-  const { setAiState } = useAiState()
+    handleCompositionEnd,
+  } = useTextInput();
+
+  const { interrupt } = useInterrupt();
+  const { startMic, autoStartMicOn } = useVAD();
+  const { handleMicToggle, micOn } = useMicToggle();
+  const { setAiState } = useAiState();
 
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    handleChange({ target: { value: e.target.value } } as ChangeEvent<HTMLInputElement>)
-    setAiState(AiStateEnum.WAITING)
-  }
+    handleChange({ target: { value: e.target.value } } as ChangeEvent<HTMLInputElement>);
+    setAiState(AiStateEnum.WAITING);
+  };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    handleKey(e as any)
-  }
+    handleKey(e as any);
+  };
 
   const handleInterrupt = () => {
-    interrupt()
+    interrupt();
     if (autoStartMicOn) {
-      startMic()
+      startMic();
     }
-  }
+  };
 
   return {
     inputValue,
@@ -43,6 +43,6 @@ export const useFooter = () => {
     handleCompositionEnd,
     handleInterrupt,
     handleMicToggle,
-    micOn
-  }
-} 
+    micOn,
+  };
+};

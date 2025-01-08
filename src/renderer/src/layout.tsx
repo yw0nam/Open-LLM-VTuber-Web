@@ -1,14 +1,14 @@
-const isElectron = window.api !== undefined
+const isElectron = window.api !== undefined;
 
 // 添加一个辅助函数来处理移动端高度
 const getAppHeight = () => {
   // 移动端使用 window.innerHeight 来获取实际可视高度
   if (typeof window !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent)) {
-    return `${window.innerHeight}px`
+    return `${window.innerHeight}px`;
   }
   // 桌面端保持原来的逻辑
-  return isElectron ? 'calc(100vh - 30px)' : '100vh'
-}
+  return isElectron ? 'calc(100vh - 30px)' : '100vh';
+};
 
 export const layoutStyles = {
   appContainer: {
@@ -19,7 +19,7 @@ export const layoutStyles = {
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',
-    flexDirection: { base: 'column', md: 'row' } // 移动端改为纵向布局
+    flexDirection: { base: 'column', md: 'row' }, // 移动端改为纵向布局
   },
   sidebar: {
     position: 'relative' as const,
@@ -30,7 +30,7 @@ export const layoutStyles = {
     borderColor: 'whiteAlpha.200',
     overflow: 'hidden',
     flexShrink: 0,
-    transition: 'all 0.2s'
+    transition: 'all 0.2s',
   },
   mainContent: {
     flex: 1,
@@ -40,7 +40,7 @@ export const layoutStyles = {
     flexDirection: 'column',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     width: '100%',
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   canvas: {
     position: 'relative',
@@ -48,7 +48,7 @@ export const layoutStyles = {
     flex: 1,
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     overflow: 'hidden',
-    willChange: 'transform'
+    willChange: 'transform',
   },
   footer: {
     width: '100%',
@@ -56,7 +56,7 @@ export const layoutStyles = {
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     willChange: 'transform',
     position: 'relative',
-    zIndex: 1
+    zIndex: 1,
   },
   toggleButton: {
     position: 'absolute',
@@ -68,10 +68,10 @@ export const layoutStyles = {
     _hover: { bg: 'whiteAlpha.200' },
     borderLeftRadius: 0,
     borderRightRadius: 'md',
-    zIndex: 10
+    zIndex: 10,
   },
   canvasHeight: (isFooterCollapsed: boolean) => ({
-    height: isFooterCollapsed ? 'calc(100% - 24px)' : 'calc(100% - 120px)'
+    height: isFooterCollapsed ? 'calc(100% - 24px)' : 'calc(100% - 120px)',
   }),
   sidebarToggleButton: {
     position: 'absolute',
@@ -82,11 +82,11 @@ export const layoutStyles = {
     bg: 'gray.800',
     borderLeftRadius: 0,
     borderRightRadius: 'md',
-    zIndex: 10
+    zIndex: 10,
   },
   collapsedFooter: {
     height: { base: '20px', md: '24px' }, // 移动端收起时更小
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   },
   windowsTitleBar: {
     display: 'flex',
@@ -95,7 +95,7 @@ export const layoutStyles = {
     height: '30px',
     backgroundColor: 'gray.800',
     paddingX: '10px',
-    css: { '-webkit-app-region': 'drag' }
+    css: { '-webkit-app-region': 'drag' },
   },
   macTitleBar: {
     display: 'flex',
@@ -103,32 +103,32 @@ export const layoutStyles = {
     justifyContent: 'center',
     height: '30px',
     backgroundColor: 'gray.800',
-    css: { 
+    css: {
       '-webkit-app-region': 'drag',
-      '-webkit-user-select': 'none'
-    }
+      '-webkit-user-select': 'none',
+    },
   },
   titleBarTitle: {
     fontSize: 'sm',
     color: 'whiteAlpha.800',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   titleBarButtons: {
     display: 'flex',
-    gap: '1'
+    gap: '1',
   },
   titleBarButton: {
     size: 'sm',
     variant: 'ghost',
     color: 'whiteAlpha.800',
     css: { '-webkit-app-region': 'no-drag' },
-    _hover: { backgroundColor: 'whiteAlpha.200' }
+    _hover: { backgroundColor: 'whiteAlpha.200' },
   },
   closeButton: {
     size: 'sm',
     variant: 'ghost',
     color: 'whiteAlpha.800',
     css: { '-webkit-app-region': 'no-drag' },
-    _hover: { backgroundColor: 'red.500' }
-  }
-} as const
+    _hover: { backgroundColor: 'red.500' },
+  },
+} as const;

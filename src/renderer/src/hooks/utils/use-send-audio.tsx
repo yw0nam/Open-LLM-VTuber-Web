@@ -12,7 +12,7 @@ export function useSendAudio() {
       const chunk = audio.slice(index, endIndex);
       sendMessage({
         type: 'mic-audio-data',
-        audio: Array.from(chunk)
+        audio: Array.from(chunk),
       });
     }
     // Send end signal after all chunks
@@ -20,6 +20,6 @@ export function useSendAudio() {
   }, [sendMessage]);
 
   return {
-    sendAudioPartition
+    sendAudioPartition,
   };
 }

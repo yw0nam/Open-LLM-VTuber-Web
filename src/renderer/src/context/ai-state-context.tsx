@@ -7,7 +7,7 @@ import {
   useMemo,
   useRef,
   useEffect,
-} from "react";
+} from 'react';
 
 /**
  * Enum for all possible AI states
@@ -18,33 +18,33 @@ export const enum AiStateEnum {
    * - Can be triggered to speak proactively
    * - Ready to receive user input
    */
-  IDLE = "idle",
+  IDLE = 'idle',
 
   /**
    * - Can be interrupted by user
    */
-  THINKING_SPEAKING = "thinking-speaking",
+  THINKING_SPEAKING = 'thinking-speaking',
 
   /**
    * - Triggered by sending text / detecting speech / clicking interrupt button / creating new chat history / switching character
    */
-  INTERRUPTED = "interrupted",
+  INTERRUPTED = 'interrupted',
 
   /**
    * - Shows during initial load / character switching
    */
-  LOADING = "loading",
+  LOADING = 'loading',
 
   /**
    * - Speech is detected
    */
-  LISTENING = "listening",
+  LISTENING = 'listening',
 
   /**
    * - Set when user is typing
    * - Auto returns to IDLE after 2s
    */
-  WAITING = "waiting",
+  WAITING = 'waiting',
 }
 
 export type AiState = `${AiStateEnum}`;
@@ -114,7 +114,7 @@ export function AiStateProvider({ children }: { children: ReactNode }) {
       isListening: aiState === AiStateEnum.LISTENING,
       isWaiting: aiState === AiStateEnum.WAITING,
     }),
-    [aiState]
+    [aiState],
   );
 
   // Reset state handler
@@ -122,12 +122,10 @@ export function AiStateProvider({ children }: { children: ReactNode }) {
     setAiState(AiStateEnum.IDLE);
   }, [setAiState]);
 
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
+  useEffect(() => () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
   }, []);
 
   // Memoized context value
@@ -138,7 +136,7 @@ export function AiStateProvider({ children }: { children: ReactNode }) {
       ...stateChecks,
       resetState,
     }),
-    [aiState, setAiState, stateChecks, resetState]
+    [aiState, setAiState, stateChecks, resetState],
   );
 
   return (
@@ -156,7 +154,7 @@ export function useAiState() {
   const context = useContext(AiStateContext);
 
   if (!context) {
-    throw new Error("useAiState must be used within a AiStateProvider");
+    throw new Error('useAiState must be used within a AiStateProvider');
   }
 
   return context;

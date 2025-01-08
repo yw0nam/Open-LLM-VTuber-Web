@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useProactiveSpeak } from '@/context/proactive-speak-context'
+import { useCallback, useEffect, useState } from 'react';
+import { useProactiveSpeak } from '@/context/proactive-speak-context';
 
 interface UseAgentSettingsProps {
   onSave?: (callback: () => void) => () => void
@@ -7,63 +7,63 @@ interface UseAgentSettingsProps {
 }
 
 export function useAgentSettings({ onSave, onCancel }: UseAgentSettingsProps = {}) {
-  const { settings: persistedSettings, updateSettings } = useProactiveSpeak()
-  
+  const { settings: persistedSettings, updateSettings } = useProactiveSpeak();
+
   const [tempSettings, setTempSettings] = useState({
     allowProactiveSpeak: persistedSettings.allowProactiveSpeak,
     idleSecondsToSpeak: persistedSettings.idleSecondsToSpeak,
-  })
+  });
 
   const [originalSettings, setOriginalSettings] = useState({
-    ...persistedSettings
-  })
+    ...persistedSettings,
+  });
 
   useEffect(() => {
     if (persistedSettings) {
-      setOriginalSettings(persistedSettings)
-      setTempSettings(persistedSettings)
+      setOriginalSettings(persistedSettings);
+      setTempSettings(persistedSettings);
     }
-  }, [persistedSettings])
+  }, [persistedSettings]);
 
   const handleAllowProactiveSpeakChange = useCallback((checked: boolean) => {
-    setTempSettings(prev => ({
+    setTempSettings((prev) => ({
       ...prev,
       allowProactiveSpeak: checked,
-    }))
-  }, [])
+    }));
+  }, []);
 
   const handleIdleSecondsChange = useCallback((value: number) => {
-    setTempSettings(prev => ({
+    setTempSettings((prev) => ({
       ...prev,
       idleSecondsToSpeak: value,
-    }))
-  }, [])
+    }));
+  }, []);
 
   const handleSave = useCallback(() => {
-    updateSettings(tempSettings)
-    setOriginalSettings(tempSettings)
-  }, [updateSettings, tempSettings])
+    updateSettings(tempSettings);
+    setOriginalSettings(tempSettings);
+  }, [updateSettings, tempSettings]);
 
   const handleCancel = useCallback(() => {
-    setTempSettings(originalSettings)
-    updateSettings(originalSettings)
-  }, [originalSettings, updateSettings])
+    setTempSettings(originalSettings);
+    updateSettings(originalSettings);
+  }, [originalSettings, updateSettings]);
 
   useEffect(() => {
-    if (!onSave || !onCancel) return
+    if (!onSave || !onCancel) return;
 
-    const cleanupSave = onSave(handleSave)
-    const cleanupCancel = onCancel(handleCancel)
+    const cleanupSave = onSave(handleSave);
+    const cleanupCancel = onCancel(handleCancel);
 
     return () => {
-      cleanupSave?.()
-      cleanupCancel?.()
-    }
-  }, [onSave, onCancel, handleSave, handleCancel])
+      cleanupSave?.();
+      cleanupCancel?.();
+    };
+  }, [onSave, onCancel, handleSave, handleCancel]);
 
   return {
     settings: tempSettings,
     handleAllowProactiveSpeakChange,
     handleIdleSecondsChange,
-  }
+  };
 }

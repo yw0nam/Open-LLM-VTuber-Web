@@ -1,11 +1,10 @@
-import { Stack } from '@chakra-ui/react'
-import { useBgUrl } from '@/context/bgurl-context'
-import { settingStyles } from './setting-styles'
-import { createListCollection } from '@chakra-ui/react'
-import { useConfig } from '@/context/character-config-context'
-import { useGeneralSettings } from '@/hooks/sidebar/setting/use-general-settings'
-import { useWebSocket } from '@/context/websocket-context'
-import { SelectField, SwitchField, InputField } from './common'
+import { Stack, createListCollection } from '@chakra-ui/react';
+import { useBgUrl } from '@/context/bgurl-context';
+import { settingStyles } from './setting-styles';
+import { useConfig } from '@/context/character-config-context';
+import { useGeneralSettings } from '@/hooks/sidebar/setting/use-general-settings';
+import { useWebSocket } from '@/context/websocket-context';
+import { SelectField, SwitchField, InputField } from './common';
 
 interface GeneralProps {
   onSave?: (callback: () => void) => () => void
@@ -14,42 +13,44 @@ interface GeneralProps {
 
 // Data collection definition
 const useCollections = () => {
-  const { backgroundFiles } = useBgUrl() || {}
-  const { configFiles } = useConfig()
+  const { backgroundFiles } = useBgUrl() || {};
+  const { configFiles } = useConfig();
 
   const languages = createListCollection({
     items: [
       { label: 'English', value: 'en' },
-      { label: '中文', value: 'zh' }
-    ]
-  })
+      { label: '中文', value: 'zh' },
+    ],
+  });
 
   const backgrounds = createListCollection({
     items: backgroundFiles?.map((filename) => ({
       label: String(filename),
-      value: `/bg/${filename}`
-    })) || []
-  })
+      value: `/bg/${filename}`,
+    })) || [],
+  });
 
   const characterPresets = createListCollection({
     items: configFiles.map((config) => ({
       label: config.name,
-      value: config.filename
-    }))
-  })
+      value: config.filename,
+    })),
+  });
 
   return {
     languages,
     backgrounds,
-    characterPresets
-  }
-}
+    characterPresets,
+  };
+};
 
 function General({ onSave, onCancel }: GeneralProps): JSX.Element {
-  const bgUrlContext = useBgUrl()
-  const { confName, setConfName } = useConfig()
-  const { wsUrl, setWsUrl, baseUrl, setBaseUrl } = useWebSocket()
-  const collections = useCollections()
+  const bgUrlContext = useBgUrl();
+  const { confName, setConfName } = useConfig();
+  const {
+    wsUrl, setWsUrl, baseUrl, setBaseUrl,
+  } = useWebSocket();
+  const collections = useCollections();
 
   const {
     settings,
@@ -57,7 +58,7 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
     handleCameraToggle,
     handleCharacterPresetChange,
     showSubtitle,
-    setShowSubtitle
+    setShowSubtitle,
   } = useGeneralSettings({
     bgUrlContext,
     confName,
@@ -67,8 +68,8 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
     onWsUrlChange: setWsUrl,
     onBaseUrlChange: setBaseUrl,
     onSave,
-    onCancel
-  })
+    onCancel,
+  });
 
   return (
     <Stack {...settingStyles.common.container}>
@@ -133,7 +134,7 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
         placeholder="Enter Base URL"
       />
     </Stack>
-  )
+  );
 }
 
-export default General
+export default General;

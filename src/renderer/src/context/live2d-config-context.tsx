@@ -1,6 +1,8 @@
-import { createContext, useContext, useState, useMemo, useEffect } from "react";
-import { useLocalStorage } from "@/hooks/utils/use-local-storage";
-import { useConfig } from "@/context/character-config-context";
+import {
+  createContext, useContext, useState, useMemo, useEffect,
+} from 'react';
+import { useLocalStorage } from '@/hooks/utils/use-local-storage';
+import { useConfig } from '@/context/character-config-context';
 
 /**
  * Model emotion mapping interface
@@ -33,37 +35,37 @@ export interface TapMotionMap {
 export interface ModelInfo {
   /** Model name */
   name?: string;
-  
+
   /** Model description */
   description?: string;
-  
+
   /** Model URL */
   url: string;
-  
+
   /** Scale factor */
   kScale: number | string;
-  
+
   /** Initial X position shift */
   initialXshift: number | string;
-  
+
   /** Initial Y position shift */
   initialYshift: number | string;
-  
+
   /** X-axis offset coefficient */
   kXOffset?: number | string;
-  
+
   /** Idle motion group name */
   idleMotionGroupName?: string;
-  
+
   /** Emotion mapping configuration */
   emotionMap: EmotionMap;
-  
+
   /** Enable pointer interactivity */
   pointerInteractive?: boolean;
-  
+
   /** Tap motion mapping configuration */
   tapMotions?: TapMotionMap;
-  
+
   /** Enable scroll to resize */
   scrollToResize?: boolean;
 }
@@ -112,17 +114,16 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
     return () => unsubscribe?.();
   }, []);
 
-  const getStorageKey = (uid: string, isPet: boolean) => 
-    `modelInfo_${uid}_${isPet ? 'pet' : 'window'}`;
+  const getStorageKey = (uid: string, isPet: boolean) => `modelInfo_${uid}_${isPet ? 'pet' : 'window'}`;
 
   const [modelInfo, setModelInfoState] = useLocalStorage<ModelInfo | undefined>(
-    "modelInfo",
-    DEFAULT_CONFIG.modelInfo
+    'modelInfo',
+    DEFAULT_CONFIG.modelInfo,
   );
 
   const [scaleMemory, setScaleMemory] = useLocalStorage<Record<string, number>>(
-    "scale_memory",
-    {}
+    'scale_memory',
+    {},
   );
 
   const setModelInfo = (info: ModelInfo | undefined) => {
@@ -134,20 +135,20 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
         finalScale = scaleMemory[storageKey];
       } else {
         finalScale = Number(info.kScale || 0);
-        setScaleMemory(prev => ({
+        setScaleMemory((prev) => ({
           ...prev,
-          [storageKey]: finalScale
+          [storageKey]: finalScale,
         }));
       }
 
       setModelInfoState({
         ...info,
         kScale: finalScale,
-        pointerInteractive: 'pointerInteractive' in info 
-          ? info.pointerInteractive 
+        pointerInteractive: 'pointerInteractive' in info
+          ? info.pointerInteractive
           : modelInfo?.pointerInteractive ?? false,
-        scrollToResize: 'scrollToResize' in info 
-          ? info.scrollToResize 
+        scrollToResize: 'scrollToResize' in info
+          ? info.scrollToResize
           : modelInfo?.scrollToResize ?? true,
       });
     } else {
@@ -158,14 +159,14 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
   const updateModelScale = (newScale: number) => {
     if (modelInfo) {
       const storageKey = getStorageKey(confUid, isPet);
-      setScaleMemory(prev => ({
+      setScaleMemory((prev) => ({
         ...prev,
-        [storageKey]: Number(newScale.toFixed(8))
+        [storageKey]: Number(newScale.toFixed(8)),
       }));
 
       setModelInfo({
         ...modelInfo,
-        kScale: Number(newScale.toFixed(8))
+        kScale: Number(newScale.toFixed(8)),
       });
     }
   };
@@ -174,11 +175,11 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
     if (modelInfo) {
       const storageKey = getStorageKey(confUid, isPet);
       const memorizedScale = scaleMemory[storageKey];
-      
+
       if (memorizedScale !== undefined && memorizedScale !== Number(modelInfo.kScale)) {
         setModelInfo({
           ...modelInfo,
-          kScale: memorizedScale
+          kScale: memorizedScale,
         });
       }
     }
@@ -191,9 +192,9 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
       setModelInfo,
       isLoading,
       setIsLoading,
-      updateModelScale
+      updateModelScale,
     }),
-    [modelInfo, isLoading]
+    [modelInfo, isLoading],
   );
 
   return (
@@ -211,7 +212,7 @@ export function useLive2DConfig() {
   const context = useContext(Live2DConfigContext);
 
   if (!context) {
-    throw new Error("useLive2DConfig must be used within a Live2DConfigProvider");
+    throw new Error('useLive2DConfig must be used within a Live2DConfigProvider');
   }
 
   return context;

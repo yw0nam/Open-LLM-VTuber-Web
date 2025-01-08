@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
-import { ModelInfo, useLive2DConfig } from '@/context/live2d-config-context'
+import { useState, useEffect } from 'react';
+import { ModelInfo, useLive2DConfig } from '@/context/live2d-config-context';
 
 export const useLive2dSettings = () => {
-  const Live2DConfigContext = useLive2DConfig()
-  
+  const Live2DConfigContext = useLive2DConfig();
+
   const initialModelInfo: ModelInfo = {
     url: '',
     kScale: 0.000625,
@@ -11,50 +11,50 @@ export const useLive2dSettings = () => {
     initialYshift: 0,
     kXOffset: 1150,
     emotionMap: {},
-    scrollToResize: true
-  }
+    scrollToResize: true,
+  };
 
   const [modelInfo, setModelInfoState] = useState<ModelInfo>(
-    Live2DConfigContext?.modelInfo || initialModelInfo
-  )
+    Live2DConfigContext?.modelInfo || initialModelInfo,
+  );
   const [originalModelInfo, setOriginalModelInfo] = useState<ModelInfo>(
-    Live2DConfigContext?.modelInfo || initialModelInfo
-  )
+    Live2DConfigContext?.modelInfo || initialModelInfo,
+  );
 
   useEffect(() => {
     if (Live2DConfigContext?.modelInfo) {
-      setOriginalModelInfo(Live2DConfigContext.modelInfo)
-      setModelInfoState(Live2DConfigContext.modelInfo)
+      setOriginalModelInfo(Live2DConfigContext.modelInfo);
+      setModelInfoState(Live2DConfigContext.modelInfo);
     }
-  }, [Live2DConfigContext?.modelInfo])
+  }, [Live2DConfigContext?.modelInfo]);
 
   useEffect(() => {
     if (Live2DConfigContext && modelInfo) {
-      Live2DConfigContext.setModelInfo(modelInfo)
+      Live2DConfigContext.setModelInfo(modelInfo);
     }
-  }, [modelInfo.pointerInteractive, modelInfo.scrollToResize])
+  }, [modelInfo.pointerInteractive, modelInfo.scrollToResize]);
 
   const handleInputChange = (key: keyof ModelInfo, value: ModelInfo[keyof ModelInfo]): void => {
-    setModelInfoState((prev) => ({ ...prev, [key]: value }))
-  }
+    setModelInfoState((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleSave = (): void => {
     if (Live2DConfigContext && modelInfo) {
-      setOriginalModelInfo(modelInfo)
+      setOriginalModelInfo(modelInfo);
     }
-  }
+  };
 
   const handleCancel = (): void => {
-    setModelInfoState(originalModelInfo)
+    setModelInfoState(originalModelInfo);
     if (Live2DConfigContext && originalModelInfo) {
-      Live2DConfigContext.setModelInfo(originalModelInfo)
+      Live2DConfigContext.setModelInfo(originalModelInfo);
     }
-  }
+  };
 
   return {
     modelInfo,
     handleInputChange,
     handleSave,
-    handleCancel
-  }
-} 
+    handleCancel,
+  };
+};

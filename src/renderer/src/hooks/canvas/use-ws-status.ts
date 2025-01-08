@@ -1,5 +1,5 @@
-import { useWebSocket } from '@/context/websocket-context'
-import { useMemo, useCallback } from 'react'
+import { useMemo, useCallback } from 'react';
+import { useWebSocket } from '@/context/websocket-context';
 
 interface WSStatusInfo {
   color: string
@@ -9,13 +9,13 @@ interface WSStatusInfo {
 }
 
 export const useWSStatus = () => {
-  const { wsState, reconnect } = useWebSocket()
+  const { wsState, reconnect } = useWebSocket();
 
   const handleClick = useCallback(() => {
     if (wsState !== 'OPEN' && wsState !== 'CONNECTING') {
-      reconnect()
+      reconnect();
     }
-  }, [wsState, reconnect])
+  }, [wsState, reconnect]);
 
   const statusInfo = useMemo((): WSStatusInfo => {
     switch (wsState) {
@@ -24,24 +24,24 @@ export const useWSStatus = () => {
           color: 'green.500',
           text: 'Connected',
           isDisconnected: false,
-          handleClick
-        }
+          handleClick,
+        };
       case 'CONNECTING':
         return {
           color: 'yellow.500',
           text: 'Connecting',
           isDisconnected: false,
-          handleClick
-        }
+          handleClick,
+        };
       default:
         return {
           color: 'red.500',
           text: 'Click to Reconnect',
           isDisconnected: true,
-          handleClick
-        }
+          handleClick,
+        };
     }
-  }, [wsState, handleClick])
+  }, [wsState, handleClick]);
 
-  return statusInfo
-} 
+  return statusInfo;
+};

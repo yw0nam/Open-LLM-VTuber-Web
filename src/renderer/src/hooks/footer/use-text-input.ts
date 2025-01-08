@@ -26,7 +26,7 @@ export function useTextInput() {
     appendHumanMessage(inputText.trim());
     wsContext.sendMessage({
       type: 'text-input',
-      text: inputText.trim()
+      text: inputText.trim(),
     });
     if (!voiceInterruptionOn) stopMic();
     setInputText('');

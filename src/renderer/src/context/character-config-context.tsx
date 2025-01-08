@@ -1,5 +1,7 @@
-import { createContext, useContext, useMemo, useEffect, useCallback } from "react";
-import { useLocalStorage } from "@/hooks/utils/use-local-storage";
+import {
+  createContext, useContext, useMemo, useEffect, useCallback,
+} from 'react';
+import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 
 /**
  * Character configuration file interface
@@ -28,8 +30,8 @@ interface CharacterConfigState {
  * Default values and constants
  */
 const DEFAULT_CONFIG = {
-  confName: "",
-  confUid: "",
+  confName: '',
+  confUid: '',
   configFiles: [] as ConfigFile[],
 };
 
@@ -46,21 +48,19 @@ export const ConfigContext = createContext<CharacterConfigState | null>(null);
 export function CharacterConfigProvider({ children }: { children: React.ReactNode }) {
   // Local storage state management
   const [confName, setConfName] = useLocalStorage<string>(
-    "confName",
-    DEFAULT_CONFIG.confName
+    'confName',
+    DEFAULT_CONFIG.confName,
   );
   const [confUid, setConfUid] = useLocalStorage<string>(
-    "confUid",
-    DEFAULT_CONFIG.confUid
+    'confUid',
+    DEFAULT_CONFIG.confUid,
   );
   const [configFiles, setConfigFiles] = useLocalStorage<ConfigFile[]>(
-    "configFiles",
-    DEFAULT_CONFIG.configFiles
+    'configFiles',
+    DEFAULT_CONFIG.configFiles,
   );
 
-  const getFilenameByName = useCallback((name: string) => {
-    return configFiles.find(config => config.name === name)?.filename;
-  }, [configFiles]);
+  const getFilenameByName = useCallback((name: string) => configFiles.find((config) => config.name === name)?.filename, [configFiles]);
 
   // Memoized context value
   const contextValue = useMemo(
@@ -73,12 +73,12 @@ export function CharacterConfigProvider({ children }: { children: React.ReactNod
       setConfigFiles,
       getFilenameByName,
     }),
-    [confName, confUid, configFiles, setConfName, setConfUid, setConfigFiles, getFilenameByName]
+    [confName, confUid, configFiles, setConfName, setConfUid, setConfigFiles, getFilenameByName],
   );
 
   useEffect(() => {
     (window.api as any)?.updateConfigFiles?.(configFiles);
-  }, []); 
+  }, []);
 
   useEffect(() => {
     (window.api as any)?.updateConfigFiles?.(configFiles);
@@ -99,7 +99,7 @@ export function useConfig() {
   const context = useContext(ConfigContext);
 
   if (!context) {
-    throw new Error("useConfig must be used within a CharacterConfigProvider");
+    throw new Error('useConfig must be used within a CharacterConfigProvider');
   }
 
   return context;

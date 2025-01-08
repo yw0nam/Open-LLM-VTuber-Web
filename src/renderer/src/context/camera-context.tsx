@@ -6,7 +6,7 @@ import {
   useMemo,
   useCallback,
   ReactNode,
-} from "react";
+} from 'react';
 
 /**
  * Camera configuration interface
@@ -58,7 +58,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isBackgroundStreaming, setIsBackgroundStreaming] = useState(false);
   const [cameraConfig, setCameraConfig] = useState<CameraConfig>(
-    DEFAULT_CAMERA_CONFIG
+    DEFAULT_CAMERA_CONFIG,
   );
   const streamRef = useRef<MediaStream | null>(null);
   const backgroundStreamRef = useRef<MediaStream | null>(null);
@@ -72,7 +72,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       }
 
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const hasCamera = devices.some(device => device.kind === 'videoinput');
+      const hasCamera = devices.some((device) => device.kind === 'videoinput');
       if (!hasCamera) {
         throw new Error('No camera found on this device');
       }
@@ -90,7 +90,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       }
       setIsStreaming(true);
     } catch (err) {
-      console.error("Failed to start camera:", err);
+      console.error('Failed to start camera:', err);
       throw err;
     }
   }, [cameraConfig]);
@@ -108,13 +108,13 @@ export function CameraProvider({ children }: { children: ReactNode }) {
   const startBackgroundCamera = useCallback(async () => {
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Camera API is not supported on this device')
+        throw new Error('Camera API is not supported on this device');
       }
 
-      const devices = await navigator.mediaDevices.enumerateDevices()
-      const hasCamera = devices.some(device => device.kind === 'videoinput')
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasCamera = devices.some((device) => device.kind === 'videoinput');
       if (!hasCamera) {
-        throw new Error('No camera found on this device')
+        throw new Error('No camera found on this device');
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -122,23 +122,23 @@ export function CameraProvider({ children }: { children: ReactNode }) {
           width: { ideal: cameraConfig.width },
           height: { ideal: cameraConfig.height },
         },
-      })
+      });
 
-      backgroundStreamRef.current = stream
-      setIsBackgroundStreaming(true)
+      backgroundStreamRef.current = stream;
+      setIsBackgroundStreaming(true);
     } catch (err) {
-      console.error("Failed to start background camera:", err)
-      throw err
+      console.error('Failed to start background camera:', err);
+      throw err;
     }
-  }, [cameraConfig])
+  }, [cameraConfig]);
 
   const stopBackgroundCamera = useCallback(() => {
     if (backgroundStreamRef.current) {
-      backgroundStreamRef.current.getTracks().forEach((track) => track.stop())
-      backgroundStreamRef.current = null
-      setIsBackgroundStreaming(false)
+      backgroundStreamRef.current.getTracks().forEach((track) => track.stop());
+      backgroundStreamRef.current = null;
+      setIsBackgroundStreaming(false);
     }
-  }, [])
+  }, []);
 
   // Memoized context value
   const contextValue = useMemo(
@@ -155,7 +155,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       stopBackgroundCamera,
       isBackgroundStreaming,
     }),
-    [isStreaming, startCamera, stopCamera, cameraConfig, isBackgroundStreaming, startBackgroundCamera, stopBackgroundCamera]
+    [isStreaming, startCamera, stopCamera, cameraConfig, isBackgroundStreaming, startBackgroundCamera, stopBackgroundCamera],
   );
 
   return (
@@ -173,7 +173,7 @@ export function useCamera() {
   const context = useContext(CameraContext);
 
   if (!context) {
-    throw new Error("useCamera must be used within a CameraProvider");
+    throw new Error('useCamera must be used within a CameraProvider');
   }
 
   return context;

@@ -1,8 +1,8 @@
-import { ModelInfo } from "@/context/live2d-config-context";
-import { HistoryInfo } from "@/context/websocket-context";
-import { Message } from "@/types/message";
-import { Subject } from "rxjs";
-import { ConfigFile } from "@/context/character-config-context";
+import { Subject } from 'rxjs';
+import { ModelInfo } from '@/context/live2d-config-context';
+import { HistoryInfo } from '@/context/websocket-context';
+import { Message } from '@/types/message';
+import { ConfigFile } from '@/context/character-config-context';
 
 interface BackgroundFile {
   name: string;
@@ -31,9 +31,12 @@ export interface MessageEvent {
 
 class WebSocketService {
   private static instance: WebSocketService;
+
   private ws: WebSocket | null = null;
+
   private messageSubject = new Subject<MessageEvent>();
-  private stateSubject = new Subject<"CONNECTING" | "OPEN" | "CLOSING" | "CLOSED">();
+
+  private stateSubject = new Subject<'CONNECTING' | 'OPEN' | 'CLOSING' | 'CLOSED'>();
 
   private constructor() {}
 
@@ -46,19 +49,19 @@ class WebSocketService {
 
   private initializeConnection() {
     this.sendMessage({
-      type: "fetch-backgrounds"
+      type: 'fetch-backgrounds',
     });
     this.sendMessage({
-      type: "fetch-conf-info"
+      type: 'fetch-conf-info',
     });
     this.sendMessage({
-      type: "fetch-configs",
+      type: 'fetch-configs',
     });
     this.sendMessage({
-      type: "fetch-history-list"
+      type: 'fetch-history-list',
     });
     this.sendMessage({
-      type: "create-new-history"
+      type: 'create-new-history',
     });
   }
 
@@ -68,10 +71,10 @@ class WebSocketService {
     }
 
     this.ws = new WebSocket(url);
-    this.stateSubject.next("CONNECTING");
+    this.stateSubject.next('CONNECTING');
 
     this.ws.onopen = () => {
-      this.stateSubject.next("OPEN");
+      this.stateSubject.next('OPEN');
       this.initializeConnection();
     };
 
@@ -80,16 +83,16 @@ class WebSocketService {
         const message = JSON.parse(event.data);
         this.messageSubject.next(message);
       } catch (error) {
-        console.error("Failed to parse WebSocket message:", error);
+        console.error('Failed to parse WebSocket message:', error);
       }
     };
 
     this.ws.onclose = () => {
-      this.stateSubject.next("CLOSED");
+      this.stateSubject.next('CLOSED');
     };
 
     this.ws.onerror = () => {
-      this.stateSubject.next("CLOSED");
+      this.stateSubject.next('CLOSED');
     };
   }
 
@@ -97,7 +100,7 @@ class WebSocketService {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(message));
     } else {
-      console.warn("WebSocket is not open. Unable to send message:", message);
+      console.warn('WebSocket is not open. Unable to send message:', message);
     }
   }
 
@@ -105,7 +108,7 @@ class WebSocketService {
     return this.messageSubject.subscribe(callback);
   }
 
-  onStateChange(callback: (state: "CONNECTING" | "OPEN" | "CLOSING" | "CLOSED") => void) {
+  onStateChange(callback: (state: 'CONNECTING' | 'OPEN' | 'CLOSING' | 'CLOSED') => void) {
     return this.stateSubject.subscribe(callback);
   }
 

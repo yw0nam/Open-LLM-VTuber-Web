@@ -1,6 +1,7 @@
 import { Box, Button } from '@chakra-ui/react';
-import { FiTrash2 } from "react-icons/fi";
+import { FiTrash2 } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
+import { memo } from 'react';
 import {
   DrawerRoot,
   DrawerTrigger,
@@ -12,10 +13,9 @@ import {
   DrawerActionTrigger,
   DrawerBackdrop,
   DrawerCloseTrigger,
-} from "@/components/ui/drawer";
+} from '@/components/ui/drawer';
 import { sidebarStyles } from './sidebar-styles';
 import { useHistoryDrawer } from '@/hooks/sidebar/use-history-drawer';
-import { memo } from 'react';
 import { HistoryInfo } from '@/context/websocket-context';
 
 // Type definitions
@@ -35,7 +35,7 @@ const HistoryItem = memo(({
   isSelected,
   latestMessage,
   onSelect,
-  onDelete
+  onDelete,
 }: HistoryItemProps): JSX.Element => (
   <Box
     {...sidebarStyles.historyDrawer.historyItem}
@@ -74,7 +74,7 @@ function HistoryDrawer({ children }: HistoryDrawerProps): JSX.Element {
     currentHistoryUid,
     fetchAndSetHistory,
     deleteHistory,
-    getLatestMessageContent
+    getLatestMessageContent,
   } = useHistoryDrawer();
 
   return (

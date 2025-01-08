@@ -43,7 +43,7 @@ jobs:
 
       - name: Get last git tag
         id: tag
-        run: echo "::set-output name=last-tag::$(git describe --tags --abbrev=0 || git rev-list --max-parents=0 ${{github.ref}})"
+        run: echo "last-tag=$(git describe --tags --abbrev=0 || git rev-list --max-parents=0 ${{github.ref}})" >> $GITHUB_OUTPUT
 
       - name: Generate release notes
         id: release-note
@@ -52,7 +52,9 @@ jobs:
 
       - name: Get version from current date
         id: version
-        run: echo "::set-output name=build-version::$(node -e "try{console.log(require('./.electron-builder.config.js').extraMetadata.version)}catch(e){console.error(e);process.exit(1)}")"
+        run: |
+          VERSION=$(node -e "console.log(require('./package.json').version)")
+          echo "build-version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Waiting on All checks
         uses: lewagon/wait-on-check-action@v0.2
@@ -101,12 +103,12 @@ jobs:
       # The easiest way to transfer release notes to a compiled application is create `release-notes.md` in the build resources.
       # See https://github.com/electron-userland/electron-builder/issues/1511#issuecomment-310160119
       - name: Create build resources directory
-        run: mkdir -p buildResources
+        run: mkdir -p resources
 
       - name: Prepare release notes
         env:
           RELEASE_NOTE: ${{ needs.draft.outputs.release-note }}
-        run: echo "$RELEASE_NOTE" >> ./buildResources/release-notes.md
+        run: echo "$RELEASE_NOTE" >> ./resources/release-notes.md
 
       # If building a release for macos, need to do notarization.
       # - name: Prepare for app notarization
@@ -132,7 +134,7 @@ jobs:
           VITE_APP_VERSION: ${{ needs.draft.outputs.version }}
         with:
           build_script_name: build
-          args: --config .electron-builder.config.js
+          args: --config electron-builder.yml
           github_token: ${{ secrets.github_token }}
           release: true
           max_attempts: 3

@@ -1,8 +1,8 @@
-import { Stack } from '@chakra-ui/react'
-import { useEffect } from 'react'
-import { settingStyles } from './setting-styles'
-import { useASRSettings } from '@/hooks/sidebar/setting/use-asr-settings'
-import { SwitchField, NumberField } from './common'
+import { Stack } from '@chakra-ui/react';
+import { useEffect } from 'react';
+import { settingStyles } from './setting-styles';
+import { useASRSettings } from '@/hooks/sidebar/setting/use-asr-settings';
+import { SwitchField, NumberField } from './common';
 
 interface ASRProps {
   onSave?: (callback: () => void) => () => void
@@ -18,20 +18,20 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
     setAutoStartMicOn,
     handleInputChange,
     handleSave,
-    handleCancel
-  } = useASRSettings()
+    handleCancel,
+  } = useASRSettings();
 
   useEffect(() => {
-    if (!onSave || !onCancel) return
+    if (!onSave || !onCancel) return;
 
-    const cleanupSave = onSave(handleSave)
-    const cleanupCancel = onCancel(handleCancel)
+    const cleanupSave = onSave(handleSave);
+    const cleanupCancel = onCancel(handleCancel);
 
     return (): void => {
-      cleanupSave?.()
-      cleanupCancel?.()
-    }
-  }, [onSave, onCancel, handleSave, handleCancel])
+      cleanupSave?.();
+      cleanupCancel?.();
+    };
+  }, [onSave, onCancel, handleSave, handleCancel]);
 
   return (
     <Stack {...settingStyles.common.container}>
@@ -48,7 +48,7 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
       />
 
       <NumberField
-        label="Speech Prob. Threshold"
+        label="Speech Prob Threshold"
         value={localSettings.positiveSpeechThreshold}
         onChange={(value) => handleInputChange('positiveSpeechThreshold', value)}
         min={1}
@@ -71,7 +71,7 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
         max={100}
       />
     </Stack>
-  )
+  );
 }
 
-export default ASR
+export default ASR;

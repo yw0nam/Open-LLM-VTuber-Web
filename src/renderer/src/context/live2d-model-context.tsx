@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, memo, useCallback, useMemo } from 'react'
-import { Live2DModel } from "pixi-live2d-display-lipsyncpatch";
+import {
+  createContext, useContext, useState, memo, useCallback, useMemo,
+} from 'react';
+import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch';
 
 /**
  * Live2D model context state interface
@@ -8,10 +10,10 @@ import { Live2DModel } from "pixi-live2d-display-lipsyncpatch";
 interface Live2DModelState {
   /** Current Live2D model instance */
   currentModel: Live2DModel | null;
-  
+
   /** Set current Live2D model */
   setCurrentModel: (model: Live2DModel | null) => void;
-  
+
   /** Update Live2D model state partially */
   updateModelState: (updates: Partial<Live2DModel>) => void;
 }
@@ -31,14 +33,14 @@ const Live2DModelContext = createContext<Live2DModelState | null>(null);
 /**
  * Live2D Model Provider Component
  * Manages the Live2D model instance and its state updates
- * 
+ *
  * @param {Object} props - Provider props
  * @param {React.ReactNode} props.children - Child components
  */
 export const Live2DModelProvider = memo(({ children }: { children: React.ReactNode }) => {
   // State management
   const [currentModel, setCurrentModel] = useState<Live2DModel | null>(
-    DEFAULT_MODEL_STATE.currentModel
+    DEFAULT_MODEL_STATE.currentModel,
   );
 
   /**
@@ -59,7 +61,7 @@ export const Live2DModelProvider = memo(({ children }: { children: React.ReactNo
       setCurrentModel,
       updateModelState,
     }),
-    [currentModel, updateModelState]
+    [currentModel, updateModelState],
   );
 
   return (
@@ -77,8 +79,8 @@ export function useLive2DModel() {
   const context = useContext(Live2DModelContext);
 
   if (!context) {
-    throw new Error("useLive2DModel must be used within a Live2DModelProvider");
+    throw new Error('useLive2DModel must be used within a Live2DModelProvider');
   }
 
   return context;
-} 
+}

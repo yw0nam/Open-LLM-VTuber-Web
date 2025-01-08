@@ -1,14 +1,16 @@
-import { useEffect, useRef } from "react";
-import * as PIXI from "pixi.js";
-import { Live2DModel } from "pixi-live2d-display-lipsyncpatch";
-import { ModelInfo, useLive2DConfig, MotionWeightMap, TapMotionMap } from "@/context/live2d-config-context";
-import { useLive2DModel as useModelContext } from "@/context/live2d-model-context";
-import { adjustModelSizeAndPosition } from "./use-live2d-resize";
+import { useEffect, useRef } from 'react';
+import * as PIXI from 'pixi.js';
 import {
+  Live2DModel,
   MotionPreloadStrategy,
   MotionPriority,
-} from "pixi-live2d-display-lipsyncpatch";
-import { audioTaskQueue } from "@/utils/task-queue";
+} from 'pixi-live2d-display-lipsyncpatch';
+import {
+  ModelInfo, useLive2DConfig, MotionWeightMap, TapMotionMap,
+} from '@/context/live2d-config-context';
+import { useLive2DModel as useModelContext } from '@/context/live2d-model-context';
+import { adjustModelSizeAndPosition } from './use-live2d-resize';
+import { audioTaskQueue } from '@/utils/task-queue';
 
 interface UseLive2DModelProps {
   isPet: boolean;
@@ -42,7 +44,7 @@ export const useLive2DModel = ({
         antialias: true,
         clearBeforeRender: true,
         preserveDrawingBuffer: false,
-        powerPreference: "high-performance",
+        powerPreference: 'high-performance',
         resolution: window.devicePixelRatio || 1,
         autoDensity: true,
       });
@@ -74,7 +76,7 @@ export const useLive2DModel = ({
     if (!modelInfo?.url || !appRef.current) return;
     if (loadingRef.current) return;
 
-    console.log("Loading model:", modelInfo.url);
+    console.log('Loading model:', modelInfo.url);
 
     try {
       loadingRef.current = true;
@@ -92,7 +94,7 @@ export const useLive2DModel = ({
       setupModel(model);
       onModelLoad?.(model);
     } catch (error) {
-      console.error("Failed to load Live2D model:", error);
+      console.error('Failed to load Live2D model:', error);
     } finally {
       loadingRef.current = false;
       setIsLoading(false);
@@ -118,20 +120,20 @@ export const useLive2DModel = ({
     appRef.current.stage.addChild(model);
 
     model.interactive = true;
-    model.cursor = "pointer";
+    model.cursor = 'pointer';
 
     if (isPet) {
-      model.on("pointerenter", () => {
-        (window.api as any)?.updateComponentHover('live2d-model', true)
+      model.on('pointerenter', () => {
+        (window.api as any)?.updateComponentHover('live2d-model', true);
       });
 
-      model.on("pointerleave", () => {
+      model.on('pointerleave', () => {
         if (!dragging) {
-          (window.api as any)?.updateComponentHover('live2d-model', false)
+          (window.api as any)?.updateComponentHover('live2d-model', false);
         }
       });
 
-      model.on("rightdown", (e: any) => {
+      model.on('rightdown', (e: any) => {
         e.data.originalEvent.preventDefault();
         (window.api as any).showContextMenu();
       });
@@ -141,9 +143,9 @@ export const useLive2DModel = ({
     let pointerX = 0;
     let pointerY = 0;
     let isTap = false;
-    const dragThreshold = 5; 
+    const dragThreshold = 5;
 
-    model.on("pointerdown", (e) => {
+    model.on('pointerdown', (e) => {
       if (e.button === 0) {
         dragging = true;
         isTap = true;
@@ -152,7 +154,7 @@ export const useLive2DModel = ({
       }
     });
 
-    model.on("pointermove", (e) => {
+    model.on('pointermove', (e) => {
       if (dragging) {
         const newX = e.global.x - pointerX;
         const newY = e.global.y - pointerY;
@@ -160,7 +162,7 @@ export const useLive2DModel = ({
         const dy = newY - model.y;
 
         if (Math.hypot(dx, dy) > dragThreshold) {
-          isTap = false; 
+          isTap = false;
         }
 
         model.position.x = newX;
@@ -170,19 +172,19 @@ export const useLive2DModel = ({
 
     const playRandomMotion = (motionGroup: MotionWeightMap) => {
       if (!motionGroup || Object.keys(motionGroup).length === 0) return;
-      
+
       const totalWeight = Object.values(motionGroup).reduce((sum, weight) => sum + weight, 0);
       let random = Math.random() * totalWeight;
-      
+
       for (const [motion, weight] of Object.entries(motionGroup)) {
         random -= weight;
         if (random <= 0) {
-          const priority = audioTaskQueue.hasTask() ? 
-            MotionPriority.NORMAL : 
-            MotionPriority.FORCE;
-          
+          const priority = audioTaskQueue.hasTask()
+            ? MotionPriority.NORMAL
+            : MotionPriority.FORCE;
+
           console.log(
-            `Playing weighted motion: ${motion} (weight: ${weight}/${totalWeight}, priority: ${priority})`
+            `Playing weighted motion: ${motion} (weight: ${weight}/${totalWeight}, priority: ${priority})`,
           );
           model.motion(motion, undefined, priority);
           break;
@@ -192,8 +194,8 @@ export const useLive2DModel = ({
 
     const getMergedMotionGroup = (tapMotions: TapMotionMap): MotionWeightMap => {
       const mergedMotions: { [key: string]: { total: number; count: number } } = {};
-      
-      Object.values(tapMotions).forEach(motionGroup => {
+
+      Object.values(tapMotions).forEach((motionGroup) => {
         Object.entries(motionGroup).forEach(([motion, weight]) => {
           if (!mergedMotions[motion]) {
             mergedMotions[motion] = { total: 0, count: 0 };
@@ -202,14 +204,14 @@ export const useLive2DModel = ({
           mergedMotions[motion].count += 1;
         });
       });
-      
+
       return Object.entries(mergedMotions).reduce((acc, [motion, { total, count }]) => {
         acc[motion] = total / count;
         return acc;
       }, {} as MotionWeightMap);
     };
 
-    model.on("pointerup", (e) => {
+    model.on('pointerup', (e) => {
       if (dragging) {
         dragging = false;
         if (!model.containsPoint(new PIXI.Point(e.global.x, e.global.y))) {
@@ -217,7 +219,7 @@ export const useLive2DModel = ({
         }
         if (isTap) {
           const hitAreas = model.hitTest(e.global.x, e.global.y);
-          
+
           for (const area of hitAreas) {
             const motionGroup = modelInfo?.tapMotions?.[area];
             if (motionGroup) {
@@ -228,16 +230,16 @@ export const useLive2DModel = ({
           }
 
           if (modelInfo?.tapMotions && Object.keys(modelInfo.tapMotions).length > 0) {
-            console.log("No specific hit area found, using merged motion groups");
+            console.log('No specific hit area found, using merged motion groups');
             const mergedMotions = getMergedMotionGroup(modelInfo.tapMotions);
-            console.log("Merged motion groups:", mergedMotions);
+            console.log('Merged motion groups:', mergedMotions);
             playRandomMotion(mergedMotions);
           }
         }
       }
     });
 
-    model.on("pointerupoutside", () => {
+    model.on('pointerupoutside', () => {
       dragging = false;
       // (window.api as any)?.updateComponentHover('live2d-model', false)
     });

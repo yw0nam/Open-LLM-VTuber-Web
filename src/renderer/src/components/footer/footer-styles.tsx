@@ -1,4 +1,4 @@
-import { SystemStyleObject } from '@chakra-ui/react'
+import { SystemStyleObject } from '@chakra-ui/react';
 
 interface FooterStyles {
   container: (isCollapsed: boolean) => SystemStyleObject
@@ -26,7 +26,7 @@ export const footerStyles: {
       height: '100%',
       position: 'relative',
       overflow: isCollapsed ? 'visible' : 'hidden',
-      pb: '4'
+      pb: '4',
     }),
     toggleButton: {
       height: '24px',
@@ -37,7 +37,7 @@ export const footerStyles: {
       color: 'whiteAlpha.700',
       _hover: { color: 'white' },
       bg: 'transparent',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     },
     actionButton: {
       borderRadius: '12px',
@@ -55,11 +55,11 @@ export const footerStyles: {
       pr: '4',
       color: 'whiteAlpha.900',
       _placeholder: {
-        color: 'whiteAlpha.500'
+        color: 'whiteAlpha.500',
       },
       _focus: {
         border: 'none',
-        bg: 'gray.700'
+        bg: 'gray.700',
       },
       resize: 'none',
       minHeight: '80px',
@@ -68,7 +68,7 @@ export const footerStyles: {
       display: 'flex',
       alignItems: 'center',
       paddingTop: '28px',
-      lineHeight: '1.4'
+      lineHeight: '1.4',
     },
     attachButton: {
       position: 'absolute',
@@ -79,9 +79,9 @@ export const footerStyles: {
       zIndex: 2,
       _hover: {
         bg: 'transparent',
-        color: 'white'
-      }
-    }
+        color: 'white',
+      },
+    },
   },
   aiIndicator: {
     container: {
@@ -94,13 +94,13 @@ export const footerStyles: {
       alignItems: 'center',
       justifyContent: 'center',
       boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-      overflow: 'hidden'
+      overflow: 'hidden',
     },
     text: {
       fontSize: '12px',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    }
-  }
-}
+      textOverflow: 'ellipsis',
+    },
+  },
+};

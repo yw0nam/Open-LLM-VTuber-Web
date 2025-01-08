@@ -1,18 +1,18 @@
-import { useVAD } from '@/context/vad-context'
+import { useVAD } from '@/context/vad-context';
 
 export function useMicToggle() {
-  const { startMic, stopMic, micOn } = useVAD()
+  const { startMic, stopMic, micOn } = useVAD();
 
   const handleMicToggle = async (): Promise<void> => {
     if (micOn) {
-      stopMic()
+      stopMic();
     } else {
-      await startMic()
+      await startMic();
     }
-  }
+  };
 
   return {
     handleMicToggle,
-    micOn
-  }
-} 
+    micOn,
+  };
+}

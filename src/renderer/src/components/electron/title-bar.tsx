@@ -1,27 +1,29 @@
-import { useEffect, useState } from 'react'
-import { Box, IconButton } from '@chakra-ui/react'
-import { FiMinus, FiMaximize2, FiMinimize2, FiX } from 'react-icons/fi'
-import { layoutStyles } from '@/layout'
+import { useEffect, useState } from 'react';
+import { Box, IconButton } from '@chakra-ui/react';
+import {
+  FiMinus, FiMaximize2, FiMinimize2, FiX,
+} from 'react-icons/fi';
+import { layoutStyles } from '@/layout';
 
-const TitleBar = (): JSX.Element => {
-  const [isMaximized, setIsMaximized] = useState(false)
-  const isMac = window.electron?.process.platform === 'darwin'
+function TitleBar(): JSX.Element {
+  const [isMaximized, setIsMaximized] = useState(false);
+  const isMac = window.electron?.process.platform === 'darwin';
 
   useEffect(() => {
     const handleMaximizeChange = (_event: any, maximized: boolean) => {
-      setIsMaximized(maximized)
-    }
+      setIsMaximized(maximized);
+    };
 
-    window.electron?.ipcRenderer.on('window-maximized-change', handleMaximizeChange)
+    window.electron?.ipcRenderer.on('window-maximized-change', handleMaximizeChange);
 
     return () => {
-      window.electron?.ipcRenderer.removeAllListeners('window-maximized-change')
-    }
-  }, [])
+      window.electron?.ipcRenderer.removeAllListeners('window-maximized-change');
+    };
+  }, []);
 
   const handleMaximizeClick = () => {
-    window.electron?.ipcRenderer.send('window-maximize')
-  }
+    window.electron?.ipcRenderer.send('window-maximize');
+  };
 
   if (isMac) {
     return (
@@ -30,7 +32,7 @@ const TitleBar = (): JSX.Element => {
           Open LLM VTuber
         </Box>
       </Box>
-    )
+    );
   }
 
   return (
@@ -49,7 +51,7 @@ const TitleBar = (): JSX.Element => {
         <IconButton
           {...layoutStyles.titleBarButton}
           onClick={handleMaximizeClick}
-          aria-label={isMaximized ? "Restore" : "Maximize"}
+          aria-label={isMaximized ? 'Restore' : 'Maximize'}
         >
           {isMaximized ? <FiMinimize2 /> : <FiMaximize2 />}
         </IconButton>
@@ -62,7 +64,7 @@ const TitleBar = (): JSX.Element => {
         </IconButton>
       </Box>
     </Box>
-  )
+  );
 }
 
-export default TitleBar
+export default TitleBar;

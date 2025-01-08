@@ -1,6 +1,8 @@
-"use client"
+'use client';
 
-import { LuBell, LuSend, LuMic, LuMicOff, LuHand, LuX } from "react-icons/lu"
+import {
+  LuBell, LuSend, LuMic, LuMicOff, LuHand, LuX,
+} from 'react-icons/lu';
 import {
   Box,
   Button,
@@ -10,11 +12,11 @@ import {
   Text,
   VStack,
   IconButton,
-} from "@chakra-ui/react"
-import { useInputSubtitle } from '@/hooks/electron/use-input-subtitle'
-import { useDraggable } from '@/hooks/electron/use-draggable'
-import { inputSubtitleStyles } from './electron-style'
-import { useState, useEffect } from 'react'
+} from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
+import { useInputSubtitle } from '@/hooks/electron/use-input-subtitle';
+import { useDraggable } from '@/hooks/electron/use-draggable';
+import { inputSubtitleStyles } from './electron-style';
 
 export function InputSubtitle({ isPet = false }) {
   const {
@@ -29,59 +31,59 @@ export function InputSubtitle({ isPet = false }) {
     lastAIMessage,
     hasAIMessages,
     aiState,
-    micOn
-  } = useInputSubtitle()
+    micOn,
+  } = useInputSubtitle();
 
-  const { 
-    elementRef, 
-    isDragging, 
-    handleMouseDown, 
-    handleMouseEnter, 
-    handleMouseLeave 
-  } = useDraggable({ 
+  const {
+    elementRef,
+    isDragging,
+    handleMouseDown,
+    handleMouseEnter,
+    handleMouseLeave,
+  } = useDraggable({
     isPet,
-    componentId: 'input-subtitle'
-  })
+    componentId: 'input-subtitle',
+  });
 
-  const [isVisible, setIsVisible] = useState(true)
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     if (isPet) {
       const cleanup = (window.api as any)?.onToggleInputSubtitle(() => {
         if (isVisible) {
-          handleClose()
+          handleClose();
         } else {
-          handleOpen()
+          handleOpen();
         }
-      })
-      return () => cleanup?.()
+      });
+      return () => cleanup?.();
     }
-    return () => {}
-  }, [isPet, isVisible])
+    return () => {};
+  }, [isPet, isVisible]);
 
   const handleOpen = () => {
-    setIsVisible(true)
-  }
+    setIsVisible(true);
+  };
 
   const handleClose = () => {
     if (isPet) {
-      (window.api as any)?.updateComponentHover('input-subtitle', false)
+      (window.api as any)?.updateComponentHover('input-subtitle', false);
     }
-    setIsVisible(false)
-  }
+    setIsVisible(false);
+  };
 
   useEffect(() => {
-    ;(window as any).inputSubtitle = {
+    (window as any).inputSubtitle = {
       open: handleOpen,
-      close: handleClose
-    }
+      close: handleClose,
+    };
 
     return () => {
-      delete (window as any).inputSubtitle
-    }
-  }, [isPet])
+      delete (window as any).inputSubtitle;
+    };
+  }, [isPet]);
 
-  if (!isVisible) return null
+  if (!isVisible) return null;
 
   return (
     <Box
@@ -103,7 +105,7 @@ export function InputSubtitle({ isPet = false }) {
 
         {hasAIMessages && (
           <VStack
-            minH={lastAIMessage ? "32px" : "0px"}
+            minH={lastAIMessage ? '32px' : '0px'}
             {...inputSubtitleStyles.messageStack}
           >
             {lastAIMessage && (
@@ -122,7 +124,7 @@ export function InputSubtitle({ isPet = false }) {
                 {aiState}
               </Text>
             </Flex>
-            
+
             <Flex gap="2">
               <IconButton
                 aria-label="Toggle microphone"
@@ -163,5 +165,5 @@ export function InputSubtitle({ isPet = false }) {
         </Box>
       </Box>
     </Box>
-  )
+  );
 }

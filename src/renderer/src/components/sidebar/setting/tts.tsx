@@ -1,7 +1,7 @@
-import { Box } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react';
 
 function TTS(): JSX.Element {
-  return <Box>TTS Settings Content</Box>
+  return <Box>TTS Settings Content</Box>;
 }
 
-export default TTS
+export default TTS;
