@@ -46,13 +46,9 @@ jobs:
         run: echo "::set-output name=last-tag::$(git describe --tags --abbrev=0 || git rev-list --max-parents=0 ${{github.ref}})"
 
       - name: Generate release notes
-        uses: ./.github/actions/release-notes
         id: release-note
-        with:
-          from: ${{ steps.tag.outputs.last-tag }}
-          to: ${{ github.ref }}
-          include-commit-body: true
-          include-abbreviated-commit: true
+        run: |
+          echo "release-note=$(git log $(git describe --tags --abbrev=0)..HEAD --oneline)" >> $GITHUB_OUTPUT
 
       - name: Get version from current date
         id: version
@@ -79,7 +75,7 @@ jobs:
           draft: true
           tag_name: v${{ steps.version.outputs.build-version }}
           name: v${{ steps.version.outputs.build-version }}
-          body: ${{ steps.release-note.outputs.release-note }}
+          body: "Release v${{ steps.version.outputs.build-version }}"
 
   upload_artifacts:
     needs: [draft]
@@ -87,7 +83,7 @@ jobs:
     
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -104,6 +100,9 @@ jobs:
 
       # The easiest way to transfer release notes to a compiled application is create `release-notes.md` in the build resources.
       # See https://github.com/electron-userland/electron-builder/issues/1511#issuecomment-310160119
+      - name: Create build resources directory
+        run: mkdir -p buildResources
+
       - name: Prepare release notes
         env:
           RELEASE_NOTE: ${{ needs.draft.outputs.release-note }}

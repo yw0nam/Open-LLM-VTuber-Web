@@ -56,6 +56,12 @@ interface VADState {
   
   /** Update VAD settings */
   updateSettings: (newSettings: VADSettings) => void;
+  
+  /** Auto start microphone when AI starts speaking */
+  autoStartMicOn: boolean;
+  
+  /** Set auto start microphone state */
+  setAutoStartMicOn: (value: boolean) => void;
 }
 
 /**
@@ -70,6 +76,7 @@ const DEFAULT_VAD_SETTINGS: VADSettings = {
 const DEFAULT_VAD_STATE = {
   micOn: false,
   voiceInterruptionOn: false,
+  autoStartMicOn: false,
 };
 
 /**
@@ -100,6 +107,11 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
     "vadSettings",
     DEFAULT_VAD_SETTINGS
   );
+  const [autoStartMicOn, setAutoStartMicOnState] = useLocalStorage(
+    "autoStartMicOn",
+    DEFAULT_VAD_STATE.autoStartMicOn
+  );
+  const autoStartMicRef = useRef(false);
 
   // Force update mechanism for ref updates
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
@@ -140,6 +152,10 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     voiceInterruptionRef.current = voiceInterruptionOn;
+  }, []);
+
+  useEffect(() => {
+    autoStartMicRef.current = autoStartMicOn;
   }, []);
 
   /**
@@ -274,6 +290,12 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
     forceUpdate();
   }, []);
 
+  const setAutoStartMicOn = useCallback((value: boolean) => {
+    autoStartMicRef.current = value;
+    setAutoStartMicOnState(value);
+    forceUpdate();
+  }, []);
+
   // Memoized context value
   const contextValue = useMemo(
     () => ({
@@ -287,6 +309,8 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
       setPreviousTriggeredProbability,
       settings,
       updateSettings,
+      autoStartMicOn: autoStartMicRef.current,
+      setAutoStartMicOn,
     }),
     [
       micOn,

@@ -15,7 +15,7 @@ export const useFooter = () => {
   } = useTextInput()
   
   const { interrupt } = useInterrupt()
-  const { startMic } = useVAD()
+  const { startMic, autoStartMicOn } = useVAD()
   const { handleMicToggle, micOn } = useMicToggle()
   const { setAiState } = useAiState()
 
@@ -30,7 +30,9 @@ export const useFooter = () => {
 
   const handleInterrupt = () => {
     interrupt()
-    startMic()
+    if (autoStartMicOn) {
+      startMic()
+    }
   }
 
   return {
