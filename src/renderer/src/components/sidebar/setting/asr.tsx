@@ -13,7 +13,9 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
   const {
     localSettings,
     voiceInterruptionOn,
+    autoStartMicOn,
     setVoiceInterruptionOn,
+    setAutoStartMicOn,
     handleInputChange,
     handleSave,
     handleCancel
@@ -34,9 +36,15 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
   return (
     <Stack {...settingStyles.common.container}>
       <SwitchField
-        label="Voice Interruption"
+        label="Auto Stop Mic When AI Start Speaking"
         checked={voiceInterruptionOn}
         onChange={setVoiceInterruptionOn}
+      />
+
+      <SwitchField
+        label="Auto Start Mic When AI Interrupted"
+        checked={autoStartMicOn}
+        onChange={setAutoStartMicOn}
       />
 
       <NumberField

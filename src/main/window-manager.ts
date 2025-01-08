@@ -18,8 +18,11 @@ export class WindowManager {
 
   constructor() {
     ipcMain.on("renderer-ready-for-mode-change", (_event, newMode) => {
-      if (newMode === "pet") this.continueSetWindowModePet();
-      else this.continueSetWindowModeWindow();
+      if (newMode === "pet") {
+        setTimeout(() => {
+          this.continueSetWindowModePet();
+        }, 300);
+      } else this.continueSetWindowModeWindow();
     });
 
     ipcMain.on("mode-change-rendered", () => {
