@@ -138,3 +138,29 @@ jobs:
           github_token: ${{ secrets.github_token }}
           release: true
           max_attempts: 3
+
+  build_web:
+    needs: [draft]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build web target
+        run: npm run build:web
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: build
+          folder: dist/web
+          clean: true
+          single-commit: true
