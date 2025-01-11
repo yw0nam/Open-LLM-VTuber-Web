@@ -12,6 +12,7 @@ export function useAgentSettings({ onSave, onCancel }: UseAgentSettingsProps = {
   const [tempSettings, setTempSettings] = useState({
     allowProactiveSpeak: persistedSettings.allowProactiveSpeak,
     idleSecondsToSpeak: persistedSettings.idleSecondsToSpeak,
+    allowButtonTrigger: persistedSettings.allowButtonTrigger,
   });
 
   const [originalSettings, setOriginalSettings] = useState({
@@ -36,6 +37,13 @@ export function useAgentSettings({ onSave, onCancel }: UseAgentSettingsProps = {
     setTempSettings((prev) => ({
       ...prev,
       idleSecondsToSpeak: value,
+    }));
+  }, []);
+
+  const handleAllowButtonTriggerChange = useCallback((checked: boolean) => {
+    setTempSettings((prev) => ({
+      ...prev,
+      allowButtonTrigger: checked,
     }));
   }, []);
 
@@ -65,5 +73,6 @@ export function useAgentSettings({ onSave, onCancel }: UseAgentSettingsProps = {
     settings: tempSettings,
     handleAllowProactiveSpeakChange,
     handleIdleSecondsChange,
+    handleAllowButtonTriggerChange,
   };
 }

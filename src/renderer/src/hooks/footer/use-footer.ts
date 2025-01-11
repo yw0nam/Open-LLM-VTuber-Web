@@ -4,6 +4,8 @@ import { useTextInput } from '@/hooks/footer/use-text-input';
 import { useInterrupt } from '@/hooks/utils/use-interrupt';
 import { useMicToggle } from '@/hooks/utils/use-mic-toggle';
 import { useAiState, AiStateEnum } from '@/context/ai-state-context';
+import { useTriggerSpeak } from '@/hooks/utils/use-trigger-speak';
+import { useProactiveSpeak } from '@/context/proactive-speak-context';
 
 export const useFooter = () => {
   const {
@@ -17,7 +19,9 @@ export const useFooter = () => {
   const { interrupt } = useInterrupt();
   const { startMic, autoStartMicOn } = useVAD();
   const { handleMicToggle, micOn } = useMicToggle();
-  const { setAiState } = useAiState();
+  const { setAiState, aiState } = useAiState();
+  const { sendTriggerSignal } = useTriggerSpeak();
+  const { settings } = useProactiveSpeak();
 
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     handleChange({ target: { value: e.target.value } } as ChangeEvent<HTMLInputElement>);
@@ -29,9 +33,13 @@ export const useFooter = () => {
   };
 
   const handleInterrupt = () => {
-    interrupt();
-    if (autoStartMicOn) {
-      startMic();
+    if (aiState === AiStateEnum.THINKING_SPEAKING) {
+      interrupt();
+      if (autoStartMicOn) {
+        startMic();
+      }
+    } else if (settings.allowButtonTrigger) {
+      sendTriggerSignal(-1);
     }
   };
 

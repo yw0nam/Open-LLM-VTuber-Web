@@ -13,6 +13,7 @@ function Agent({ onSave, onCancel }: AgentProps): JSX.Element {
     settings,
     handleAllowProactiveSpeakChange,
     handleIdleSecondsChange,
+    handleAllowButtonTriggerChange,
   } = useAgentSettings({ onSave, onCancel });
 
   return (
@@ -33,6 +34,12 @@ function Agent({ onSave, onCancel }: AgentProps): JSX.Element {
           allowMouseWheel
         />
       )}
+
+      <SwitchField
+        label="Prompt AI to Speak via Raise Hand Button"
+        checked={settings.allowButtonTrigger}
+        onChange={handleAllowButtonTriggerChange}
+      />
     </Stack>
   );
 }
