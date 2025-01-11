@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { wsService, MessageEvent } from '@/services/websocket-service';
 import {
   WebSocketContext, HistoryInfo, defaultWsUrl, defaultBaseUrl,
@@ -21,7 +21,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { aiState, setAiState } = useAiState();
   const { setModelInfo } = useLive2DConfig();
   const { setSubtitleText } = useSubtitle();
-  const { clearResponse } = useChatHistory();
+  const { clearResponse, setForceNewMessage } = useChatHistory();
   const { addAudioTask } = useAudioTask();
   const bgUrlContext = useBgUrl();
   const { setConfName, setConfUid, setConfigFiles } = useConfig();
@@ -42,7 +42,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
     };
   }, [wsUrl]);
 
-  const handleControlMessage = (controlText: string) => {
+  const handleControlMessage = useCallback((controlText: string) => {
     switch (controlText) {
       case 'start-mic':
         console.log('Starting microphone...');
@@ -56,6 +56,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         setAiState('thinking-speaking');
         audioTaskQueue.clearQueue();
         clearResponse();
+        setForceNewMessage(true);
         break;
       case 'conversation-chain-end':
         audioTaskQueue.addTask(() => new Promise<void>((resolve) => {
@@ -72,7 +73,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       default:
         console.warn('Unknown control command:', controlText);
     }
-  };
+  }, [setAiState, clearResponse, setForceNewMessage]);
 
   const handleWebSocketMessage = (message: MessageEvent) => {
     console.log('Received message from server:', message);

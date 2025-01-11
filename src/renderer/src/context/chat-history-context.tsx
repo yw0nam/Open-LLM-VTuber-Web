@@ -24,6 +24,7 @@ interface ChatHistoryState {
   setFullResponse: (text: string) => void;
   appendResponse: (text: string) => void;
   clearResponse: () => void;
+  setForceNewMessage: (value: boolean) => void;
 }
 
 /**
@@ -56,6 +57,7 @@ export function ChatHistoryProvider({ children }: { children: React.ReactNode })
     DEFAULT_HISTORY.currentHistoryUid,
   );
   const [fullResponse, setFullResponse] = useState(DEFAULT_HISTORY.fullResponse);
+  const [forceNewMessage, setForceNewMessage] = useState<boolean>(false);
 
   /**
    * Append a human message to the chat history
@@ -79,7 +81,7 @@ export function ChatHistoryProvider({ children }: { children: React.ReactNode })
     setMessages((prevMessages) => {
       const lastMessage = prevMessages[prevMessages.length - 1];
 
-      if (lastMessage && lastMessage.role === 'ai') {
+      if (lastMessage && lastMessage.role === 'ai' && !forceNewMessage) {
         // Update existing AI message with new ID to trigger re-render
         const updatedMessage = {
           ...lastMessage,
@@ -100,7 +102,11 @@ export function ChatHistoryProvider({ children }: { children: React.ReactNode })
       };
       return [...prevMessages, newMessage];
     });
-  }, []);
+
+    if (forceNewMessage) {
+      setForceNewMessage(false);
+    }
+  }, [forceNewMessage]);
 
   /**
    * Update the history list with the latest message
@@ -160,6 +166,7 @@ export function ChatHistoryProvider({ children }: { children: React.ReactNode })
       setFullResponse,
       appendResponse,
       clearResponse,
+      setForceNewMessage,
     }),
     [
       messages,
@@ -171,6 +178,7 @@ export function ChatHistoryProvider({ children }: { children: React.ReactNode })
       fullResponse,
       appendResponse,
       clearResponse,
+      setForceNewMessage,
     ],
   );
 
