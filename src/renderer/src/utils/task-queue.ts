@@ -21,9 +21,6 @@ export class TaskQueue {
 
   private async runNextTask() {
     if (this.running || this.queue.length === 0) {
-      if (this.queue.length === 0) {
-        console.log('Queue is empty');
-      }
       return;
     }
 
@@ -32,7 +29,7 @@ export class TaskQueue {
     try {
       await task?.();
     } catch (error) {
-      console.error('Task failed', error);
+      console.error('Task Queue Error', error);
     }
     this.running = false;
     setTimeout(() => this.runNextTask(), this.taskInterval);

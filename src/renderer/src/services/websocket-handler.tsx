@@ -59,7 +59,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         break;
       case 'conversation-chain-end':
         audioTaskQueue.addTask(() => new Promise<void>((resolve) => {
-          setAiState('idle');
+          if (aiState === 'thinking-speaking') setAiState('idle');
           startMic();
           resolve();
         }));

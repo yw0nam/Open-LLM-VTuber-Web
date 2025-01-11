@@ -23,14 +23,14 @@ import { Live2DModelProvider } from './context/live2d-model-context';
 import { InputSubtitle } from './components/electron/input-subtitle';
 import { ProactiveSpeakProvider } from './context/proactive-speak-context';
 
-const App: React.FC = () => {
+function App(): JSX.Element {
   const [showSidebar, setShowSidebar] = useState(true);
   const [isFooterCollapsed, setIsFooterCollapsed] = useState(false);
   const [mode, setMode] = useState('window');
   const isElectron = window.api !== undefined;
 
-  if (isElectron) {
-    useEffect(() => {
+  useEffect(() => {
+    if (isElectron) {
       window.electron.ipcRenderer.on('pre-mode-changed', (_event, newMode) => {
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
@@ -38,11 +38,11 @@ const App: React.FC = () => {
           });
         });
       });
-    }, []);
-  }
+    }
+  }, [isElectron]);
 
-  if (isElectron) {
-    useEffect(() => {
+  useEffect(() => {
+    if (isElectron) {
       window.electron.ipcRenderer.on('mode-changed', (_event, newMode) => {
         setMode(newMode);
         requestAnimationFrame(() => {
@@ -51,8 +51,8 @@ const App: React.FC = () => {
           });
         });
       });
-    }, []);
-  }
+    }
+  }, [isElectron]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -133,5 +133,5 @@ const App: React.FC = () => {
       </Live2DModelProvider>
     </ChakraProvider>
   );
-};
+}
 export default App;

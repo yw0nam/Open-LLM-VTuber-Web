@@ -12,7 +12,7 @@ export const useInterrupt = () => {
   const { currentModel } = useLive2DModel();
   const { subtitleText, setSubtitleText } = useSubtitle();
   const interrupt = () => {
-    if (aiState != 'thinking-speaking') return;
+    if (aiState !== 'thinking-speaking') return;
     console.log('Interrupting conversation chain');
     sendMessage({
       type: 'interrupt-signal',
@@ -26,7 +26,7 @@ export const useInterrupt = () => {
       console.error('Live2D model is not initialized');
     }
     clearResponse();
-    if (subtitleText == 'Thinking...') {
+    if (subtitleText === 'Thinking...') {
       setSubtitleText('');
     }
     console.log('Interrupted!');
