@@ -131,6 +131,8 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
   const setSubtitleTextRef = useRef(setSubtitleText);
   const setAiStateRef = useRef(setAiState);
 
+  const isProcessingRef = useRef(false);
+
   // Update refs when dependencies change
   useEffect(() => {
     aiStateRef.current = aiState;
@@ -176,6 +178,7 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
     if (aiStateRef.current === 'thinking-speaking') {
       interruptRef.current();
     }
+    isProcessingRef.current = true;  
     setAiStateRef.current('listening');
   }, []);
 
@@ -192,6 +195,7 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
    * Handle speech end event
    */
   const handleSpeechEnd = useCallback((audio: Float32Array) => {
+    if (!isProcessingRef.current) return; 
     console.log('Speech ended');
     audioTaskQueue.clearQueue();
 
@@ -203,14 +207,17 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
 
     setPreviousTriggeredProbability(0);
     sendAudioPartitionRef.current(audio);
+    isProcessingRef.current = false;  
   }, []);
 
   /**
    * Handle VAD misfire event
    */
   const handleVADMisfire = useCallback(() => {
+    if (!isProcessingRef.current) return;  
     console.log('VAD misfire detected');
     setPreviousTriggeredProbability(0);
+    isProcessingRef.current = false;  
 
     if (aiStateRef.current === 'interrupted' || aiStateRef.current === 'listening') {
       setAiStateRef.current('idle');

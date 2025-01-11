@@ -3,7 +3,6 @@ import { wsService, MessageEvent } from '@/services/websocket-service';
 import {
   WebSocketContext, HistoryInfo, defaultWsUrl, defaultBaseUrl,
 } from '@/context/websocket-context';
-import { useAiState } from '@/context/ai-state-context';
 import { useLive2DConfig } from '@/context/live2d-config-context';
 import { useSubtitle } from '@/context/subtitle-context';
 import { audioTaskQueue } from '@/utils/task-queue';
@@ -13,6 +12,7 @@ import { useConfig } from '@/context/character-config-context';
 import { useChatHistory } from '@/context/chat-history-context';
 import { toaster } from '@/components/ui/toaster';
 import { useVAD } from '@/context/vad-context';
+import { AiState, AiStateEnum, useAiState } from "@/context/ai-state-context";
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const [wsState, setWsState] = useState<string>('CLOSED');
@@ -59,7 +59,12 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         break;
       case 'conversation-chain-end':
         audioTaskQueue.addTask(() => new Promise<void>((resolve) => {
-          if (aiState === 'thinking-speaking') setAiState('idle');
+          setAiState((currentState: AiState) => {
+            if (currentState === AiStateEnum.THINKING_SPEAKING) {
+              return 'idle' as AiState;
+            }
+            return currentState;
+          });
           startMic();
           resolve();
         }));
