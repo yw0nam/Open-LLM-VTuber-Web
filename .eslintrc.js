@@ -29,5 +29,8 @@ module.exports = {
     'import/prefer-default-export': 'off',
     quotes: 'off',
     'operator-linebreak': 'off',
+    'react/display-name': 'off',
+    'react-hooks/exhaustive-deps': 'off',
+    'consistent-return': 'off',
   },
 };

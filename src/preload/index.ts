@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { contextBridge, ipcRenderer } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
 import { ConfigFile } from '../main/menu-manager';
@@ -55,8 +56,8 @@ if (process.contextIsolated) {
     console.error(error);
   }
 } else {
-  // @ts-ignore (define in dts)
+  // @ts-expect-error
   window.electron = electronAPI;
-  // @ts-ignore (define in dts)
+  // @ts-expect-error
   window.api = api;
 }

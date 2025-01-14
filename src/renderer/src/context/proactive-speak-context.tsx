@@ -1,11 +1,12 @@
 import {
-  createContext, useContext, ReactNode, useEffect, useRef, useCallback,
+  createContext, useContext, ReactNode, useEffect, useRef, useCallback, useMemo,
 } from 'react';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 import { useTriggerSpeak } from '@/hooks/utils/use-trigger-speak';
 import { useAiState, AiStateEnum } from '@/context/ai-state-context';
 
 interface ProactiveSpeakSettings {
+  allowButtonTrigger: boolean;
   allowProactiveSpeak: boolean
   idleSecondsToSpeak: number
 }
@@ -18,6 +19,7 @@ interface ProactiveSpeakContextType {
 const defaultSettings: ProactiveSpeakSettings = {
   allowProactiveSpeak: false,
   idleSecondsToSpeak: 5,
+  allowButtonTrigger: false,
 };
 
 export const ProactiveSpeakContext = createContext<ProactiveSpeakContextType | null>(null);
@@ -66,12 +68,17 @@ export function ProactiveSpeakProvider({ children }: { children: ReactNode }) {
     clearIdleTimer();
   }, [clearIdleTimer]);
 
-  const updateSettings = (newSettings: ProactiveSpeakSettings) => {
+  const updateSettings = useCallback((newSettings: ProactiveSpeakSettings) => {
     setSettings(newSettings);
-  };
+  }, [setSettings]);
+
+  const contextValue = useMemo(() => ({
+    settings,
+    updateSettings,
+  }), [settings, updateSettings]);
 
   return (
-    <ProactiveSpeakContext.Provider value={{ settings, updateSettings }}>
+    <ProactiveSpeakContext.Provider value={contextValue}>
       {children}
     </ProactiveSpeakContext.Provider>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 import { app, ipcMain, globalShortcut } from 'electron';
 import { electronApp, optimizer } from '@electron-toolkit/utils';
 import { WindowManager } from './window-manager';

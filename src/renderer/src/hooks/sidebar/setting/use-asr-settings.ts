@@ -29,6 +29,7 @@ export const useASRSettings = () => {
       localSettingsRef.current = { ...localSettingsRef.current, [key]: value };
     } else {
       const parsed = Number(value);
+      // eslint-disable-next-line no-restricted-globals
       if (!isNaN(parsed)) {
         localSettingsRef.current = { ...localSettingsRef.current, [key]: parsed };
       }

@@ -120,11 +120,11 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           console.log('Audio playback intercepted. Sentence:', message.text);
         } else {
           addAudioTask({
-            audio_base64: message.audio || '',
+            audioBase64: message.audio || '',
             volumes: message.volumes || [],
-            slice_length: message.slice_length || 0,
+            sliceLength: message.slice_length || 0,
             text: message.text || null,
-            expression_list: message.expressions || null,
+            expressionList: message.expressions || null,
           });
         }
         break;

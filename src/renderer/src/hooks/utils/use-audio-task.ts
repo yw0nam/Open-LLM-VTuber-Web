@@ -6,11 +6,11 @@ import { audioTaskQueue } from '@/utils/task-queue';
 import { useLive2DModel } from '@/context/live2d-model-context';
 
 interface AudioTaskOptions {
-  audio_base64: string
+  audioBase64: string
   volumes: number[]
-  slice_length: number
+  sliceLength: number
   text?: string | null
-  expression_list?: string[] | null
+  expressionList?: string[] | null
 }
 
 export const useAudioTask = () => {
@@ -37,32 +37,36 @@ export const useAudioTask = () => {
 
   const handleAudioPlayback = (options: AudioTaskOptions, onComplete: () => void) => {
     const {
-      aiState, currentModel, setSubtitleText, appendResponse, appendAIMessage,
+      aiState: currentAiState,
+      currentModel: model,
+      setSubtitleText: updateSubtitle,
+      appendResponse: appendText,
+      appendAIMessage: appendAI,
     } = stateRef.current;
 
-    if (aiState === 'interrupted') {
-      console.error('Audio playback blocked. State:', aiState);
+    if (currentAiState === 'interrupted') {
+      console.error('Audio playback blocked. State:', currentAiState);
       onComplete();
       return;
     }
 
-    const { audio_base64, text, expression_list } = options;
+    const { audioBase64, text, expressionList } = options;
 
     if (text) {
-      appendResponse(text);
-      appendAIMessage(text);
-      setSubtitleText(text);
+      appendText(text);
+      appendAI(text);
+      updateSubtitle(text);
     }
 
-    if (!currentModel) {
+    if (!model) {
       console.error('Model not initialized');
       onComplete();
       return;
     }
 
     try {
-      currentModel.speak(`data:audio/wav;base64,${audio_base64}`, {
-        expression: expression_list?.[0] || undefined,
+      model.speak(`data:audio/wav;base64,${audioBase64}`, {
+        expression: expressionList?.[0] || undefined,
         resetExpression: true,
         onFinish: () => {
           console.log('Voiceline is over');
@@ -80,9 +84,9 @@ export const useAudioTask = () => {
   };
 
   const addAudioTask = async (options: AudioTaskOptions) => {
-    const { aiState } = stateRef.current;
+    const { aiState: currentState } = stateRef.current;
 
-    if (aiState === 'interrupted') {
+    if (currentState === 'interrupted') {
       console.log('Skipping audio task due to interrupted state');
       return;
     }

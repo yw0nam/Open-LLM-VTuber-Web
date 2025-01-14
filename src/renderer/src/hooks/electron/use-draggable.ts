@@ -35,12 +35,12 @@ export function useDraggable({ isPet = false, componentId }: UseDraggableProps) 
       y: e.clientY - positionRef.current.y,
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (moveEvent: MouseEvent) => {
       if (!elementRef.current) return;
 
       positionRef.current = {
-        x: e.clientX - dragStartRef.current.x,
-        y: e.clientY - dragStartRef.current.y,
+        x: moveEvent.clientX - dragStartRef.current.x,
+        y: moveEvent.clientY - dragStartRef.current.y,
       };
 
       elementRef.current.style.transform = `translateX(-50%) translate(${positionRef.current.x}px, ${positionRef.current.y}px)`;

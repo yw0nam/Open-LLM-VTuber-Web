@@ -43,7 +43,7 @@ export class WindowManager {
       backgroundColor: '#ffffff',
       autoHideMenuBar: true,
       frame: false,
-      icon: process.platform === 'win32' 
+      icon: process.platform === 'win32'
         ? join(__dirname, '../../resources/icon.ico')
         : join(__dirname, '../../resources/icon.png'),
       ...(isMac ? { titleBarStyle: 'hiddenInset' } : {}),
