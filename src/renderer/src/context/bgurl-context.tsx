@@ -88,15 +88,7 @@ export function BgUrlProvider({ children }: { children: React.ReactNode }) {
     isDefaultBackground,
     useCameraBackground,
     setUseCameraBackground,
-  }), [
-    backgroundUrl,
-    backgroundFiles,
-    resetBackground,
-    addBackgroundFile,
-    removeBackgroundFile,
-    isDefaultBackground,
-    useCameraBackground,
-  ]);
+  }), [backgroundUrl, setBackgroundUrl, backgroundFiles, resetBackground, addBackgroundFile, removeBackgroundFile, isDefaultBackground, useCameraBackground]);
 
   return (
     <BgUrlContext.Provider value={contextValue}>

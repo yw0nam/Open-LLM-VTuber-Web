@@ -1,5 +1,5 @@
 import {
-  createContext, useContext, useState, useMemo, useEffect,
+  createContext, useContext, useState, useMemo, useEffect, useCallback,
 } from 'react';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 import { useConfig } from '@/context/character-config-context';
@@ -114,7 +114,7 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
     return () => unsubscribe?.();
   }, []);
 
-  const getStorageKey = (uid: string, isPet: boolean) => `modelInfo_${uid}_${isPet ? 'pet' : 'window'}`;
+  const getStorageKey = (uid: string, isPetMode: boolean) => `modelInfo_${uid}_${isPetMode ? "pet" : "window"}`;
 
   const [modelInfo, setModelInfoState] = useLocalStorage<ModelInfo | undefined>(
     'modelInfo',
@@ -126,7 +126,7 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
     {},
   );
 
-  const setModelInfo = (info: ModelInfo | undefined) => {
+  const setModelInfo = useCallback((info: ModelInfo | undefined) => {
     if (info) {
       const storageKey = getStorageKey(confUid, isPet);
       let finalScale: number;
@@ -154,9 +154,9 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
     } else {
       setModelInfoState(undefined);
     }
-  };
+  }, [confUid, isPet, scaleMemory, modelInfo, setModelInfoState, setScaleMemory]);
 
-  const updateModelScale = (newScale: number) => {
+  const updateModelScale = useCallback((newScale: number) => {
     if (modelInfo) {
       const storageKey = getStorageKey(confUid, isPet);
       setScaleMemory((prev) => ({
@@ -169,7 +169,7 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
         kScale: Number(newScale.toFixed(8)),
       });
     }
-  };
+  }, [confUid, isPet, modelInfo, setModelInfo, setScaleMemory]);
 
   useEffect(() => {
     if (modelInfo) {
@@ -183,7 +183,7 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
         });
       }
     }
-  }, [confUid, isPet]);
+  }, [confUid, isPet, modelInfo, scaleMemory, setModelInfo]);
 
   // Memoized context value
   const contextValue = useMemo(
@@ -194,7 +194,7 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
       setIsLoading,
       updateModelScale,
     }),
-    [modelInfo, isLoading],
+    [modelInfo, setModelInfo, isLoading, updateModelScale],
   );
 
   return (

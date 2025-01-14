@@ -1,6 +1,6 @@
 import { Box, Text } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
-import { Message } from '@/types/message';
+import { Message } from '@/services/websocket-service';
 import { sidebarStyles } from './sidebar-styles';
 
 // Type definitions
@@ -63,5 +63,13 @@ function ChatBubble({ message, onUpdate }: ChatBubbleProps): JSX.Element {
     </Box>
   );
 }
+
+ChatBubble.defaultProps = {
+  onUpdate: undefined,
+};
+
+BubbleContent.defaultProps = {
+  onContentChange: undefined,
+};
 
 export default ChatBubble;

@@ -1,12 +1,19 @@
+/* eslint-disable no-use-before-define */
 import { Subject } from 'rxjs';
 import { ModelInfo } from '@/context/live2d-config-context';
 import { HistoryInfo } from '@/context/websocket-context';
-import { Message } from '@/types/message';
 import { ConfigFile } from '@/context/character-config-context';
 
 interface BackgroundFile {
   name: string;
   url: string;
+}
+
+export interface Message {
+  id: string;
+  content: string;
+  role: "ai" | "human";
+  timestamp: string;
 }
 
 export interface MessageEvent {
@@ -38,8 +45,6 @@ class WebSocketService {
 
   private stateSubject = new Subject<'CONNECTING' | 'OPEN' | 'CLOSING' | 'CLOSED'>();
 
-  private constructor() {}
-
   static getInstance() {
     if (!WebSocketService.instance) {
       WebSocketService.instance = new WebSocketService();
@@ -66,6 +71,11 @@ class WebSocketService {
   }
 
   connect(url: string) {
+    if (this.ws?.readyState === WebSocket.CONNECTING ||
+        this.ws?.readyState === WebSocket.OPEN) {
+      return;
+    }
+
     if (this.ws) {
       this.ws.close();
     }

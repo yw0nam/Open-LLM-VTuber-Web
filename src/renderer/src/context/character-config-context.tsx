@@ -78,7 +78,7 @@ export function CharacterConfigProvider({ children }: { children: React.ReactNod
 
   useEffect(() => {
     (window.api as any)?.updateConfigFiles?.(configFiles);
-  }, []);
+  }, [configFiles]);
 
   useEffect(() => {
     (window.api as any)?.updateConfigFiles?.(configFiles);

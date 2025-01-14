@@ -13,6 +13,7 @@ import {
  * Enum for all possible AI states
  * @description Defines all possible states that the AI can be in
  */
+// eslint-disable-next-line no-shadow
 export const enum AiStateEnum {
   /**
    * - Can be triggered to speak proactively
@@ -54,7 +55,10 @@ export type AiState = `${AiStateEnum}`;
  */
 interface AiStateContextType {
   aiState: AiState;
-  setAiState: (state: AiState) => void;
+  setAiState: {
+    (state: AiState): void;
+    (updater: (currentState: AiState) => AiState): void;
+  };
   isIdle: boolean;
   isThinkingSpeaking: boolean;
   isInterrupted: boolean;
@@ -81,10 +85,14 @@ export function AiStateProvider({ children }: { children: ReactNode }) {
   const [aiState, setAiStateInternal] = useState<AiState>(initialState);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const setAiState = useCallback((newState: AiState) => {
-    if (newState === AiStateEnum.WAITING) {
+  const setAiState = useCallback((newState: AiState | ((currentState: AiState) => AiState)) => {
+    const nextState = typeof newState === 'function'
+      ? (newState as (currentState: AiState) => AiState)(aiState)
+      : newState;
+
+    if (nextState === AiStateEnum.WAITING) {
       if (aiState !== AiStateEnum.THINKING_SPEAKING) {
-        setAiStateInternal(newState);
+        setAiStateInternal(nextState);
 
         if (timerRef.current) {
           clearTimeout(timerRef.current);
@@ -96,7 +104,7 @@ export function AiStateProvider({ children }: { children: ReactNode }) {
         }, 2000);
       }
     } else {
-      setAiStateInternal(newState);
+      setAiStateInternal(nextState);
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;

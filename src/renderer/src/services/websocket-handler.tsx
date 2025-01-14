@@ -1,4 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+/* eslint-disable no-sparse-arrays */
+/* eslint-disable react-hooks/exhaustive-deps */
+// eslint-disable-next-line object-curly-newline
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { wsService, MessageEvent } from '@/services/websocket-service';
 import {
   WebSocketContext, HistoryInfo, defaultWsUrl, defaultBaseUrl,
@@ -12,7 +15,7 @@ import { useConfig } from '@/context/character-config-context';
 import { useChatHistory } from '@/context/chat-history-context';
 import { toaster } from '@/components/ui/toaster';
 import { useVAD } from '@/context/vad-context';
-import { AiState, AiStateEnum, useAiState } from "@/context/ai-state-context";
+import { AiState, useAiState } from "@/context/ai-state-context";
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const [wsState, setWsState] = useState<string>('CLOSED');
@@ -29,18 +32,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
     setCurrentHistoryUid, setMessages, setHistoryList, appendHumanMessage,
   } = useChatHistory();
   const { startMic, stopMic } = useVAD();
-
-  useEffect(() => {
-    const stateSubscription = wsService.onStateChange(setWsState);
-    const messageSubscription = wsService.onMessage(handleWebSocketMessage);
-
-    wsService.connect(wsUrl);
-
-    return () => {
-      stateSubscription.unsubscribe();
-      messageSubscription.unsubscribe();
-    };
-  }, [wsUrl]);
 
   const handleControlMessage = useCallback((controlText: string) => {
     switch (controlText) {
@@ -61,8 +52,8 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       case 'conversation-chain-end':
         audioTaskQueue.addTask(() => new Promise<void>((resolve) => {
           setAiState((currentState: AiState) => {
-            if (currentState === AiStateEnum.THINKING_SPEAKING) {
-              return 'idle' as AiState;
+            if (currentState === 'thinking-speaking') {
+              return 'idle';
             }
             return currentState;
           });
@@ -73,9 +64,9 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       default:
         console.warn('Unknown control command:', controlText);
     }
-  }, [setAiState, clearResponse, setForceNewMessage]);
+  }, [setAiState, clearResponse, setForceNewMessage, startMic, stopMic]);
 
-  const handleWebSocketMessage = (message: MessageEvent) => {
+  const handleWebSocketMessage = useCallback((message: MessageEvent) => {
     console.log('Received message from server:', message);
     switch (message.type) {
       case 'control':
@@ -87,6 +78,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         console.log('set-model: ', message.model_info);
         if (message.model_info && !message.model_info.url.startsWith('http')) {
           const modelUrl = baseUrl + message.model_info.url; // model_info.url must begin with /
+          // eslint-disable-next-line no-param-reassign
           message.model_info.url = modelUrl;
         }
         setAiState('loading');
@@ -124,7 +116,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         }
         break;
       case 'audio':
-        if (aiState == 'interrupted' || aiState == 'listening') {
+        if (aiState === 'interrupted' || aiState === 'listening') {
           console.log('Audio playback intercepted. Sentence:', message.text);
         } else {
           addAudioTask({
@@ -207,9 +199,22 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       default:
         console.warn('Unknown message type:', message.type);
     }
-  };
+  }, [aiState, addAudioTask, appendHumanMessage, baseUrl, bgUrlContext, setAiState, setConfName, setConfUid, setConfigFiles, setCurrentHistoryUid, setHistoryList, setMessages, setModelInfo, setSubtitleText, startMic, stopMic]);
 
-  const webSocketContextValue = {
+  useEffect(() => {
+    wsService.connect(wsUrl);
+  }, [wsUrl]);
+
+  useEffect(() => {
+    const stateSubscription = wsService.onStateChange(setWsState);
+    const messageSubscription = wsService.onMessage(handleWebSocketMessage);
+    return () => {
+      stateSubscription.unsubscribe();
+      messageSubscription.unsubscribe();
+    };
+  }, [wsUrl, handleWebSocketMessage]);
+
+  const webSocketContextValue = useMemo(() => ({
     sendMessage: wsService.sendMessage.bind(wsService),
     wsState,
     reconnect: () => wsService.connect(wsUrl),
@@ -217,7 +222,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
     setWsUrl,
     baseUrl,
     setBaseUrl,
-  };
+  }), [wsState, wsUrl, baseUrl]);
 
   return (
     <WebSocketContext.Provider value={webSocketContextValue}>

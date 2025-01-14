@@ -1,5 +1,3 @@
-'use client';
-
 import {
   LuBell, LuSend, LuMic, LuMicOff, LuHand, LuX,
 } from 'react-icons/lu';
@@ -13,12 +11,16 @@ import {
   VStack,
   IconButton,
 } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useInputSubtitle } from '@/hooks/electron/use-input-subtitle';
 import { useDraggable } from '@/hooks/electron/use-draggable';
 import { inputSubtitleStyles } from './electron-style';
 
-export function InputSubtitle({ isPet = false }) {
+interface InputSubtitleProps {
+  isPet?: boolean;
+}
+
+export function InputSubtitle({ isPet = false }: InputSubtitleProps) {
   const {
     inputValue,
     handleInputChange,
@@ -47,6 +49,17 @@ export function InputSubtitle({ isPet = false }) {
 
   const [isVisible, setIsVisible] = useState(true);
 
+  const handleClose = useCallback(() => {
+    if (isPet) {
+      (window.api as any)?.updateComponentHover('input-subtitle', false);
+    }
+    setIsVisible(false);
+  }, [isPet]);
+
+  const handleOpen = () => {
+    setIsVisible(true);
+  };
+
   useEffect(() => {
     if (isPet) {
       const cleanup = (window.api as any)?.onToggleInputSubtitle(() => {
@@ -59,18 +72,7 @@ export function InputSubtitle({ isPet = false }) {
       return () => cleanup?.();
     }
     return () => {};
-  }, [isPet, isVisible]);
-
-  const handleOpen = () => {
-    setIsVisible(true);
-  };
-
-  const handleClose = () => {
-    if (isPet) {
-      (window.api as any)?.updateComponentHover('input-subtitle', false);
-    }
-    setIsVisible(false);
-  };
+  }, [handleClose, isPet, isVisible]);
 
   useEffect(() => {
     (window as any).inputSubtitle = {
@@ -81,7 +83,7 @@ export function InputSubtitle({ isPet = false }) {
     return () => {
       delete (window as any).inputSubtitle;
     };
-  }, [isPet]);
+  }, [isPet, handleClose]);
 
   if (!isVisible) return null;
 
@@ -167,3 +169,7 @@ export function InputSubtitle({ isPet = false }) {
     </Box>
   );
 }
+
+InputSubtitle.defaultProps = {
+  isPet: false,
+};
