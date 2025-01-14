@@ -27,5 +27,7 @@ module.exports = {
     'react/jsx-props-no-spreading': 'off',
     'import/no-unresolved': 'off',
     'import/prefer-default-export': 'off',
+    quotes: 'off',
+    'operator-linebreak': 'off',
   },
 };

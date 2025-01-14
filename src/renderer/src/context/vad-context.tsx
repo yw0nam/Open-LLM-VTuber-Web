@@ -72,7 +72,7 @@ interface VADState {
 const DEFAULT_VAD_SETTINGS: VADSettings = {
   positiveSpeechThreshold: 97,
   negativeSpeechThreshold: 15,
-  redemptionFrames: 20,
+  redemptionFrames: 15,
 };
 
 const DEFAULT_VAD_STATE = {
