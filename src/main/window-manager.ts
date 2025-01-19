@@ -1,18 +1,10 @@
 import {
   BrowserWindow, screen, shell, ipcMain,
-} from "electron";
-import { join } from "path";
-import { is } from "@electron-toolkit/utils";
+} from 'electron';
+import { join } from 'path';
+import { is } from '@electron-toolkit/utils';
 
-const isMac = process.platform === "darwin";
-
-interface WindowOptions {
-  titleBarOverlay?: {
-    color?: string;
-    symbolColor?: string;
-    height?: number;
-  };
-}
+const isMac = process.platform === 'darwin';
 
 export class WindowManager {
   private window: BrowserWindow | null = null;
@@ -26,22 +18,22 @@ export class WindowManager {
 
   private hoveringComponents: Set<string> = new Set();
 
-  private currentMode: "window" | "pet" = "window";
+  private currentMode: 'window' | 'pet' = 'window';
 
   constructor() {
-    ipcMain.on("renderer-ready-for-mode-change", (_event, newMode) => {
-      if (newMode === "pet") {
+    ipcMain.on('renderer-ready-for-mode-change', (_event, newMode) => {
+      if (newMode === 'pet') {
         setTimeout(() => {
           this.continueSetWindowModePet();
-        }, 500);
+        }, 300);
       } else this.continueSetWindowModeWindow();
     });
 
-    ipcMain.on("mode-change-rendered", () => {
+    ipcMain.on('mode-change-rendered', () => {
       this.window?.setOpacity(1);
     });
 
-    ipcMain.on("window-unfullscreen", () => {
+    ipcMain.on('window-unfullscreen', () => {
       const window = this.getWindow();
       if (window && window.isFullScreen()) {
         window.setFullScreen(false);
@@ -49,30 +41,21 @@ export class WindowManager {
     });
   }
 
-  createWindow(options: WindowOptions = {}): BrowserWindow {
+  createWindow(p0: { titleBarOverlay: { color: string; symbolColor: string; height: number; }; }): BrowserWindow {
     this.window = new BrowserWindow({
       width: 900,
       height: 670,
       show: false,
       transparent: true,
-      backgroundColor: "#111111",
-      icon:
-        process.platform === "win32"
-          ? join(__dirname, "../../resources/icon.ico")
-          : join(__dirname, "../../resources/icon.png"),
-      ...(isMac
-        ? { titleBarStyle: "hiddenInset" }
-        : {
-          titleBarStyle: "hidden",
-          titleBarOverlay: {
-            color: "#111111",
-            symbolColor: "rgba(255, 255, 255, 0.8)",
-            height: 30,
-            ...options.titleBarOverlay,
-          },
-        }),
+      backgroundColor: '#ffffff',
+      autoHideMenuBar: true,
+      frame: false,
+      icon: process.platform === 'win32'
+        ? join(__dirname, '../../resources/icon.ico')
+        : join(__dirname, '../../resources/icon.png'),
+      ...(isMac ? { titleBarStyle: 'hiddenInset' } : {}),
       webPreferences: {
-        preload: join(__dirname, "../preload/index.js"),
+        preload: join(__dirname, '../preload/index.js'),
         sandbox: false,
         contextIsolation: true,
         nodeIntegration: true,
@@ -84,22 +67,12 @@ export class WindowManager {
     this.setupWindowEvents();
     this.loadContent();
 
-    this.window.webContents.on('did-finish-load', () => {
-      setTimeout(() => {
-        this.window?.show();
-        this.window?.webContents.send(
-          "window-maximized-change",
-          this.window.isMaximized(),
-        );
-      }, 100);
+    this.window.on('enter-full-screen', () => {
+      this.window?.webContents.send('window-fullscreen-change', true);
     });
 
-    this.window.on("enter-full-screen", () => {
-      this.window?.webContents.send("window-fullscreen-change", true);
-    });
-
-    this.window.on("leave-full-screen", () => {
-      this.window?.webContents.send("window-fullscreen-change", false);
+    this.window.on('leave-full-screen', () => {
+      this.window?.webContents.send('window-fullscreen-change', false);
     });
 
     return this.window;
@@ -108,27 +81,35 @@ export class WindowManager {
   private setupWindowEvents(): void {
     if (!this.window) return;
 
-    this.window.on("maximize", () => {
-      this.window?.webContents.send("window-maximized-change", true);
+    this.window.on('ready-to-show', () => {
+      this.window?.show();
+      this.window?.webContents.send(
+        'window-maximized-change',
+        this.window.isMaximized(),
+      );
     });
 
-    this.window.on("unmaximize", () => {
-      this.window?.webContents.send("window-maximized-change", false);
+    this.window.on('maximize', () => {
+      this.window?.webContents.send('window-maximized-change', true);
     });
 
-    this.window.on("resize", () => {
+    this.window.on('unmaximize', () => {
+      this.window?.webContents.send('window-maximized-change', false);
+    });
+
+    this.window.on('resize', () => {
       const window = this.getWindow();
       if (window) {
         const bounds = window.getBounds();
         const { width, height } = screen.getPrimaryDisplay().workArea;
         const isMaximized = bounds.width >= width && bounds.height >= height;
-        window.webContents.send("window-maximized-change", isMaximized);
+        window.webContents.send('window-maximized-change', isMaximized);
       }
     });
 
     this.window.webContents.setWindowOpenHandler((details) => {
       shell.openExternal(details.url);
-      return { action: "deny" };
+      return { action: 'deny' };
     });
   }
 
@@ -138,17 +119,17 @@ export class WindowManager {
     if (is.dev && process.env.ELECTRON_RENDERER_URL) {
       this.window.loadURL(process.env.ELECTRON_RENDERER_URL);
     } else {
-      this.window.loadFile(join(__dirname, "../renderer/index.html"));
+      this.window.loadFile(join(__dirname, '../renderer/index.html'));
     }
   }
 
-  setWindowMode(mode: "window" | "pet"): void {
+  setWindowMode(mode: 'window' | 'pet'): void {
     if (!this.window) return;
 
     this.currentMode = mode;
     this.window.setOpacity(0);
 
-    if (mode === "window") {
+    if (mode === 'window') {
       this.setWindowModeWindow();
     } else {
       this.setWindowModePet();
@@ -165,8 +146,8 @@ export class WindowManager {
     this.window.setFocusable(true);
     this.window.setAlwaysOnTop(false);
 
-    this.window.setBackgroundColor("#ffffff");
-    this.window.webContents.send("pre-mode-changed", "window");
+    this.window.setBackgroundColor('#ffffff');
+    this.window.webContents.send('pre-mode-changed', 'window');
   }
 
   private continueSetWindowModeWindow(): void {
@@ -187,7 +168,7 @@ export class WindowManager {
 
     this.window?.setIgnoreMouseEvents(false, { forward: true });
 
-    this.window.webContents.send("mode-changed", "window");
+    this.window.webContents.send('mode-changed', 'window');
   }
 
   private setWindowModePet(): void {
@@ -199,12 +180,12 @@ export class WindowManager {
       this.window.setFullScreen(false);
     }
 
-    this.window.setBackgroundColor("#00000000");
+    this.window.setBackgroundColor('#00000000');
 
-    this.window.setAlwaysOnTop(true, "screen-saver");
+    this.window.setAlwaysOnTop(true, 'screen-saver');
     this.window.setPosition(0, 0);
 
-    this.window.webContents.send("pre-mode-changed", "pet");
+    this.window.webContents.send('pre-mode-changed', 'pet');
   }
 
   private continueSetWindowModePet(): void {
@@ -228,7 +209,7 @@ export class WindowManager {
       this.window.setIgnoreMouseEvents(true, { forward: true });
     }
 
-    this.window.webContents.send("mode-changed", "pet");
+    this.window.webContents.send('mode-changed', 'pet');
   }
 
   getWindow(): BrowserWindow | null {
@@ -253,18 +234,15 @@ export class WindowManager {
       if (this.windowedBounds) {
         this.window.setBounds(this.windowedBounds);
         this.windowedBounds = null;
-        this.window.webContents.send("window-maximized-change", false);
+        this.window.webContents.send('window-maximized-change', false);
       }
     } else {
       this.windowedBounds = this.window.getBounds();
       const { width, height } = screen.getPrimaryDisplay().workArea;
       this.window.setBounds({
-        x: 0,
-        y: 0,
-        width,
-        height,
+        x: 0, y: 0, width, height,
       });
-      this.window.webContents.send("window-maximized-change", true);
+      this.window.webContents.send('window-maximized-change', true);
     }
   }
 
@@ -276,7 +254,7 @@ export class WindowManager {
   }
 
   updateComponentHover(componentId: string, isHovering: boolean): void {
-    if (this.currentMode === "window") return;
+    if (this.currentMode === 'window') return;
 
     if (isHovering) {
       this.hoveringComponents.add(componentId);
