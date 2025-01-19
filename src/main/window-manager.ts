@@ -33,7 +33,7 @@ export class WindowManager {
       if (newMode === "pet") {
         setTimeout(() => {
           this.continueSetWindowModePet();
-        }, 300);
+        }, 500);
       } else this.continueSetWindowModeWindow();
     });
 
@@ -54,6 +54,7 @@ export class WindowManager {
       width: 900,
       height: 670,
       show: false,
+      transparent: true,
       backgroundColor: "#111111",
       icon:
         process.platform === "win32"
