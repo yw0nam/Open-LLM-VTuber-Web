@@ -54,7 +54,7 @@ export class WindowManager {
       width: 900,
       height: 670,
       show: false,
-      backgroundColor: "#ffffff",
+      backgroundColor: "#111111",
       icon:
         process.platform === "win32"
           ? join(__dirname, "../../resources/icon.ico")
@@ -64,7 +64,7 @@ export class WindowManager {
         : {
           titleBarStyle: "hidden",
           titleBarOverlay: {
-            color: "#1A1E2B",
+            color: "#111111",
             symbolColor: "rgba(255, 255, 255, 0.8)",
             height: 30,
             ...options.titleBarOverlay,
