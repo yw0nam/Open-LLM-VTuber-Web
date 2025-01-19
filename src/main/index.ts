@@ -66,7 +66,7 @@ app.whenReady().then(() => {
 
   const window = windowManager.createWindow({
     titleBarOverlay: {
-      color: "#1A202C",
+      color: "#111111",
       symbolColor: "#FFFFFF",
       height: 30,
     },
