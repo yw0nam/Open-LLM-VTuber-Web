@@ -19,8 +19,8 @@ function TitleBar(): JSX.Element {
           height: "30px",
           width: "100%",
           "-webkit-app-region": "drag",
-          backgroundColor: "#1A202C",
-          color: "#FFFFFF",
+          backgroundCoFFFFFFlor: "#1A1E2B",
+          color: "#1A1E2B",
         } as React.CSSProperties
       }
     >
