@@ -301,13 +301,6 @@ export const useLive2DModel = ({
 
       await setupModel(model);
 
-      const { width, height } = isPet
-        ? { width: window.innerWidth, height: window.innerHeight }
-        : containerRef.current?.getBoundingClientRect() || {
-          width: 0,
-          height: 0,
-        };
-      adjustModelSizeAndPosition(model, width, height, modelInfo, isPet, true);
       onModelLoad?.(model);
     } catch (error) {
       console.error("Failed to load Live2D model:", error);

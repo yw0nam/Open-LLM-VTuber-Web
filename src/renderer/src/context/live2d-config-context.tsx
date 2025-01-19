@@ -114,7 +114,7 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
     return () => unsubscribe?.();
   }, []);
 
-  const getStorageKey = (uid: string, isPetMode: boolean) => `modelInfo_${uid}_${isPetMode ? "pet" : "window"}`;
+  const getStorageKey = (uid: string, isPetMode: boolean) => `modelScale_${uid}_${isPetMode ? "pet" : "window"}`;
 
   const [modelInfo, setModelInfoState] = useLocalStorage<ModelInfo | undefined>(
     'modelInfo',
@@ -127,6 +127,11 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
   );
 
   const setModelInfo = useCallback((info: ModelInfo | undefined) => {
+    if (!confUid) {
+      console.warn('Attempting to set model info without confUid');
+      return;
+    }
+
     if (JSON.stringify(info) === JSON.stringify(modelInfo)) {
       return;
     }
@@ -135,8 +140,9 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
       const storageKey = getStorageKey(confUid, isPet);
       let finalScale: number;
 
-      if (storageKey in scaleMemory) {
-        finalScale = scaleMemory[storageKey];
+      const storedScale = scaleMemory[storageKey];
+      if (storedScale !== undefined) {
+        finalScale = storedScale;
       } else {
         finalScale = Number(info.kScale || 0);
         setScaleMemory((prev) => ({
@@ -163,17 +169,18 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
   const updateModelScale = useCallback((newScale: number) => {
     if (modelInfo) {
       const storageKey = getStorageKey(confUid, isPet);
+      const fixedScale = Number(newScale.toFixed(8));
       setScaleMemory((prev) => ({
         ...prev,
-        [storageKey]: Number(newScale.toFixed(8)),
+        [storageKey]: fixedScale,
       }));
 
-      setModelInfo({
+      setModelInfoState({
         ...modelInfo,
-        kScale: Number(newScale.toFixed(8)),
+        kScale: fixedScale,
       });
     }
-  }, [confUid, isPet, modelInfo, setModelInfo, setScaleMemory]);
+  }, [modelInfo, confUid, isPet, setScaleMemory, setModelInfoState]);
 
   useEffect(() => {
     if (modelInfo) {
@@ -187,9 +194,8 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
         });
       }
     }
-  }, [confUid, isPet, modelInfo, scaleMemory, setModelInfo]);
+  }, [confUid, isPet, modelInfo?.url]);
 
-  // Memoized context value
   const contextValue = useMemo(
     () => ({
       modelInfo,

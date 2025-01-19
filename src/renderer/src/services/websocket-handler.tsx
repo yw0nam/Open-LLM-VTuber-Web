@@ -106,7 +106,8 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           duration: 2000,
         });
 
-        wsService.sendMessage({ type: 'fetch-conf-info' });
+        // setModelInfo(undefined);
+
         wsService.sendMessage({ type: 'fetch-history-list' });
         wsService.sendMessage({ type: 'create-new-history' });
         break;
@@ -129,11 +130,16 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         }
         break;
       case 'config-info':
-        if (message.conf_name) {
-          setConfName(message.conf_name);
-        }
         if (message.conf_uid) {
           setConfUid(message.conf_uid);
+          if (message.model_info) {
+            setAiState('loading');
+            setModelInfo(message.model_info);
+            setAiState('idle');
+          }
+        }
+        if (message.conf_name) {
+          setConfName(message.conf_name);
         }
         break;
       case 'history-data':
