@@ -64,8 +64,8 @@ export class WindowManager {
         : {
           titleBarStyle: "hidden",
           titleBarOverlay: {
-            color: "#1A202C",
-            symbolColor: "#FFFFFF",
+            color: "#1A1E2B",
+            symbolColor: "rgba(255, 255, 255, 0.8)",
             height: 30,
             ...options.titleBarOverlay,
           },
@@ -83,6 +83,16 @@ export class WindowManager {
     this.setupWindowEvents();
     this.loadContent();
 
+    this.window.webContents.on('did-finish-load', () => {
+      setTimeout(() => {
+        this.window?.show();
+        this.window?.webContents.send(
+          "window-maximized-change",
+          this.window.isMaximized(),
+        );
+      }, 100);
+    });
+
     this.window.on("enter-full-screen", () => {
       this.window?.webContents.send("window-fullscreen-change", true);
     });
@@ -96,14 +106,6 @@ export class WindowManager {
 
   private setupWindowEvents(): void {
     if (!this.window) return;
-
-    this.window.on("ready-to-show", () => {
-      this.window?.show();
-      this.window?.webContents.send(
-        "window-maximized-change",
-        this.window.isMaximized(),
-      );
-    });
 
     this.window.on("maximize", () => {
       this.window?.webContents.send("window-maximized-change", true);
