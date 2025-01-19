@@ -144,12 +144,16 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
       if (storedScale !== undefined) {
         finalScale = storedScale;
       } else {
-        finalScale = Number(info.kScale || 0);
+        finalScale = Number(info.kScale || 0.001);
         setScaleMemory((prev) => ({
           ...prev,
           [storageKey]: finalScale,
         }));
       }
+
+      console.log("storageKey", storageKey);
+      console.log("storedScale", storedScale);
+      console.log("finalScale", finalScale);
 
       setModelInfoState({
         ...info,

@@ -121,6 +121,8 @@ export const useLive2DModel = ({
       setCurrentModel(model);
       appRef.current.stage.addChild(model);
 
+      console.log("modelInfo", modelInfo);
+
       const { width, height } = isPet
         ? { width: window.innerWidth, height: window.innerHeight }
         : containerRef.current?.getBoundingClientRect() || {
@@ -277,7 +279,7 @@ export const useLive2DModel = ({
 
       onModelLoad?.(model);
     },
-    [isPet, modelInfo, onModelLoad, setCurrentModel],
+    [isPet, modelInfo?.url, onModelLoad, setCurrentModel],
   );
 
   const loadModel = useCallback(async () => {
@@ -308,7 +310,13 @@ export const useLive2DModel = ({
       loadingRef.current = false;
       setIsLoading(false);
     }
-  }, [modelInfo, setIsLoading, setupModel, isPet, onModelLoad]);
+  }, [modelInfo?.url, setIsLoading, setupModel, isPet, onModelLoad]);
+
+  useEffect(() => {
+    if (modelRef.current) {
+      modelRef.current.interactive = modelInfo?.pointerInteractive ?? false;
+    }
+  }, [modelInfo?.pointerInteractive, loadModel]);
 
   useEffect(() => {
     if (modelInfo?.url) {

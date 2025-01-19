@@ -46,7 +46,7 @@ export const adjustModelSizeAndPosition = (
   height: number,
   modelInfo: ModelInfo | undefined,
   isPet: boolean = false,
-  shouldResetPosition: boolean = true,
+  shouldResetPosition: boolean = false,
 ) => {
   if (!model || !modelInfo) return;
 
@@ -55,6 +55,7 @@ export const adjustModelSizeAndPosition = (
   // const petScaleFactor = isPet ? 0.5 : 1;
   const newScale = kScale; //  * petScaleFactor
 
+  console.log("newScale", newScale);
   model.scale.set(newScale);
 
   if (shouldResetPosition) {
@@ -129,7 +130,7 @@ export const useLive2DResize = (
           height,
           modelInfo,
           isPet,
-          true,
+          false,
         );
       }
     });
@@ -144,17 +145,30 @@ export const useLive2DResize = (
   }, [modelRef, modelInfo, containerRef, isPet, appRef]);
 
   useEffect(() => {
-    if (modelRef.current && modelInfo) {
-      const { width, height } = isPet
-        ? { width: window.innerWidth, height: window.innerHeight }
-        : containerRef.current?.getBoundingClientRect() || {
-          width: 0,
-          height: 0,
-        };
+    const observer = new ResizeObserver(() => {
+      if (modelRef.current && appRef.current) {
+        const { width, height } = isPet
+          ? { width: window.innerWidth, height: window.innerHeight }
+          : containerRef.current?.getBoundingClientRect() || {
+            width: 0,
+            height: 0,
+          };
 
-      resetModelPosition(modelRef.current, width, height, modelInfo);
+        appRef.current.renderer.resize(width, height);
+        appRef.current.renderer.clear();
+
+        resetModelPosition(modelRef.current, width, height, modelInfo);
+      }
+    });
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
     }
-  }, [modelRef, modelInfo, containerRef, isPet]);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [modelRef, containerRef, isPet, appRef]);
 
   useEffect(() => () => {
     if (scaleUpdateTimeout.current) {
