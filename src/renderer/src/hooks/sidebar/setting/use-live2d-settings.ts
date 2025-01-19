@@ -23,8 +23,10 @@ export const useLive2dSettings = () => {
 
   useEffect(() => {
     if (Live2DConfigContext?.modelInfo) {
-      setOriginalModelInfo(Live2DConfigContext.modelInfo);
-      setModelInfoState(Live2DConfigContext.modelInfo);
+      if (JSON.stringify(Live2DConfigContext.modelInfo) !== JSON.stringify(originalModelInfo)) {
+        setOriginalModelInfo(Live2DConfigContext.modelInfo);
+        setModelInfoState(Live2DConfigContext.modelInfo);
+      }
     }
   }, [Live2DConfigContext?.modelInfo]);
 

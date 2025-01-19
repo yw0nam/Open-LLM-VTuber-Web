@@ -127,6 +127,10 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
   );
 
   const setModelInfo = useCallback((info: ModelInfo | undefined) => {
+    if (JSON.stringify(info) === JSON.stringify(modelInfo)) {
+      return;
+    }
+
     if (info) {
       const storageKey = getStorageKey(confUid, isPet);
       let finalScale: number;
