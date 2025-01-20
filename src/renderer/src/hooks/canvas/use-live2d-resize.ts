@@ -3,11 +3,11 @@ import { Live2DModel } from 'pixi-live2d-display-lipsyncpatch';
 import * as PIXI from 'pixi.js';
 import { ModelInfo, useLive2DConfig } from '@/context/live2d-config-context';
 
-const SCALE_SPEED = 0.01;
-// const MIN_SCALE = 0.1;
-// const MAX_SCALE = 2.0;
+// Speed of model scaling when using mouse wheel
+const SCALE_SPEED = 0.02;
 
-const resetModelPosition = (
+// Reset model to center of container with initial offset
+export const resetModelPosition = (
   model: Live2DModel,
   width: number,
   height: number,
@@ -24,13 +24,13 @@ const resetModelPosition = (
   model.position.set(targetX, targetY);
 };
 
+// Handle model scaling with smooth interpolation
 const handleModelScale = (
   model: Live2DModel,
   deltaY: number,
 ) => {
   const delta = deltaY > 0 ? -SCALE_SPEED : SCALE_SPEED;
   const currentScale = model.scale.x;
-  // const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, currentScale + delta));
   const newScale = currentScale + delta;
 
   const lerpFactor = 0.3;
@@ -40,7 +40,8 @@ const handleModelScale = (
   return smoothScale;
 };
 
-export const adjustModelSize = (
+// Set model size based on device pixel ratio and kScale in modelInfo
+export const setModelSize = (
   model: Live2DModel,
   modelInfo: ModelInfo | undefined,
 ) => {
@@ -50,9 +51,9 @@ export const adjustModelSize = (
   const kScale = Number(modelInfo?.kScale || 0);
   const newScale = kScale;
 
-  console.log("newScale", newScale);
   model.scale.set(newScale);
 
+  // Update filter resolution for retina displays
   if (model.filters) {
     model.filters.forEach((filter) => {
       if ("resolution" in filter) {
@@ -62,6 +63,7 @@ export const adjustModelSize = (
   }
 };
 
+// Main hook for handling Live2D model resizing and scaling
 export const useLive2DResize = (
   containerRef: React.RefObject<HTMLDivElement>,
   appRef: React.RefObject<PIXI.Application>,
@@ -73,11 +75,13 @@ export const useLive2DResize = (
   const scaleUpdateTimeout = useRef<NodeJS.Timeout | null>(null);
   const lastScaleRef = useRef<number | null>(null);
 
+  // Handle mouse wheel scaling
   const handleWheel = useCallback((e: WheelEvent) => {
     if (!modelRef.current || !modelInfo?.scrollToResize) return;
     e.preventDefault();
     const smoothScale = handleModelScale(modelRef.current, e.deltaY);
 
+    // Only update scale if change is significant
     const hasSignificantChange = !lastScaleRef.current ||
       Math.abs(smoothScale - lastScaleRef.current) > 0.0001;
 
@@ -86,6 +90,7 @@ export const useLive2DResize = (
         clearTimeout(scaleUpdateTimeout.current);
       }
 
+      // Debounce scale updates
       scaleUpdateTimeout.current = setTimeout(() => {
         updateModelScale(smoothScale);
         lastScaleRef.current = smoothScale;
@@ -93,6 +98,7 @@ export const useLive2DResize = (
     }
   }, [modelRef, modelInfo?.scrollToResize, updateModelScale]);
 
+  // Add wheel event listener
   useEffect(() => {
     const canvas = containerRef.current?.querySelector('canvas');
     if (canvas) {
@@ -102,9 +108,11 @@ export const useLive2DResize = (
     return undefined;
   }, [handleWheel, containerRef]);
 
+  // Handle container resize
   useEffect(() => {
     const observer = new ResizeObserver(() => {
       if (modelRef.current && appRef.current) {
+        // Get container dimensions based on mode
         const { width, height } = isPet
           ? { width: window.innerWidth, height: window.innerHeight }
           : containerRef.current?.getBoundingClientRect() || {
@@ -112,38 +120,9 @@ export const useLive2DResize = (
             height: 0,
           };
 
+        // Resize renderer and reset model position
         appRef.current.renderer.resize(width, height);
         appRef.current.renderer.clear();
-
-        // adjustModelSize(
-        //   modelRef.current,
-        //   modelInfo,
-        // );
-      }
-    });
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [modelRef, modelInfo, containerRef, isPet, appRef]);
-
-  useEffect(() => {
-    const observer = new ResizeObserver(() => {
-      if (modelRef.current && appRef.current) {
-        const { width, height } = isPet
-          ? { width: window.innerWidth, height: window.innerHeight }
-          : containerRef.current?.getBoundingClientRect() || {
-            width: 0,
-            height: 0,
-          };
-
-        appRef.current.renderer.resize(width, height);
-        appRef.current.renderer.clear();
-
         resetModelPosition(modelRef.current, width, height, modelInfo);
       }
     });
@@ -157,6 +136,7 @@ export const useLive2DResize = (
     };
   }, [modelRef, containerRef, isPet, appRef]);
 
+  // Cleanup timeout on unmount
   useEffect(() => () => {
     if (scaleUpdateTimeout.current) {
       clearTimeout(scaleUpdateTimeout.current);

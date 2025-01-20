@@ -13,7 +13,7 @@ import {
   TapMotionMap,
 } from "@/context/live2d-config-context";
 import { useLive2DModel as useModelContext } from "@/context/live2d-model-context";
-import { adjustModelSize } from "./use-live2d-resize";
+import { setModelSize, resetModelPosition } from "./use-live2d-resize";
 import { audioTaskQueue } from "@/utils/task-queue";
 
 interface UseLive2DModelProps {
@@ -120,7 +120,15 @@ export const useLive2DModel = ({
 
       console.log("modelInfo", modelInfo);
 
-      adjustModelSize(model, modelInfo);
+      const { width, height } = isPet
+        ? { width: window.innerWidth, height: window.innerHeight }
+        : containerRef.current?.getBoundingClientRect() || {
+          width: 0,
+          height: 0,
+        };
+
+      setModelSize(model, modelInfo);
+      resetModelPosition(model, width, height, modelInfo);
 
       model.interactive = true;
       model.cursor = "pointer";
@@ -227,9 +235,6 @@ export const useLive2DModel = ({
       model.on("pointerup", (e) => {
         if (dragging) {
           dragging = false;
-          if (!model.containsPoint(new PIXI.Point(e.global.x, e.global.y))) {
-            // (window.api as any)?.updateComponentHover('live2d-model', false)
-          }
           if (isTap) {
             const hitAreas = model.hitTest(e.global.x, e.global.y);
 
