@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import { Box, Button } from '@chakra-ui/react';
 import {
   FiSettings, FiClock, FiPlus, FiChevronLeft,
@@ -6,7 +7,7 @@ import { memo } from 'react';
 import { sidebarStyles } from './sidebar-styles';
 import SettingUI from './setting/setting-ui';
 import ChatHistoryPanel from './chat-history-panel';
-import CameraPanel from './camera-panel';
+import BottomTab from './bottom-tab';
 import HistoryDrawer from './history-drawer';
 import { useSidebar } from '@/hooks/sidebar/use-sidebar';
 
@@ -68,7 +69,7 @@ const SidebarContent = memo(({ onSettingsOpen, onNewHistory }: HeaderButtonsProp
       />
     </Box>
     <ChatHistoryPanel />
-    <CameraPanel />
+    <BottomTab />
   </Box>
 ));
 

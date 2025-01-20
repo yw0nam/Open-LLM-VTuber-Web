@@ -51,9 +51,6 @@ export interface ModelInfo {
   /** Initial Y position shift */
   initialYshift: number | string;
 
-  /** X-axis offset coefficient */
-  kXOffset?: number | string;
-
   /** Idle motion group name */
   idleMotionGroupName?: string;
 

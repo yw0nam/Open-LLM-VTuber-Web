@@ -267,4 +267,71 @@ export const sidebarStyles = {
       display: 'block',
     } as const,
   },
+
+  screenPanel: {
+    container: {
+      width: '97%',
+      overflow: 'hidden',
+      px: 4,
+      minH: '240px',
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      mb: 4,
+    },
+    title: commonStyles.title,
+    screenContainer: {
+      ...commonStyles.panel,
+      width: '100%',
+      height: '240px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+      transition: 'all 0.2s',
+    },
+    video: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover' as const,
+      borderRadius: '8px',
+      display: 'block',
+    } as const,
+  },
+
+  bottomTab: {
+    container: {
+      width: '100%',
+      px: 4,
+    },
+    tabs: {
+      width: '100%',
+      bg: 'whiteAlpha.50',
+      borderRadius: 'lg',
+      p: '1',
+    },
+    list: {
+      borderBottom: 'none',
+      gap: '2',
+    },
+    trigger: {
+      color: 'whiteAlpha.700',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 2,
+      px: 3,
+      py: 2,
+      borderRadius: 'md',
+      _hover: {
+        color: 'white',
+        bg: 'whiteAlpha.50',
+      },
+      _selected: {
+        color: 'white',
+        bg: 'whiteAlpha.200',
+      },
+    },
+  },
 };

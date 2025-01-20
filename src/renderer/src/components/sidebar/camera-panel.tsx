@@ -73,7 +73,6 @@ function CameraPanel(): JSX.Element {
   return (
     <Box {...sidebarStyles.cameraPanel.container}>
       <Box {...sidebarStyles.cameraPanel.header}>
-        <Text {...sidebarStyles.cameraPanel.title}>Camera</Text>
         {isStreaming && <LiveIndicator />}
       </Box>
 

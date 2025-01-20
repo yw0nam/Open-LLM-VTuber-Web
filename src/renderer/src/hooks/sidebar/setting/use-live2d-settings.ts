@@ -9,7 +9,6 @@ export const useLive2dSettings = () => {
     kScale: 0.000625,
     initialXshift: 0,
     initialYshift: 0,
-    kXOffset: 1150,
     emotionMap: {},
     scrollToResize: true,
   };
