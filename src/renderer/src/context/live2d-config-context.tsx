@@ -114,7 +114,7 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
     return () => unsubscribe?.();
   }, []);
 
-  const getStorageKey = (uid: string, isPetMode: boolean) => `modelScale_${uid}_${isPetMode ? "pet" : "window"}`;
+  const getStorageKey = (uid: string, isPetMode: boolean) => `${uid}_${isPetMode ? "pet" : "window"}`;
 
   const [modelInfo, setModelInfoState] = useLocalStorage<ModelInfo | undefined>(
     'modelInfo',
