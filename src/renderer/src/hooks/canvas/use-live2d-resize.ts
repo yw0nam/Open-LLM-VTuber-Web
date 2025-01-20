@@ -40,27 +40,18 @@ const handleModelScale = (
   return smoothScale;
 };
 
-export const adjustModelSizeAndPosition = (
+export const adjustModelSize = (
   model: Live2DModel,
-  width: number,
-  height: number,
   modelInfo: ModelInfo | undefined,
-  isPet: boolean = false,
-  shouldResetPosition: boolean = false,
 ) => {
   if (!model || !modelInfo) return;
 
   const dpr = Number(window.devicePixelRatio || 1);
   const kScale = Number(modelInfo?.kScale || 0);
-  // const petScaleFactor = isPet ? 0.5 : 1;
-  const newScale = kScale; //  * petScaleFactor
+  const newScale = kScale;
 
   console.log("newScale", newScale);
   model.scale.set(newScale);
-
-  if (shouldResetPosition) {
-    resetModelPosition(model, width, height, modelInfo);
-  }
 
   if (model.filters) {
     model.filters.forEach((filter) => {
@@ -124,14 +115,10 @@ export const useLive2DResize = (
         appRef.current.renderer.resize(width, height);
         appRef.current.renderer.clear();
 
-        adjustModelSizeAndPosition(
-          modelRef.current,
-          width,
-          height,
-          modelInfo,
-          isPet,
-          false,
-        );
+        // adjustModelSize(
+        //   modelRef.current,
+        //   modelInfo,
+        // );
       }
     });
 

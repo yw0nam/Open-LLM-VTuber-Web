@@ -1,65 +1,27 @@
-/* eslint-disable consistent-return */
-import { memo, useMemo, useEffect } from "react";
+import { memo } from "react";
 import { useLive2DConfig } from "@/context/live2d-config-context";
-import { useVAD } from "@/context/vad-context";
 import { useIpcHandlers } from "@/hooks/utils/use-ipc-handlers";
 import { useLive2DModel } from "@/hooks/canvas/use-live2d-model";
 import { useLive2DResize } from "@/hooks/canvas/use-live2d-resize";
 import { useInterrupt } from "@/hooks/utils/use-interrupt";
 import { useAudioTask } from "@/hooks/utils/use-audio-task";
-import { useSwitchCharacter } from "@/hooks/utils/use-switch-character";
 
-// Type definitions
 interface Live2DProps {
   isPet: boolean;
 }
 
-// Main component
 export const Live2D = memo(({ isPet }: Live2DProps): JSX.Element => {
-  const { modelInfo, isLoading, setModelInfo } = useLive2DConfig();
-  const { micOn } = useVAD();
-  const { switchCharacter } = useSwitchCharacter();
+  const { modelInfo, isLoading } = useLive2DConfig();
 
-  useIpcHandlers();
+  // Register IPC handlers here as Live2D is a persistent component in the pet mode
+  useIpcHandlers({ isPet });
 
-  const modelConfig = useMemo(
-    () => ({
-      isPet,
-      modelInfo,
-      micOn,
-    }),
-    [isPet, modelInfo, micOn],
-  );
-
-  const { canvasRef, appRef, modelRef, containerRef } =
-    useLive2DModel(modelConfig);
+  const { canvasRef, appRef, modelRef, containerRef } = useLive2DModel({
+    isPet,
+    modelInfo,
+  });
 
   useLive2DResize(containerRef, appRef, modelRef, modelInfo, isPet);
-
-  useEffect(() => {
-    if (!isPet) return;
-    const unsubscribe = (window.api as any)?.onToggleScrollToResize(() => {
-      if (modelInfo) {
-        setModelInfo({
-          ...modelInfo,
-          scrollToResize: !modelInfo.scrollToResize,
-        });
-      }
-    });
-    return () => {
-      unsubscribe?.();
-    };
-  }, [modelInfo, setModelInfo, isPet]);
-
-  useEffect(() => {
-    if (!isPet) return;
-    const unsubscribe = (window.api as any)?.onSwitchCharacter(
-      (filename: string) => {
-        switchCharacter(filename);
-      },
-    );
-    return () => unsubscribe?.();
-  }, [isPet, switchCharacter]);
 
   // Export these hooks for global use
   useInterrupt();

@@ -61,6 +61,7 @@ export const sidebarStyles = {
       _hover: { color: 'white' },
       bg: 'transparent',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      zIndex: 1,
     },
     content: {
       flex: 1,
@@ -303,8 +304,10 @@ export const sidebarStyles = {
 
   bottomTab: {
     container: {
-      width: '100%',
+      width: '97%',
       px: 4,
+      position: 'relative' as const,
+      zIndex: 0,
     },
     tabs: {
       width: '100%',

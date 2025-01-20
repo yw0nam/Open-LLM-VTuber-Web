@@ -13,20 +13,17 @@ import {
   TapMotionMap,
 } from "@/context/live2d-config-context";
 import { useLive2DModel as useModelContext } from "@/context/live2d-model-context";
-import { adjustModelSizeAndPosition } from "./use-live2d-resize";
+import { adjustModelSize } from "./use-live2d-resize";
 import { audioTaskQueue } from "@/utils/task-queue";
 
 interface UseLive2DModelProps {
   isPet: boolean;
   modelInfo: ModelInfo | undefined;
-  micOn: boolean;
-  onModelLoad?: (model: Live2DModel) => void;
 }
 
 export const useLive2DModel = ({
   isPet,
   modelInfo,
-  onModelLoad,
 }: UseLive2DModelProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const appRef = useRef<PIXI.Application | null>(null);
@@ -123,14 +120,7 @@ export const useLive2DModel = ({
 
       console.log("modelInfo", modelInfo);
 
-      const { width, height } = isPet
-        ? { width: window.innerWidth, height: window.innerHeight }
-        : containerRef.current?.getBoundingClientRect() || {
-          width: 0,
-          height: 0,
-        };
-
-      adjustModelSizeAndPosition(model, width, height, modelInfo, isPet, true);
+      adjustModelSize(model, modelInfo);
 
       model.interactive = true;
       model.cursor = "pointer";
@@ -276,10 +266,8 @@ export const useLive2DModel = ({
         dragging = false;
         // (window.api as any)?.updateComponentHover('live2d-model', false)
       });
-
-      onModelLoad?.(model);
     },
-    [isPet, modelInfo?.url, onModelLoad, setCurrentModel],
+    [isPet, modelInfo?.url, setCurrentModel],
   );
 
   const loadModel = useCallback(async () => {
@@ -302,15 +290,13 @@ export const useLive2DModel = ({
       });
 
       await setupModel(model);
-
-      onModelLoad?.(model);
     } catch (error) {
       console.error("Failed to load Live2D model:", error);
     } finally {
       loadingRef.current = false;
       setIsLoading(false);
     }
-  }, [modelInfo?.url, setIsLoading, setupModel, isPet, onModelLoad]);
+  }, [modelInfo?.url, setIsLoading, setupModel, isPet]);
 
   useEffect(() => {
     if (modelRef.current) {

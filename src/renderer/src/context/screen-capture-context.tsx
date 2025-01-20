@@ -41,6 +41,7 @@ export function ScreenCaptureProvider({ children }: { children: ReactNode }) {
 
   return (
     <ScreenCaptureContext.Provider
+      // eslint-disable-next-line react/jsx-no-constructed-context-values
       value={{
         stream,
         isStreaming,
