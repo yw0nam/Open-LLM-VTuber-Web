@@ -57,9 +57,6 @@ class WebSocketService {
       type: 'fetch-backgrounds',
     });
     this.sendMessage({
-      type: 'fetch-conf-info',
-    });
-    this.sendMessage({
       type: 'fetch-configs',
     });
     this.sendMessage({

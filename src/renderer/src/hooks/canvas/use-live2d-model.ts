@@ -30,7 +30,7 @@ export const useLive2DModel = ({
   const modelRef = useRef<Live2DModel | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { setCurrentModel } = useModelContext();
-  const { setIsLoading } = useLive2DConfig();
+  const { setIsLoading, hasReceivedModelInfo } = useLive2DConfig();
   const loadingRef = useRef(false);
 
   const cleanupModel = useCallback(() => {
@@ -276,7 +276,7 @@ export const useLive2DModel = ({
   );
 
   const loadModel = useCallback(async () => {
-    if (!modelInfo?.url || !appRef.current) return;
+    if (!modelInfo?.url || !appRef.current || !hasReceivedModelInfo) return;
     if (loadingRef.current) return;
 
     console.log("Loading model:", modelInfo.url);
@@ -301,7 +301,7 @@ export const useLive2DModel = ({
       loadingRef.current = false;
       setIsLoading(false);
     }
-  }, [modelInfo?.url, setIsLoading, setupModel, isPet]);
+  }, [modelInfo?.url, setIsLoading, setupModel, isPet, hasReceivedModelInfo]);
 
   useEffect(() => {
     if (modelRef.current) {

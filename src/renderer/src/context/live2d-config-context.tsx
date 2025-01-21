@@ -1,5 +1,5 @@
 import {
-  createContext, useContext, useState, useMemo, useEffect, useCallback,
+  createContext, useContext, useState, useMemo, useEffect, useCallback, useRef,
 } from 'react';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 import { useConfig } from '@/context/character-config-context';
@@ -77,6 +77,7 @@ interface Live2DConfigState {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   updateModelScale: (newScale: number) => void;
+  hasReceivedModelInfo: boolean;
 }
 
 /**
@@ -101,8 +102,15 @@ export const Live2DConfigContext = createContext<Live2DConfigState | null>(null)
  */
 export function Live2DConfigProvider({ children }: { children: React.ReactNode }) {
   const { confUid } = useConfig();
+  const confUidRef = useRef(confUid);
+
+  useEffect(() => {
+    confUidRef.current = confUid;
+  }, [confUid]);
+
   const [isPet, setIsPet] = useState(false);
   const [isLoading, setIsLoading] = useState(DEFAULT_CONFIG.isLoading);
+  const [hasReceivedModelInfo, setHasReceivedModelInfo] = useState(false);
 
   useEffect(() => {
     const unsubscribe = (window.api as any)?.onModeChanged((mode: string) => {
@@ -123,8 +131,10 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
     {},
   );
 
-  const setModelInfo = useCallback((info: ModelInfo | undefined) => {
-    if (!confUid) {
+  const setModelInfo = (info: ModelInfo | undefined) => {
+    const currentConfUid = confUidRef.current;
+
+    if (!currentConfUid) {
       console.warn('Attempting to set model info without confUid');
       return;
     }
@@ -134,7 +144,8 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
     }
 
     if (info) {
-      const storageKey = getStorageKey(confUid, isPet);
+      setHasReceivedModelInfo(true);
+      const storageKey = getStorageKey(currentConfUid, isPet);
       let finalScale: number;
 
       const storedScale = scaleMemory[storageKey];
@@ -163,9 +174,10 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
           : modelInfo?.scrollToResize ?? true,
       });
     } else {
+      setHasReceivedModelInfo(false);
       setModelInfoState(undefined);
     }
-  }, [confUid, isPet, scaleMemory, modelInfo, setModelInfoState, setScaleMemory]);
+  };
 
   const updateModelScale = useCallback((newScale: number) => {
     if (modelInfo) {
@@ -204,8 +216,9 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
       isLoading,
       setIsLoading,
       updateModelScale,
+      hasReceivedModelInfo,
     }),
-    [modelInfo, setModelInfo, isLoading, updateModelScale],
+    [modelInfo, isLoading, updateModelScale, hasReceivedModelInfo],
   );
 
   return (

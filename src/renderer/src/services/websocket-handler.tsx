@@ -74,15 +74,24 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           handleControlMessage(message.text);
         }
         break;
-      case 'set-model':
-        console.log('set-model: ', message.model_info);
-        if (message.model_info && !message.model_info.url.startsWith('http')) {
-          const modelUrl = baseUrl + message.model_info.url; // model_info.url must begin with /
+      case 'set-model-and-conf':
+        setAiState('loading');
+        if (message.conf_name) {
+          setConfName(message.conf_name);
+        }
+        if (message.conf_uid) {
+          setConfUid(message.conf_uid);
+          console.log('confUid', message.conf_uid);
+        }
+        setTimeout(() => {
+          setModelInfo(message.model_info);
+        }, 1000);
+        if (message.model_info && !message.model_info.url.startsWith("http")) {
+          const modelUrl = baseUrl + message.model_info.url;
           // eslint-disable-next-line no-param-reassign
           message.model_info.url = modelUrl;
         }
-        setAiState('loading');
-        setModelInfo(message.model_info);
+
         setAiState('idle');
         break;
       case 'full-text':
@@ -128,19 +137,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
             text: message.text || null,
             expressions: message.expressions || null,
           });
-        }
-        break;
-      case 'config-info':
-        if (message.conf_uid) {
-          setConfUid(message.conf_uid);
-          if (message.model_info) {
-            setAiState('loading');
-            setModelInfo(message.model_info);
-            setAiState('idle');
-          }
-        }
-        if (message.conf_name) {
-          setConfName(message.conf_name);
         }
         break;
       case 'history-data':
