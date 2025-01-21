@@ -10,7 +10,7 @@ interface AudioTaskOptions {
   volumes: number[]
   sliceLength: number
   text?: string | null
-  expressionList?: string[] | null
+  expressions?: string[] | number[] | null
 }
 
 export const useAudioTask = () => {
@@ -50,7 +50,7 @@ export const useAudioTask = () => {
       return;
     }
 
-    const { audioBase64, text, expressionList } = options;
+    const { audioBase64, text, expressions } = options;
 
     if (text) {
       appendText(text);
@@ -66,14 +66,14 @@ export const useAudioTask = () => {
 
     try {
       model.speak(`data:audio/wav;base64,${audioBase64}`, {
-        expression: expressionList?.[0] || undefined,
+        expression: expressions?.[0] || undefined,
         resetExpression: true,
         onFinish: () => {
-          console.log('Voiceline is over');
+          console.log("Voiceline is over");
           onComplete();
         },
         onError: (error) => {
-          console.error('Audio playback error:', error);
+          console.error("Audio playback error:", error);
           onComplete();
         },
       });

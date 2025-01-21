@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import { Box, Text } from '@chakra-ui/react';
 import {
   memo, useEffect, useRef, useCallback,
@@ -5,7 +6,7 @@ import {
 import ChatBubble from './chat-bubble';
 import { sidebarStyles } from './sidebar-styles';
 import { useChatHistoryPanel } from '@/hooks/sidebar/use-chat-history-panel';
-import { Message } from '@/types/message';
+import { Message } from '@/services/websocket-service';
 
 // Type definitions
 interface MessageListProps {

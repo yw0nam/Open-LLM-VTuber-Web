@@ -9,7 +9,7 @@ export function useTextInput() {
   const [inputText, setInputText] = useState('');
   const [isComposing, setIsComposing] = useState(false);
   const wsContext = useWebSocket();
-  const { aiState } = useAiState();
+  const { aiState, setAiState } = useAiState();
   const { interrupt } = useInterrupt();
   const { appendHumanMessage } = useChatHistory();
   const { stopMic, voiceInterruptionOn } = useVAD();
@@ -28,6 +28,8 @@ export function useTextInput() {
       type: 'text-input',
       text: inputText.trim(),
     });
+
+    setAiState('thinking-speaking');
     if (!voiceInterruptionOn) stopMic();
     setInputText('');
   };

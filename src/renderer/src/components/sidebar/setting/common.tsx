@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import {
   Text, Input, NumberInput, createListCollection,
 } from '@chakra-ui/react';

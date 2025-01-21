@@ -22,7 +22,7 @@ export interface MessageEvent {
   volumes?: number[];
   slice_length?: number;
   files?: BackgroundFile[];
-  expressions?: string[];
+  expressions?: string[] | number [];
   text?: string;
   model_info?: ModelInfo;
   conf_name?: string;
