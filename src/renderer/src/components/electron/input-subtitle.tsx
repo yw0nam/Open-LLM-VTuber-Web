@@ -169,7 +169,3 @@ export function InputSubtitle({ isPet = false }: InputSubtitleProps) {
     </Box>
   );
 }
-
-InputSubtitle.defaultProps = {
-  isPet: false,
-};

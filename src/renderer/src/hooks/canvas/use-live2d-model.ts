@@ -15,6 +15,7 @@ import {
 import { useLive2DModel as useModelContext } from "@/context/live2d-model-context";
 import { setModelSize, resetModelPosition } from "./use-live2d-resize";
 import { audioTaskQueue } from "@/utils/task-queue";
+import { AiStateEnum, useAiState } from "@/context/ai-state-context";
 
 interface UseLive2DModelProps {
   isPet: boolean;
@@ -32,6 +33,13 @@ export const useLive2DModel = ({
   const { setCurrentModel } = useModelContext();
   const { setIsLoading, hasReceivedModelInfo } = useLive2DConfig();
   const loadingRef = useRef(false);
+  const { aiState } = useAiState();
+
+  useEffect(() => {
+    if (aiState === AiStateEnum.IDLE) {
+      modelRef.current?.internalModel.motionManager.expressionManager?.resetExpression();
+    }
+  }, [aiState]);
 
   const cleanupModel = useCallback(() => {
     if (modelRef.current) {
@@ -301,13 +309,13 @@ export const useLive2DModel = ({
       loadingRef.current = false;
       setIsLoading(false);
     }
-  }, [modelInfo?.url, setIsLoading, setupModel, isPet, hasReceivedModelInfo]);
+  }, [modelInfo?.url, modelInfo?.pointerInteractive, modelInfo?.scrollToResize, setIsLoading, setupModel, isPet, hasReceivedModelInfo]);
 
-  useEffect(() => {
-    if (modelRef.current) {
-      modelRef.current.interactive = modelInfo?.pointerInteractive ?? false;
-    }
-  }, [modelInfo?.pointerInteractive, loadModel]);
+  // useEffect(() => {
+  //   if (modelRef.current) {
+  //     modelRef.current.interactive = modelInfo?.pointerInteractive ?? false;
+  //   }
+  // }, [modelInfo?.pointerInteractive, loadModel]);
 
   useEffect(() => {
     if (modelInfo?.url) {
@@ -316,7 +324,7 @@ export const useLive2DModel = ({
     return () => {
       cleanupModel();
     };
-  }, [modelInfo?.url, loadModel, cleanupModel]);
+  }, [modelInfo?.url, modelInfo?.pointerInteractive, modelInfo?.scrollToResize, loadModel, cleanupModel]);
 
   return {
     canvasRef,

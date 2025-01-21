@@ -64,12 +64,4 @@ function ChatBubble({ message, onUpdate }: ChatBubbleProps): JSX.Element {
   );
 }
 
-ChatBubble.defaultProps = {
-  onUpdate: undefined,
-};
-
-BubbleContent.defaultProps = {
-  onContentChange: undefined,
-};
-
 export default ChatBubble;

@@ -12,7 +12,7 @@ export function useTextInput() {
   const { aiState, setAiState } = useAiState();
   const { interrupt } = useInterrupt();
   const { appendHumanMessage } = useChatHistory();
-  const { stopMic, voiceInterruptionOn } = useVAD();
+  const { stopMic, autoStopMic } = useVAD();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputText(e.target.value);
@@ -30,7 +30,7 @@ export function useTextInput() {
     });
 
     setAiState('thinking-speaking');
-    if (!voiceInterruptionOn) stopMic();
+    if (autoStopMic) stopMic();
     setInputText('');
   };
 

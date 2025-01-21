@@ -33,5 +33,6 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'off',
     'consistent-return': 'off',
     'object-curly-newline': 'off',
+    'react/require-default-props': 'off',
   },
 };

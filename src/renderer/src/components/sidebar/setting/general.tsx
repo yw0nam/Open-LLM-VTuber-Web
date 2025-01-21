@@ -137,9 +137,4 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
   );
 }
 
-General.defaultProps = {
-  onSave: () => () => {},
-  onCancel: () => () => {},
-};
-
 export default General;

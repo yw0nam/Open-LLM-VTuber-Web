@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import { Stack } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { settingStyles } from './setting-styles';
@@ -12,9 +13,9 @@ interface ASRProps {
 function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
   const {
     localSettings,
-    voiceInterruptionOn,
+    autoStopMic,
     autoStartMicOn,
-    setVoiceInterruptionOn,
+    setAutoStopMic,
     setAutoStartMicOn,
     handleInputChange,
     handleSave,
@@ -37,8 +38,8 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
     <Stack {...settingStyles.common.container}>
       <SwitchField
         label="Auto Stop Mic When AI Start Speaking"
-        checked={voiceInterruptionOn}
-        onChange={setVoiceInterruptionOn}
+        checked={autoStopMic}
+        onChange={setAutoStopMic}
       />
 
       <SwitchField

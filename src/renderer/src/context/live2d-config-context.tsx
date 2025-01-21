@@ -124,6 +124,9 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
   const [modelInfo, setModelInfoState] = useLocalStorage<ModelInfo | undefined>(
     'modelInfo',
     DEFAULT_CONFIG.modelInfo,
+    {
+      filter: (value) => (value ? { ...value, url: '' } : value),
+    },
   );
 
   const [scaleMemory, setScaleMemory] = useLocalStorage<Record<string, number>>(

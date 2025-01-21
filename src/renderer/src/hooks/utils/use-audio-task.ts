@@ -67,7 +67,7 @@ export const useAudioTask = () => {
     try {
       model.speak(`data:audio/wav;base64,${audioBase64}`, {
         expression: expressions?.[0] || undefined,
-        resetExpression: true,
+        resetExpression: false,
         onFinish: () => {
           console.log("Voiceline is over");
           onComplete();

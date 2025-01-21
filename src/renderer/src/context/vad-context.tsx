@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import {
   createContext, useContext, useRef, useCallback, useEffect, useReducer, useMemo,
 } from 'react';
@@ -29,8 +30,8 @@ export interface VADSettings {
  * @interface VADState
  */
 interface VADState {
-  /** Voice interruption feature state */
-  voiceInterruptionOn: boolean;
+  /** Auto stop mic feature state */
+  autoStopMic: boolean;
 
   /** Microphone active state */
   micOn: boolean;
@@ -38,8 +39,8 @@ interface VADState {
   /** Set microphone state */
   setMicOn: (value: boolean) => void;
 
-  /** Set voice interruption state */
-  setVoiceInterruptionOn: (value: boolean) => void;
+  /** Set Auto stop mic state */
+  setAutoStopMic: (value: boolean) => void;
 
   /** Start microphone and VAD */
   startMic: () => Promise<void>;
@@ -77,7 +78,7 @@ const DEFAULT_VAD_SETTINGS: VADSettings = {
 
 const DEFAULT_VAD_STATE = {
   micOn: false,
-  voiceInterruptionOn: false,
+  autoStopMic: true,
   autoStartMicOn: false,
 };
 
@@ -100,10 +101,10 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
 
   // Persistent state management
   const [micOn, setMicOn] = useLocalStorage('micOn', DEFAULT_VAD_STATE.micOn);
-  const voiceInterruptionRef = useRef(false);
-  const [voiceInterruptionOn, setVoiceInterruptionOnState] = useLocalStorage(
-    'voiceInterruptionOn',
-    DEFAULT_VAD_STATE.voiceInterruptionOn,
+  const autoStopMicRef = useRef(true);
+  const [autoStopMic, setAutoStopMicState] = useLocalStorage(
+    'autoStopMic',
+    DEFAULT_VAD_STATE.autoStopMic,
   );
   const [settings, setSettings] = useLocalStorage<VADSettings>(
     'vadSettings',
@@ -155,7 +156,7 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
   }, [setAiState]);
 
   useEffect(() => {
-    voiceInterruptionRef.current = voiceInterruptionOn;
+    autoStopMicRef.current = autoStopMic;
   }, []);
 
   useEffect(() => {
@@ -178,7 +179,7 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
     if (aiStateRef.current === 'thinking-speaking') {
       interruptRef.current();
     }
-    isProcessingRef.current = true;  
+    isProcessingRef.current = true;
     setAiStateRef.current('listening');
   }, []);
 
@@ -195,29 +196,29 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
    * Handle speech end event
    */
   const handleSpeechEnd = useCallback((audio: Float32Array) => {
-    if (!isProcessingRef.current) return; 
+    if (!isProcessingRef.current) return;
     console.log('Speech ended');
     audioTaskQueue.clearQueue();
 
-    if (!voiceInterruptionRef.current) {
+    if (autoStopMicRef.current) {
       stopMic();
     } else {
-      console.log('Voice interruption is on, keeping mic active');
+      console.log('Auto stop mic is on, keeping mic active');
     }
 
     setPreviousTriggeredProbability(0);
     sendAudioPartitionRef.current(audio);
-    isProcessingRef.current = false;  
+    isProcessingRef.current = false;
   }, []);
 
   /**
    * Handle VAD misfire event
    */
   const handleVADMisfire = useCallback(() => {
-    if (!isProcessingRef.current) return;  
+    if (!isProcessingRef.current) return;
     console.log('VAD misfire detected');
     setPreviousTriggeredProbability(0);
-    isProcessingRef.current = false;  
+    isProcessingRef.current = false;
 
     if (aiStateRef.current === 'interrupted' || aiStateRef.current === 'listening') {
       setAiStateRef.current('idle');
@@ -291,11 +292,11 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   /**
-   * Set voice interruption state
+   * Set Auto stop mic state
    */
-  const setVoiceInterruptionOn = useCallback((value: boolean) => {
-    voiceInterruptionRef.current = value;
-    setVoiceInterruptionOnState(value);
+  const setAutoStopMic = useCallback((value: boolean) => {
+    autoStopMicRef.current = value;
+    setAutoStopMicState(value);
     forceUpdate();
   }, []);
 
@@ -308,10 +309,10 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
   // Memoized context value
   const contextValue = useMemo(
     () => ({
-      voiceInterruptionOn: voiceInterruptionRef.current,
+      autoStopMic: autoStopMicRef.current,
       micOn,
       setMicOn,
-      setVoiceInterruptionOn,
+      setAutoStopMic,
       startMic,
       stopMic,
       previousTriggeredProbability: previousTriggeredProbabilityRef.current,

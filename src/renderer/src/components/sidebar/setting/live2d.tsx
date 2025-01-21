@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { Stack } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { settingStyles } from './setting-styles';

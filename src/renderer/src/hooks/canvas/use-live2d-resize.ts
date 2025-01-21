@@ -4,7 +4,7 @@ import * as PIXI from 'pixi.js';
 import { ModelInfo, useLive2DConfig } from '@/context/live2d-config-context';
 
 // Speed of model scaling when using mouse wheel
-const SCALE_SPEED = 0.02;
+const SCALE_SPEED = 0.01;
 
 // Reset model to center of container with initial offset
 export const resetModelPosition = (

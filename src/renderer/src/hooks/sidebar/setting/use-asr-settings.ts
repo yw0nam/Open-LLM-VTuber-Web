@@ -5,24 +5,24 @@ export const useASRSettings = () => {
   const {
     settings,
     updateSettings,
-    voiceInterruptionOn,
-    setVoiceInterruptionOn,
+    autoStopMic,
+    setAutoStopMic,
     autoStartMicOn,
     setAutoStartMicOn,
   } = useVAD();
 
   const localSettingsRef = useRef<VADSettings>(settings);
   const originalSettingsRef = useRef(settings);
-  const originalVoiceInterruptionOnRef = useRef(voiceInterruptionOn);
+  const originalAutoStopMicRef = useRef(autoStopMic);
   const originalAutoStartMicOnRef = useRef(autoStartMicOn);
-  const [localVoiceInterruption, setLocalVoiceInterruption] = useState(voiceInterruptionOn);
+  const [localVoiceInterruption, setLocalVoiceInterruption] = useState(autoStopMic);
   const [localAutoStartMic, setLocalAutoStartMic] = useState(autoStartMicOn);
   const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
 
   useEffect(() => {
-    setLocalVoiceInterruption(voiceInterruptionOn);
+    setLocalVoiceInterruption(autoStopMic);
     setLocalAutoStartMic(autoStartMicOn);
-  }, [voiceInterruptionOn, autoStartMicOn]);
+  }, [autoStopMic, autoStartMicOn]);
 
   const handleInputChange = (key: keyof VADSettings, value: number | string): void => {
     if (value === '' || value === '-') {
@@ -39,7 +39,7 @@ export const useASRSettings = () => {
 
   const handleVoiceInterruptionChange = (value: boolean) => {
     setLocalVoiceInterruption(value);
-    setVoiceInterruptionOn(value);
+    setAutoStopMic(value);
   };
 
   const handleAutoStartMicChange = (value: boolean) => {
@@ -50,24 +50,24 @@ export const useASRSettings = () => {
   const handleSave = (): void => {
     updateSettings(localSettingsRef.current);
     originalSettingsRef.current = localSettingsRef.current;
-    originalVoiceInterruptionOnRef.current = localVoiceInterruption;
+    originalAutoStopMicRef.current = localVoiceInterruption;
     originalAutoStartMicOnRef.current = localAutoStartMic;
   };
 
   const handleCancel = (): void => {
     localSettingsRef.current = originalSettingsRef.current;
-    setLocalVoiceInterruption(originalVoiceInterruptionOnRef.current);
+    setLocalVoiceInterruption(originalAutoStopMicRef.current);
     setLocalAutoStartMic(originalAutoStartMicOnRef.current);
-    setVoiceInterruptionOn(originalVoiceInterruptionOnRef.current);
+    setAutoStopMic(originalAutoStopMicRef.current);
     setAutoStartMicOn(originalAutoStartMicOnRef.current);
     forceUpdate();
   };
 
   return {
     localSettings: localSettingsRef.current,
-    voiceInterruptionOn: localVoiceInterruption,
+    autoStopMic: localVoiceInterruption,
     autoStartMicOn: localAutoStartMic,
-    setVoiceInterruptionOn: handleVoiceInterruptionChange,
+    setAutoStopMic: handleVoiceInterruptionChange,
     setAutoStartMicOn: handleAutoStartMicChange,
     handleInputChange,
     handleSave,
