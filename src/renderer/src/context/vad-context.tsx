@@ -71,14 +71,14 @@ interface VADState {
  * Default values and constants
  */
 const DEFAULT_VAD_SETTINGS: VADSettings = {
-  positiveSpeechThreshold: 97,
-  negativeSpeechThreshold: 15,
-  redemptionFrames: 15,
+  positiveSpeechThreshold: 50,
+  negativeSpeechThreshold: 35,
+  redemptionFrames: 35,
 };
 
 const DEFAULT_VAD_STATE = {
   micOn: false,
-  autoStopMic: true,
+  autoStopMic: false,
   autoStartMicOn: false,
 };
 
