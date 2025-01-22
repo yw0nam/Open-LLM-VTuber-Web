@@ -29,7 +29,6 @@ function App(): JSX.Element {
   const [isFooterCollapsed, setIsFooterCollapsed] = useState(false);
   const [mode, setMode] = useState('window');
   const isElectron = window.api !== undefined;
-
   useEffect(() => {
     if (isElectron) {
       window.electron.ipcRenderer.on('pre-mode-changed', (_event, newMode) => {

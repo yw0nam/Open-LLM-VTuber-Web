@@ -43,15 +43,11 @@ const handleModelScale = (
 // Set model size based on device pixel ratio and kScale in modelInfo
 export const setModelSize = (
   model: Live2DModel,
-  modelInfo: ModelInfo | undefined,
+  kScale: string | number | undefined,
 ) => {
-  if (!model || !modelInfo) return;
-
+  if (!model || !kScale) return;
   const dpr = Number(window.devicePixelRatio || 1);
-  const kScale = Number(modelInfo?.kScale || 0);
-  const newScale = kScale;
-
-  model.scale.set(newScale);
+  model.scale.set(Number(kScale));
 
   // Update filter resolution for retina displays
   if (model.filters) {

@@ -78,7 +78,6 @@ interface Live2DConfigState {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   updateModelScale: (newScale: number) => void;
-  hasReceivedModelInfo: boolean;
 }
 
 /**
@@ -106,11 +105,10 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
 
   const [isPet, setIsPet] = useState(false);
   const [isLoading, setIsLoading] = useState(DEFAULT_CONFIG.isLoading);
-  const [hasReceivedModelInfo, setHasReceivedModelInfo] = useState(false);
 
   useEffect(() => {
     const unsubscribe = (window.api as any)?.onModeChanged((mode: string) => {
-      setIsPet(mode === 'pet');
+      setIsPet(mode === "pet");
     });
     return () => unsubscribe?.();
   }, []);
@@ -118,101 +116,112 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
   const getStorageKey = (uid: string, isPetMode: boolean) => `${uid}_${isPetMode ? "pet" : "window"}`;
 
   const [modelInfo, setModelInfoState] = useLocalStorage<ModelInfo | undefined>(
-    'modelInfo',
+    "modelInfo",
     DEFAULT_CONFIG.modelInfo,
     {
-      filter: (value) => (value ? { ...value, url: '' } : value),
+      filter: (value) => (value ? { ...value, url: "" } : value),
     },
   );
 
   const [scaleMemory, setScaleMemory] = useLocalStorage<Record<string, number>>(
-    'scale_memory',
+    "scale_memory",
     {},
   );
 
+  /**
+   * Updates the Live2D model information and manages model scale persistence
+   * @param info - The new model information to be set
+   * @returns void
+   */
   const setModelInfo = (info: ModelInfo | undefined) => {
+    // Skip if no model URL is provided (avoid localStorage modelInfo remaining)
     if (!info?.url) {
       return;
     }
 
+    // Validate configuration UID exists
     if (!confUid) {
-      console.warn('Attempting to set model info without confUid');
+      console.warn("Attempting to set model info without confUid");
       toaster.create({
-        title: 'Attempting to set model info without confUid',
-        type: 'error',
+        title: "Attempting to set model info without confUid",
+        type: "error",
         duration: 2000,
       });
       return;
     }
 
+    // Prevent unnecessary updates if model info hasn't changed
     if (JSON.stringify(info) === JSON.stringify(modelInfo)) {
-      // toaster.create({
-      //   title: 'Model info is the same as the current model info',
-      //   type: 'warning',
-      //   duration: 2000,
-      // });
       return;
     }
 
     if (info) {
-      setHasReceivedModelInfo(true);
-      console.error('setHasReceivedModelInfo', info);
+      // Generate storage key based on confUid and mode
       const storageKey = getStorageKey(confUid, isPet);
       let finalScale: number;
 
+      // Retrieve stored scale
       const storedScale = scaleMemory[storageKey];
       if (storedScale !== undefined) {
         finalScale = storedScale;
       } else {
         finalScale = Number(info.kScale || 0.001);
+        // If no stored scale, store the initial scale in memory
         setScaleMemory((prev) => ({
           ...prev,
           [storageKey]: finalScale,
         }));
       }
 
-      console.log("storageKey", storageKey);
-      console.log("storedScale", storedScale);
       console.log("finalScale", finalScale);
 
       setModelInfoState({
         ...info,
         kScale: finalScale,
-        pointerInteractive: 'pointerInteractive' in info
-          ? info.pointerInteractive
-          : modelInfo?.pointerInteractive ?? false,
-        scrollToResize: 'scrollToResize' in info
-          ? info.scrollToResize
-          : modelInfo?.scrollToResize ?? true,
+        // use new settings to updata the local storage, or still use the stored settings
+        pointerInteractive:
+          "pointerInteractive" in info
+            ? info.pointerInteractive
+            : (modelInfo?.pointerInteractive ?? false),
+        scrollToResize:
+          "scrollToResize" in info
+            ? info.scrollToResize
+            : (modelInfo?.scrollToResize ?? true),
       });
     } else {
-      setHasReceivedModelInfo(false);
+      // Reset model info state when clearing (like switching character)
       setModelInfoState(undefined);
     }
   };
+  const updateModelScale = useCallback(
+    // Updates the Live2D model scale and persists it to local storage when scrolling in useLive2DResize
+    (newScale: number) => {
+      if (modelInfo) {
+        const storageKey = getStorageKey(confUid, isPet);
+        const fixedScale = Number(newScale.toFixed(8));
+        setScaleMemory((prev) => ({
+          ...prev,
+          [storageKey]: fixedScale,
+        })); // Update the scale in local storage
 
-  const updateModelScale = useCallback((newScale: number) => {
-    if (modelInfo) {
-      const storageKey = getStorageKey(confUid, isPet);
-      const fixedScale = Number(newScale.toFixed(8));
-      setScaleMemory((prev) => ({
-        ...prev,
-        [storageKey]: fixedScale,
-      }));
-
-      setModelInfoState({
-        ...modelInfo,
-        kScale: fixedScale,
-      });
-    }
-  }, [modelInfo, confUid, isPet, setScaleMemory, setModelInfoState]);
+        setModelInfoState({
+          ...modelInfo,
+          kScale: fixedScale,
+        }); // Update the modelInfo state
+      }
+    },
+    [modelInfo, confUid, isPet, setScaleMemory, setModelInfoState],
+  );
 
   useEffect(() => {
+    // If modelInfo is updated, we need to use local storage to update some persistent user settings, like the scale.
     if (modelInfo) {
       const storageKey = getStorageKey(confUid, isPet);
       const memorizedScale = scaleMemory[storageKey];
-
-      if (memorizedScale !== undefined && memorizedScale !== Number(modelInfo.kScale)) {
+      if (
+        memorizedScale !== undefined &&
+        memorizedScale !== Number(modelInfo.kScale)
+      ) {
         setModelInfo({
           ...modelInfo,
           kScale: memorizedScale,
@@ -220,7 +229,9 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
       }
     }
   }, [isPet, modelInfo]);
+  // Don't set confUid in the dependency beacause it will use old modelInfo to update.
 
+  // Context value
   const contextValue = useMemo(
     () => ({
       modelInfo,
@@ -228,9 +239,8 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
       isLoading,
       setIsLoading,
       updateModelScale,
-      hasReceivedModelInfo,
     }),
-    [modelInfo, isLoading, updateModelScale, hasReceivedModelInfo],
+    [modelInfo, isLoading, updateModelScale],
   );
 
   return (
