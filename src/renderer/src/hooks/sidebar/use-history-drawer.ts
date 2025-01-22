@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useChatHistory } from '@/context/chat-history-context';
 import { useWebSocket, HistoryInfo } from '@/context/websocket-context';
+import { toaster } from '@/components/ui/toaster';
 
 export const useHistoryDrawer = () => {
   const [open, setOpen] = useState(false);
@@ -30,6 +31,15 @@ export const useHistoryDrawer = () => {
   };
 
   const deleteHistory = (uid: string) => {
+    if (uid === currentHistoryUid) {
+      toaster.create({
+        title: 'Cannot delete current chat history',
+        type: 'warning',
+        duration: 2000,
+      });
+      return;
+    }
+
     sendMessage({
       type: 'delete-history',
       history_uid: uid,

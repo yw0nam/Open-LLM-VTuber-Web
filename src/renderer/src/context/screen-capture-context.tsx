@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { toaster } from "@/components/ui/toaster";
 
 interface ScreenCaptureContextType {
   stream: MediaStream | null;
@@ -27,6 +28,11 @@ export function ScreenCaptureProvider({ children }: { children: ReactNode }) {
       setError('');
     } catch (err) {
       setError('Failed to start screen capture');
+      toaster.create({
+        title: `Failed to start screen capture: ${err}`,
+        type: 'error',
+        duration: 2000,
+      });
       console.error(err);
     }
   };

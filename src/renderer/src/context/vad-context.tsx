@@ -9,6 +9,7 @@ import { useSendAudio } from '@/hooks/utils/use-send-audio';
 import { SubtitleContext } from './subtitle-context';
 import { AiStateContext } from './ai-state-context';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
+import { toaster } from '@/components/ui/toaster';
 
 /**
  * VAD settings configuration interface
@@ -274,6 +275,11 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
       setMicOn(true);
     } catch (error) {
       console.error('Failed to start VAD:', error);
+      toaster.create({
+        title: `Failed to start VAD: ${error}`,
+        type: 'error',
+        duration: 2000,
+      });
     }
   }, []);
 

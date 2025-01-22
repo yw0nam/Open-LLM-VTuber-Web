@@ -3,6 +3,7 @@ import {
 } from 'react';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 import { useConfig } from '@/context/character-config-context';
+import { toaster } from '@/components/ui/toaster';
 
 /**
  * Model emotion mapping interface
@@ -139,6 +140,11 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
 
     if (!currentConfUid) {
       console.warn('Attempting to set model info without confUid');
+      toaster.create({
+        title: 'Attempting to set model info without confUid',
+        type: 'error',
+        duration: 2000,
+      });
       return;
     }
 

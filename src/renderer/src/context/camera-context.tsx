@@ -7,6 +7,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
+import { toaster } from '@/components/ui/toaster';
 
 /**
  * Camera configuration interface
@@ -91,6 +92,11 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       setIsStreaming(true);
     } catch (err) {
       console.error('Failed to start camera:', err);
+      toaster.create({
+        title: `Failed to start camera: ${err}`,
+        type: 'error',
+        duration: 2000,
+      });
       throw err;
     }
   }, [cameraConfig]);
@@ -128,6 +134,11 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       setIsBackgroundStreaming(true);
     } catch (err) {
       console.error('Failed to start background camera:', err);
+      toaster.create({
+        title: `Failed to start background camera: ${err}`,
+        type: 'error',
+        duration: 2000,
+      });
       throw err;
     }
   }, [cameraConfig]);

@@ -28,6 +28,7 @@ interface HistoryItemProps {
   latestMessage: { content: string; timestamp: string | null };
   onSelect: () => void;
   onDelete: (e: React.MouseEvent) => void;
+  isDeleteDisabled: boolean;
 }
 
 // Reusable components
@@ -36,6 +37,7 @@ const HistoryItem = memo(({
   latestMessage,
   onSelect,
   onDelete,
+  isDeleteDisabled,
 }: HistoryItemProps): JSX.Element => (
   <Box
     {...sidebarStyles.historyDrawer.historyItem}
@@ -50,6 +52,7 @@ const HistoryItem = memo(({
       </Box>
       <Button
         onClick={onDelete}
+        disabled={isDeleteDisabled}
         {...sidebarStyles.historyDrawer.deleteButton}
       >
         <FiTrash2 />
@@ -105,6 +108,7 @@ function HistoryDrawer({ children }: HistoryDrawerProps): JSX.Element {
                   e.stopPropagation();
                   deleteHistory(history.uid);
                 }}
+                isDeleteDisabled={currentHistoryUid === history.uid}
               />
             ))}
           </Box>

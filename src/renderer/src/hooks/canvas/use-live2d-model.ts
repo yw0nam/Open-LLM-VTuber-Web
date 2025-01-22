@@ -16,6 +16,7 @@ import { useLive2DModel as useModelContext } from "@/context/live2d-model-contex
 import { setModelSize, resetModelPosition } from "./use-live2d-resize";
 import { audioTaskQueue } from "@/utils/task-queue";
 import { AiStateEnum, useAiState } from "@/context/ai-state-context";
+import { toaster } from "@/components/ui/toaster";
 
 interface UseLive2DModelProps {
   isPet: boolean;
@@ -305,6 +306,11 @@ export const useLive2DModel = ({
       await setupModel(model);
     } catch (error) {
       console.error("Failed to load Live2D model:", error);
+      toaster.create({
+        title: `Failed to load Live2D model: ${error}`,
+        type: 'error',
+        duration: 2000,
+      });
     } finally {
       loadingRef.current = false;
       setIsLoading(false);
