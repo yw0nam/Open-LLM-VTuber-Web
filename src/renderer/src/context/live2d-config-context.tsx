@@ -1,5 +1,5 @@
 import {
-  createContext, useContext, useState, useMemo, useEffect, useCallback, useRef,
+  createContext, useContext, useState, useMemo, useEffect, useCallback,
 } from 'react';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 import { useConfig } from '@/context/character-config-context';
@@ -103,11 +103,6 @@ export const Live2DConfigContext = createContext<Live2DConfigState | null>(null)
  */
 export function Live2DConfigProvider({ children }: { children: React.ReactNode }) {
   const { confUid } = useConfig();
-  const confUidRef = useRef(confUid);
-
-  useEffect(() => {
-    confUidRef.current = confUid;
-  }, [confUid]);
 
   const [isPet, setIsPet] = useState(false);
   const [isLoading, setIsLoading] = useState(DEFAULT_CONFIG.isLoading);
@@ -136,9 +131,11 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
   );
 
   const setModelInfo = (info: ModelInfo | undefined) => {
-    const currentConfUid = confUidRef.current;
+    if (!info?.url) {
+      return;
+    }
 
-    if (!currentConfUid) {
+    if (!confUid) {
       console.warn('Attempting to set model info without confUid');
       toaster.create({
         title: 'Attempting to set model info without confUid',
@@ -149,12 +146,18 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
     }
 
     if (JSON.stringify(info) === JSON.stringify(modelInfo)) {
+      // toaster.create({
+      //   title: 'Model info is the same as the current model info',
+      //   type: 'warning',
+      //   duration: 2000,
+      // });
       return;
     }
 
     if (info) {
       setHasReceivedModelInfo(true);
-      const storageKey = getStorageKey(currentConfUid, isPet);
+      console.error('setHasReceivedModelInfo', info);
+      const storageKey = getStorageKey(confUid, isPet);
       let finalScale: number;
 
       const storedScale = scaleMemory[storageKey];
@@ -216,7 +219,7 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
         });
       }
     }
-  }, [confUid, isPet, modelInfo?.url]);
+  }, [isPet, modelInfo]);
 
   const contextValue = useMemo(
     () => ({

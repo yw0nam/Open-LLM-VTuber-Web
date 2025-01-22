@@ -6,7 +6,7 @@ import { wsService, MessageEvent } from '@/services/websocket-service';
 import {
   WebSocketContext, HistoryInfo, defaultWsUrl, defaultBaseUrl,
 } from '@/context/websocket-context';
-import { useLive2DConfig } from '@/context/live2d-config-context';
+import { ModelInfo, useLive2DConfig } from '@/context/live2d-config-context';
 import { useSubtitle } from '@/context/subtitle-context';
 import { audioTaskQueue } from '@/utils/task-queue';
 import { useAudioTask } from '@/components/canvas/live2d';
@@ -27,7 +27,16 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { clearResponse, setForceNewMessage } = useChatHistory();
   const { addAudioTask } = useAudioTask();
   const bgUrlContext = useBgUrl();
-  const { setConfName, setConfUid, setConfigFiles } = useConfig();
+  const { confUid, setConfName, setConfUid, setConfigFiles } = useConfig();
+  const [pendingModelInfo, setPendingModelInfo] = useState<ModelInfo | undefined>(undefined);
+
+  useEffect(() => {
+    if (pendingModelInfo) {
+      setModelInfo(pendingModelInfo);
+      setPendingModelInfo(undefined);
+    }
+  }, [pendingModelInfo, setModelInfo, confUid]);
+
   const {
     setCurrentHistoryUid, setMessages, setHistoryList, appendHumanMessage,
   } = useChatHistory();
@@ -83,9 +92,9 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           setConfUid(message.conf_uid);
           console.log('confUid', message.conf_uid);
         }
-        setTimeout(() => {
-          setModelInfo(message.model_info);
-        }, 100); // We don't know when the confRef in live2d-config-context will be updated, so we set a delay here for convenience
+        setPendingModelInfo(message.model_info);
+        // setModelInfo(message.model_info);
+        // We don't know when the confRef in live2d-config-context will be updated, so we set a delay here for convenience
         if (message.model_info && !message.model_info.url.startsWith("http")) {
           const modelUrl = baseUrl + message.model_info.url;
           // eslint-disable-next-line no-param-reassign

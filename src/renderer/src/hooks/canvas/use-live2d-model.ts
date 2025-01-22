@@ -19,8 +19,8 @@ import { AiStateEnum, useAiState } from "@/context/ai-state-context";
 import { toaster } from "@/components/ui/toaster";
 
 interface UseLive2DModelProps {
-  isPet: boolean;
-  modelInfo: ModelInfo | undefined;
+  isPet: boolean; // Whether the model is in pet mode
+  modelInfo: ModelInfo | undefined; // Live2D model configuration information
 }
 
 export const useLive2DModel = ({
@@ -36,12 +36,14 @@ export const useLive2DModel = ({
   const loadingRef = useRef(false);
   const { aiState } = useAiState();
 
+  // Reset expression when AI state changes to IDLE (like finishing a conversation)
   useEffect(() => {
     if (aiState === AiStateEnum.IDLE) {
       modelRef.current?.internalModel.motionManager.expressionManager?.resetExpression();
     }
   }, [aiState]);
 
+  // Cleanup function for Live2D model
   const cleanupModel = useCallback(() => {
     if (modelRef.current) {
       modelRef.current.removeAllListeners();
@@ -59,6 +61,7 @@ export const useLive2DModel = ({
     }
   }, [setCurrentModel]);
 
+  // Cleanup function for PIXI application
   const cleanupApp = useCallback(() => {
     if (appRef.current) {
       if (modelRef.current) {
@@ -77,23 +80,24 @@ export const useLive2DModel = ({
     }
   }, [cleanupModel]);
 
-  // Initialize Pixi application
+  // Initialize PIXI application with canvas (only once)
   useEffect(() => {
     if (!appRef.current && canvasRef.current) {
       const app = new PIXI.Application({
-        view: canvasRef.current,
+        view: canvasRef.current, // cavas element to render on
         autoStart: true,
         width: window.innerWidth,
         height: window.innerHeight,
-        backgroundAlpha: 0,
-        antialias: true,
-        clearBeforeRender: true,
-        preserveDrawingBuffer: false,
-        powerPreference: "high-performance",
+        backgroundAlpha: 0, // transparent background
+        antialias: true, // antialiasing
+        clearBeforeRender: true, // clear before render
+        preserveDrawingBuffer: false, // don't preserve drawing buffer
+        powerPreference: "high-performance", // high performance, use GPU if available
         resolution: window.devicePixelRatio || 1,
-        autoDensity: true,
+        autoDensity: true, // auto adjust resolution to fit the screen
       });
 
+      // Render on every frame
       app.ticker.add(() => {
         if (app.renderer) {
           app.renderer.render(app.stage);
@@ -108,6 +112,7 @@ export const useLive2DModel = ({
     };
   }, [cleanupApp]);
 
+  // Setup Live2D model with interactions and motion handling
   const setupModel = useCallback(
     async (model: Live2DModel) => {
       if (!appRef.current) return;
@@ -142,12 +147,14 @@ export const useLive2DModel = ({
       model.interactive = true;
       model.cursor = "pointer";
 
+      // Setup drag and tap interaction variables
       let dragging = false;
       let pointerX = 0;
       let pointerY = 0;
       let isTap = false;
       const dragThreshold = 5;
 
+      // Add hover events for pet mode
       if (isPet) {
         model.on('pointerenter', () => {
           (window.api as any)?.updateComponentHover('live2d-model', true);
@@ -190,12 +197,15 @@ export const useLive2DModel = ({
         }
       });
 
+      // Handle motion playback based on weights
       const playRandomMotion = (motionGroup: MotionWeightMap) => {
         if (!motionGroup || Object.keys(motionGroup).length === 0) return;
 
+        // Calculate total weight for probability distribution
         const totalWeight = Object.values(motionGroup).reduce((sum, weight) => sum + weight, 0);
         let random = Math.random() * totalWeight;
 
+        // Select motion based on weights
         Object.entries(motionGroup).find(([motion, weight]) => {
           // eslint-disable-next-line no-param-reassign
           random -= weight;
@@ -214,6 +224,7 @@ export const useLive2DModel = ({
         });
       };
 
+      // Merge motion groups from different hit areas
       const getMergedMotionGroup = (
         tapMotions: TapMotionMap,
       ): MotionWeightMap => {
@@ -241,12 +252,15 @@ export const useLive2DModel = ({
         );
       };
 
+      // Handle tap/click interactions
       model.on("pointerup", (e) => {
         if (dragging) {
           dragging = false;
           if (isTap) {
+            // Test which hit area was clicked
             const hitAreas = model.hitTest(e.global.x, e.global.y);
 
+            // Try to play motion for specific hit area
             const foundMotion = hitAreas.find((area) => {
               const motionGroup = modelInfo?.tapMotions?.[area];
               if (motionGroup) {
@@ -260,6 +274,7 @@ export const useLive2DModel = ({
               return false;
             });
 
+            // If no specific hit area found, use merged motions
             if (
               !foundMotion
               && modelInfo?.tapMotions
@@ -284,9 +299,10 @@ export const useLive2DModel = ({
     [isPet, modelInfo?.url, setCurrentModel],
   );
 
+  // Load Live2D model with configuration
   const loadModel = useCallback(async () => {
     if (!modelInfo?.url || !appRef.current || !hasReceivedModelInfo) return;
-    if (loadingRef.current) return;
+    if (loadingRef.current) return; // Prevent multiple simultaneous loads
 
     console.log("Loading model:", modelInfo.url);
 
@@ -294,6 +310,7 @@ export const useLive2DModel = ({
       loadingRef.current = true;
       setIsLoading(true);
 
+      // Initialize Live2D model with settings
       const model = await Live2DModel.from(modelInfo.url, {
         autoHitTest: true,
         autoFocus: modelInfo.pointerInteractive ?? false,
@@ -315,14 +332,9 @@ export const useLive2DModel = ({
       loadingRef.current = false;
       setIsLoading(false);
     }
-  }, [modelInfo?.url, modelInfo?.pointerInteractive, modelInfo?.scrollToResize, setIsLoading, setupModel, isPet, hasReceivedModelInfo]);
+  }, [modelInfo?.url, modelInfo?.pointerInteractive, setIsLoading, setupModel, isPet, hasReceivedModelInfo]);
 
-  // useEffect(() => {
-  //   if (modelRef.current) {
-  //     modelRef.current.interactive = modelInfo?.pointerInteractive ?? false;
-  //   }
-  // }, [modelInfo?.pointerInteractive, loadModel]);
-
+  // Load model when URL changes and cleanup on unmount
   useEffect(() => {
     if (modelInfo?.url) {
       loadModel();
@@ -330,7 +342,7 @@ export const useLive2DModel = ({
     return () => {
       cleanupModel();
     };
-  }, [modelInfo?.url, modelInfo?.pointerInteractive, modelInfo?.scrollToResize, loadModel, cleanupModel]);
+  }, [modelInfo?.url, modelInfo?.pointerInteractive, loadModel, cleanupModel, isPet]);
 
   return {
     canvasRef,
