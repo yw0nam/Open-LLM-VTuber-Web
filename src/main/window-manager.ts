@@ -25,8 +25,12 @@ export class WindowManager {
       if (newMode === 'pet') {
         setTimeout(() => {
           this.continueSetWindowModePet();
-        }, 300);
-      } else this.continueSetWindowModeWindow();
+        }, 500);
+      } else {
+        setTimeout(() => {
+          this.continueSetWindowModeWindow();
+        }, 500);
+      }
     });
 
     ipcMain.on('mode-change-rendered', () => {
