@@ -16,11 +16,12 @@ import { useChatHistory } from '@/context/chat-history-context';
 import { toaster } from '@/components/ui/toaster';
 import { useVAD } from '@/context/vad-context';
 import { AiState, useAiState } from "@/context/ai-state-context";
+import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const [wsState, setWsState] = useState<string>('CLOSED');
-  const [wsUrl, setWsUrl] = useState(defaultWsUrl);
-  const [baseUrl, setBaseUrl] = useState(defaultBaseUrl);
+  const [wsUrl, setWsUrl] = useLocalStorage<string>('wsUrl', defaultWsUrl);
+  const [baseUrl, setBaseUrl] = useLocalStorage<string>('baseUrl', defaultBaseUrl);
   const { aiState, setAiState } = useAiState();
   const { setModelInfo } = useLive2DConfig();
   const { setSubtitleText } = useSubtitle();

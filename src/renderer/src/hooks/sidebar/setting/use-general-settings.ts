@@ -120,6 +120,13 @@ export const useGeneralSettings = ({
     value: GeneralSettings[keyof GeneralSettings],
   ): void => {
     setSettings((prev) => ({ ...prev, [key]: value }));
+
+    if (key === 'wsUrl') {
+      onWsUrlChange(value as string);
+    }
+    if (key === 'baseUrl') {
+      onBaseUrlChange(value as string);
+    }
   };
 
   const handleSave = (): void => {

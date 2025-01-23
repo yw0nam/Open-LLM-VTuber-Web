@@ -46,6 +46,8 @@ class WebSocketService {
 
   private stateSubject = new Subject<'CONNECTING' | 'OPEN' | 'CLOSING' | 'CLOSED'>();
 
+  private currentState: 'CONNECTING' | 'OPEN' | 'CLOSING' | 'CLOSED' = 'CLOSED';
+
   static getInstance() {
     if (!WebSocketService.instance) {
       WebSocketService.instance = new WebSocketService();
@@ -68,45 +70,60 @@ class WebSocketService {
     });
   }
 
+  private static validateUrl(url: string): boolean {
+    try {
+      const urlObj = new URL(url);
+      return ['ws:', 'wss:'].includes(urlObj.protocol);
+    } catch (e) {
+      return false;
+    }
+  }
+
   connect(url: string) {
     if (this.ws?.readyState === WebSocket.CONNECTING ||
         this.ws?.readyState === WebSocket.OPEN) {
-      return;
+      this.disconnect();
     }
 
-    if (this.ws) {
-      this.ws.close();
+    try {
+      this.ws = new WebSocket(url);
+      this.currentState = 'CONNECTING';
+      this.stateSubject.next('CONNECTING');
+
+      this.ws.onopen = () => {
+        this.currentState = 'OPEN';
+        this.stateSubject.next('OPEN');
+        this.initializeConnection();
+      };
+
+      this.ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          this.messageSubject.next(message);
+        } catch (error) {
+          console.error('Failed to parse WebSocket message:', error);
+          toaster.create({
+            title: `Failed to parse WebSocket message: ${error}`,
+            type: "error",
+            duration: 2000,
+          });
+        }
+      };
+
+      this.ws.onclose = () => {
+        this.currentState = 'CLOSED';
+        this.stateSubject.next('CLOSED');
+      };
+
+      this.ws.onerror = () => {
+        this.currentState = 'CLOSED';
+        this.stateSubject.next('CLOSED');
+      };
+    } catch (error) {
+      console.error('Failed to connect to WebSocket:', error);
+      this.currentState = 'CLOSED';
+      this.stateSubject.next('CLOSED');
     }
-
-    this.ws = new WebSocket(url);
-    this.stateSubject.next('CONNECTING');
-
-    this.ws.onopen = () => {
-      this.stateSubject.next('OPEN');
-      this.initializeConnection();
-    };
-
-    this.ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        this.messageSubject.next(message);
-      } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
-        toaster.create({
-          title: `Failed to parse WebSocket message: ${error}`,
-          type: "error",
-          duration: 2000,
-        });
-      }
-    };
-
-    this.ws.onclose = () => {
-      this.stateSubject.next('CLOSED');
-    };
-
-    this.ws.onerror = () => {
-      this.stateSubject.next('CLOSED');
-    };
   }
 
   sendMessage(message: object) {
@@ -133,6 +150,10 @@ class WebSocketService {
   disconnect() {
     this.ws?.close();
     this.ws = null;
+  }
+
+  getCurrentState() {
+    return this.currentState;
   }
 }
 
