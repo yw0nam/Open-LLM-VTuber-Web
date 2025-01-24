@@ -272,9 +272,10 @@ export const useLive2DModel = ({
     (model: Live2DModel, x: number, y: number) => {
       if (!modelInfo?.tapMotions) return;
 
-      const hitAreas = model.hitTest(x, y);
+      // Convert global coordinates to model's local coordinates
+      const localPos = model.toLocal(new PIXI.Point(x, y));
+      const hitAreas = model.hitTest(localPos.x, localPos.y);
 
-      // Try to play motion for specific hit area
       const foundMotion = hitAreas.find((area) => {
         const motionGroup = modelInfo?.tapMotions?.[area];
         if (motionGroup) {
@@ -285,11 +286,8 @@ export const useLive2DModel = ({
         return false;
       });
 
-      // If no specific hit area found, use merged motions
       if (!foundMotion && Object.keys(modelInfo.tapMotions).length > 0) {
-        console.log("No specific hit area found, using merged motion groups");
         const mergedMotions = getMergedMotionGroup(modelInfo.tapMotions);
-        console.log("Merged motion groups:", mergedMotions);
         playRandomMotion(model, mergedMotions);
       }
     },
@@ -346,7 +344,7 @@ const playRandomMotion = (model: Live2DModel, motionGroup: MotionWeightMap) => {
     if (random <= 0) {
       const priority = audioTaskQueue.hasTask()
         ? MotionPriority.NORMAL
-        : MotionPriority.FORCE;
+        : MotionPriority.NORMAL;
 
       console.log(
         `Playing weighted motion: ${motion} (weight: ${weight}/${totalWeight}, priority: ${priority})`,
