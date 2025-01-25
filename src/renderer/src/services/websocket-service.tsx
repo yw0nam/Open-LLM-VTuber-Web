@@ -17,19 +17,13 @@ export interface Message {
   timestamp: string;
 }
 
-export interface Actions {
-  expressions?: string[] | number [];
-  pictures?: string[];
-  sounds?: string[];
-}
-
 export interface MessageEvent {
   type: string;
   audio?: string;
   volumes?: number[];
   slice_length?: number;
   files?: BackgroundFile[];
-  actions?: Actions;
+  expressions?: string[] | number [];
   text?: string;
   model_info?: ModelInfo;
   conf_name?: string;
@@ -74,6 +68,15 @@ class WebSocketService {
     this.sendMessage({
       type: 'create-new-history',
     });
+  }
+
+  private static validateUrl(url: string): boolean {
+    try {
+      const urlObj = new URL(url);
+      return ['ws:', 'wss:'].includes(urlObj.protocol);
+    } catch (e) {
+      return false;
+    }
   }
 
   connect(url: string) {
