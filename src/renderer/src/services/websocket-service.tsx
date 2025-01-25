@@ -17,13 +17,19 @@ export interface Message {
   timestamp: string;
 }
 
+export interface Actions {
+  expressions?: string[] | number [];
+  pictures?: string[];
+  sounds?: string[];
+}
+
 export interface MessageEvent {
   type: string;
   audio?: string;
   volumes?: number[];
   slice_length?: number;
   files?: BackgroundFile[];
-  expressions?: string[] | number [];
+  actions?: Actions;
   text?: string;
   model_info?: ModelInfo;
   conf_name?: string;
