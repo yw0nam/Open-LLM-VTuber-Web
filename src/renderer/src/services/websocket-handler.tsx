@@ -67,7 +67,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
             }
             return currentState;
           });
-          startMic();
           resolve();
         }));
         break;
@@ -117,7 +116,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       case 'config-switched':
         setAiState('idle');
         setSubtitleText('New Character Loaded');
-        startMic();
 
         toaster.create({
           title: 'Character switched',
