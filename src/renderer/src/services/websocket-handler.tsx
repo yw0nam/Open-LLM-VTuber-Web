@@ -137,13 +137,13 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         if (aiState === 'interrupted' || aiState === 'listening') {
           console.log('Audio playback intercepted. Sentence:', message.text);
         } else {
-          console.log("expressions", message.expressions);
+          console.log("actions", message.actions);
           addAudioTask({
             audioBase64: message.audio || '',
             volumes: message.volumes || [],
             sliceLength: message.slice_length || 0,
             text: message.text || null,
-            expressions: message.expressions || null,
+            expressions: message.actions?.expressions || null,
           });
         }
         break;
