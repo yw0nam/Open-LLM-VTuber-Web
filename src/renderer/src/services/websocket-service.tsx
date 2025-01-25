@@ -70,15 +70,6 @@ class WebSocketService {
     });
   }
 
-  private static validateUrl(url: string): boolean {
-    try {
-      const urlObj = new URL(url);
-      return ['ws:', 'wss:'].includes(urlObj.protocol);
-    } catch (e) {
-      return false;
-    }
-  }
-
   connect(url: string) {
     if (this.ws?.readyState === WebSocket.CONNECTING ||
         this.ws?.readyState === WebSocket.OPEN) {
