@@ -1,4 +1,5 @@
-import { memo } from "react";
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { memo, useEffect } from "react";
 import { useLive2DConfig } from "@/context/live2d-config-context";
 import { useIpcHandlers } from "@/hooks/utils/use-ipc-handlers";
 import { useLive2DModel } from "@/hooks/canvas/use-live2d-model";
@@ -26,6 +27,26 @@ export const Live2D = memo(({ isPet }: Live2DProps): JSX.Element => {
   // Export these hooks for global use
   useInterrupt();
   useAudioTask();
+
+  useEffect(() => {
+    if (modelRef.current) {
+      // @ts-ignore
+      window.live2d = {
+        expression: (name?: string | number) => modelRef.current?.expression(name),
+        setExpression: (name?: string | number) => {
+          if (name !== undefined) {
+            modelRef.current?.internalModel.motionManager.expressionManager?.setExpression(name);
+          }
+        },
+        setRandomExpression: () => modelRef.current?.internalModel.motionManager.expressionManager?.setRandomExpression(),
+        getExpressions: () => modelRef.current?.internalModel.motionManager.expressionManager?.definitions.map((d) => d.name),
+      };
+    }
+    return () => {
+      // @ts-ignore
+      delete window.live2d;
+    };
+  }, [modelRef.current]); // window.live2d.expression() / getExpressions() / setRandomExpression()
 
   return (
     <div
