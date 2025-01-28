@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useCamera } from '@/context/camera-context';
 import { useScreenCaptureContext } from '@/context/screen-capture-context';
+import { toaster } from "@/components/ui/toaster";
 
 // Add type definition for ImageCapture
 declare class ImageCapture {
@@ -19,11 +20,17 @@ export function useMediaCapture() {
   const { stream: cameraStream } = useCamera();
   const { stream: screenStream } = useScreenCaptureContext();
 
-  const captureFrame = useCallback(async (stream: MediaStream | null) => {
-    if (!stream) return null;
+  const captureFrame = useCallback(async (stream: MediaStream | null, source: 'camera' | 'screen') => {
+    if (!stream) {
+      console.warn(`No ${source} stream available`);
+      return null;
+    }
 
     const videoTrack = stream.getVideoTracks()[0];
-    if (!videoTrack) return null;
+    if (!videoTrack) {
+      console.warn(`No video track in ${source} stream`);
+      return null;
+    }
 
     const imageCapture = new ImageCapture(videoTrack);
     try {
@@ -32,12 +39,20 @@ export function useMediaCapture() {
       canvas.width = bitmap.width;
       canvas.height = bitmap.height;
       const ctx = canvas.getContext('2d');
-      if (!ctx) return null;
+      if (!ctx) {
+        console.error('Failed to get canvas context');
+        return null;
+      }
 
       ctx.drawImage(bitmap, 0, 0);
       return canvas.toDataURL('image/jpeg', 0.8);
     } catch (error) {
-      console.error('Error capturing frame:', error);
+      console.error(`Error capturing ${source} frame:`, error);
+      toaster.create({
+        title: `Failed to capture ${source} frame: ${error}`,
+        type: 'error',
+        duration: 2000,
+      });
       return null;
     }
   }, []);
@@ -47,7 +62,7 @@ export function useMediaCapture() {
 
     // Capture camera frame
     if (cameraStream) {
-      const cameraFrame = await captureFrame(cameraStream);
+      const cameraFrame = await captureFrame(cameraStream, 'camera');
       if (cameraFrame) {
         images.push({
           source: 'camera',
@@ -59,7 +74,7 @@ export function useMediaCapture() {
 
     // Capture screen frame
     if (screenStream) {
-      const screenFrame = await captureFrame(screenStream);
+      const screenFrame = await captureFrame(screenStream, 'screen');
       if (screenFrame) {
         images.push({
           source: 'screen',
