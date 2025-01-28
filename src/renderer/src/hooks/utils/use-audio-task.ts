@@ -56,7 +56,10 @@ export const useAudioTask = () => {
     if (text) {
       appendText(text);
       appendAI(text);
-      updateSubtitle(text);
+      if (audioBase64) {
+        // Only update subtitle if there's audio
+        updateSubtitle(text);
+      }
     }
 
     if (!model) {
