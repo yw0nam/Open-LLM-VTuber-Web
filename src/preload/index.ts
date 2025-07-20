@@ -1,7 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { contextBridge, ipcRenderer, desktopCapturer } from 'electron';
+import electron from 'electron';
+const { contextBridge, ipcRenderer, desktopCapturer } = electron;
 import { electronAPI } from '@electron-toolkit/preload';
 import { ConfigFile } from '../main/menu-manager';
+
+declare global {
+  interface Window {
+    electron: typeof electronAPI;
+    // @ts-ignore
+    api: typeof api;
+  }
+}
 
 const api = {
   setIgnoreMouseEvents: (ignore: boolean) => {
@@ -50,6 +59,9 @@ const api = {
     ipcRenderer.on('switch-character', handler);
     return () => ipcRenderer.removeListener('switch-character', handler);
   },
+  setMode: (mode: 'window' | 'pet') => {
+    ipcRenderer.send('pre-mode-changed', mode);
+  },
   getConfigFiles: () => ipcRenderer.invoke('get-config-files'),
   updateConfigFiles: (files: ConfigFile[]) => {
     ipcRenderer.send('update-config-files', files);
@@ -71,14 +83,15 @@ if (process.contextIsolated) {
         removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
         send: (channel, ...args) => ipcRenderer.send(channel, ...args),
       },
+      process: {
+        platform: process.platform,
+      },
     });
     contextBridge.exposeInMainWorld('api', api);
   } catch (error) {
     console.error(error);
   }
 } else {
-  // @ts-expect-error
   window.electron = electronAPI;
-  // @ts-expect-error
-  window.api = api;
+  (window as any).api = api;
 }

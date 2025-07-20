@@ -320,4 +320,9 @@ export class WindowManager {
   isForceIgnoreMouse(): boolean {
     return this.forceIgnoreMouse;
   }
+
+  // Get current mode
+  getCurrentMode(): 'window' | 'pet' {
+    return this.currentMode;
+  }
 }

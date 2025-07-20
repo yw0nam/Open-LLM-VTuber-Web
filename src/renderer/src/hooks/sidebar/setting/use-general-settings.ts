@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
 import { useState, useEffect } from 'react';
 import { BgUrlContextState } from '@/context/bgurl-context';
@@ -6,6 +7,12 @@ import { useSubtitle } from '@/context/subtitle-context';
 import { useCamera } from '@/context/camera-context';
 import { useSwitchCharacter } from '@/hooks/utils/use-switch-character';
 import { useConfig } from '@/context/character-config-context';
+import i18n from 'i18next';
+
+export const IMAGE_COMPRESSION_QUALITY_KEY = 'appImageCompressionQuality';
+export const DEFAULT_IMAGE_COMPRESSION_QUALITY = 0.8;
+export const IMAGE_MAX_WIDTH_KEY = 'appImageMaxWidth';
+export const DEFAULT_IMAGE_MAX_WIDTH = 1080;
 
 interface GeneralSettings {
   language: string[]
@@ -17,6 +24,8 @@ interface GeneralSettings {
   wsUrl: string
   baseUrl: string
   showSubtitle: boolean
+  imageCompressionQuality: number;
+  imageMaxWidth: number;
 }
 
 interface UseGeneralSettingsProps {
@@ -30,6 +39,28 @@ interface UseGeneralSettingsProps {
   onSave?: (callback: () => void) => () => void
   onCancel?: (callback: () => void) => () => void
 }
+
+const loadInitialCompressionQuality = (): number => {
+  const storedQuality = localStorage.getItem(IMAGE_COMPRESSION_QUALITY_KEY);
+  if (storedQuality) {
+    const quality = parseFloat(storedQuality);
+    if (!Number.isNaN(quality) && quality >= 0.1 && quality <= 1.0) {
+      return quality;
+    }
+  }
+  return DEFAULT_IMAGE_COMPRESSION_QUALITY;
+};
+
+const loadInitialImageMaxWidth = (): number => {
+  const storedMaxWidth = localStorage.getItem(IMAGE_MAX_WIDTH_KEY);
+  if (storedMaxWidth) {
+    const maxWidth = parseInt(storedMaxWidth, 10);
+    if (!Number.isNaN(maxWidth) && maxWidth > 0) {
+      return maxWidth;
+    }
+  }
+  return DEFAULT_IMAGE_MAX_WIDTH;
+};
 
 export const useGeneralSettings = ({
   bgUrlContext,
@@ -55,18 +86,26 @@ export const useGeneralSettings = ({
     return path.startsWith('/bg/') ? [path] : [];
   };
 
+  const getCurrentCharacterFilename = (): string[] => {
+    if (!confName) return [];
+    const filename = getFilenameByName(confName);
+    return filename ? [filename] : [];
+  };
+
   const initialSettings: GeneralSettings = {
-    language: ['en'],
+    language: [i18n.language || 'en'],
     customBgUrl: !bgUrlContext?.backgroundUrl?.includes('/bg/')
       ? bgUrlContext?.backgroundUrl || ''
       : '',
     selectedBgUrl: getCurrentBgKey(),
     backgroundUrl: bgUrlContext?.backgroundUrl || '',
-    selectedCharacterPreset: [],
+    selectedCharacterPreset: getCurrentCharacterFilename(),
     useCameraBackground: bgUrlContext?.useCameraBackground || false,
     wsUrl: wsUrl || defaultWsUrl,
     baseUrl: baseUrl || defaultBaseUrl,
     showSubtitle,
+    imageCompressionQuality: loadInitialCompressionQuality(),
+    imageMaxWidth: loadInitialImageMaxWidth(),
   };
 
   const [settings, setSettings] = useState<GeneralSettings>(initialSettings);
@@ -84,16 +123,26 @@ export const useGeneralSettings = ({
 
     onWsUrlChange(settings.wsUrl);
     onBaseUrlChange(settings.baseUrl);
-  }, [settings]);
+
+    // Apply language change if it differs from current language
+    if (settings.language && settings.language[0] && settings.language[0] !== i18n.language) {
+      i18n.changeLanguage(settings.language[0]);
+    }
+    localStorage.setItem(IMAGE_COMPRESSION_QUALITY_KEY, settings.imageCompressionQuality.toString());
+    localStorage.setItem(IMAGE_MAX_WIDTH_KEY, settings.imageMaxWidth.toString());
+  }, [settings, bgUrlContext, baseUrl, onWsUrlChange, onBaseUrlChange, setShowSubtitle]);
 
   useEffect(() => {
     if (confName) {
-      const newSettings = {
-        ...settings,
-        selectedCharacterPreset: [confName],
-      };
-      setSettings(newSettings);
-      setOriginalSettings(newSettings);
+      const filename = getFilenameByName(confName);
+      if (filename) {
+        const newSettings = {
+          ...settings,
+          selectedCharacterPreset: [filename],
+        };
+        setSettings(newSettings);
+        setOriginalSettings(newSettings);
+      }
     }
   }, [confName]);
 
@@ -126,6 +175,10 @@ export const useGeneralSettings = ({
     }
     if (key === 'baseUrl') {
       onBaseUrlChange(value as string);
+    }
+    // Immediately change language when it's updated
+    if (key === 'language' && Array.isArray(value) && value.length > 0) {
+      i18n.changeLanguage(value[0]);
     }
   };
 
