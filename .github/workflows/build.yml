@@ -135,27 +135,18 @@ jobs:
       - name: Compile & release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         env:
-          # AWS Credentials for S3 publishing
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }} # Use the region secret
-          # GitHub Token for creating GitHub releases (if still needed)
+          # GitHub Token for creating GitHub releases
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VITE_APP_VERSION: ${{ needs.draft.outputs.version }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_script_name: build
-          args: --config electron-builder.yml --publish always # Ensure publishing is triggered
-          # release: true # Set to false if you ONLY want to publish to S3 and not create a GitHub Release artifact
+          args: --config electron-builder.yml
           max_attempts: 3
 
   build_web:
     needs: [draft]
     runs-on: ubuntu-latest
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
 
     steps:
       - uses: actions/checkout@v3
@@ -176,22 +167,6 @@ jobs:
           cd ./dist/web
           zip -r ../../open-llm-vtuber-web-${{ needs.draft.outputs.version }}.zip .
           cd ../.. # Go back to the workspace root
-
-      - name: Upload Web App Zip to S3
-        run: |
-          aws s3 cp ./open-llm-vtuber-web-${{ needs.draft.outputs.version }}.zip s3://open-llm-vtuber-frontend/open-llm-vtuber-web-${{ needs.draft.outputs.version }}.zip
-          echo "Web app zip uploaded. Public access depends on S3 bucket policy/settings."
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Upload web build to S3
-        run: |
-          aws s3 sync ./dist/web s3://open-llm-vtuber-frontend/web --delete
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
