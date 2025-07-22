@@ -119,7 +119,7 @@
     "failedCapture": "Failed to capture {{source}} frame",
     "failedParseWebSocket": "Failed to parse WebSocket message",
     "websocketNotOpen": "WebSocket is not open.",
-    "vadMisfire": "Voice detected but too brief. Try speaking longer or check audio settings."
+    "vadMisfire": "Voice detected but too brief. Try speaking louder/longer, or adjust settings (lower speech threshold, lower negative threshold, reduce redemption frames)."
   },
   "aiState": {
     "idle": "idle",
