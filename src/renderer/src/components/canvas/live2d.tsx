@@ -56,26 +56,26 @@ export const Live2D = memo(
     }, [aiState, modelInfo, resetExpression]);
 
     // Expose setExpression for console testing
-    useEffect(() => {
-      const testSetExpression = (expressionValue: string | number) => {
-        const lappAdapter = (window as any).getLAppAdapter?.();
-        if (lappAdapter) {
-          setExpression(expressionValue, lappAdapter, `[Console Test] Set expression to: ${expressionValue}`);
-        } else {
-          console.error('[Console Test] LAppAdapter not found.');
-        }
-      };
+    // useEffect(() => {
+    //   const testSetExpression = (expressionValue: string | number) => {
+    //     const lappAdapter = (window as any).getLAppAdapter?.();
+    //     if (lappAdapter) {
+    //       setExpression(expressionValue, lappAdapter, `[Console Test] Set expression to: ${expressionValue}`);
+    //     } else {
+    //       console.error('[Console Test] LAppAdapter not found.');
+    //     }
+    //   };
 
-      // Expose the function to the window object
-      (window as any).testSetExpression = testSetExpression;
-      console.log('[Debug] testSetExpression function exposed to window.');
+    //   // Expose the function to the window object
+    //   (window as any).testSetExpression = testSetExpression;
+    //   console.log('[Debug] testSetExpression function exposed to window.');
 
-      // Cleanup function to remove the function from window when the component unmounts
-      return () => {
-        delete (window as any).testSetExpression;
-        console.log('[Debug] testSetExpression function removed from window.');
-      };
-    }, [setExpression]);
+    //   // Cleanup function to remove the function from window when the component unmounts
+    //   return () => {
+    //     delete (window as any).testSetExpression;
+    //     console.log('[Debug] testSetExpression function removed from window.');
+    //   };
+    // }, [setExpression]);
 
     const handlePointerDown = (e: React.PointerEvent) => {
       handlers.onMouseDown(e);

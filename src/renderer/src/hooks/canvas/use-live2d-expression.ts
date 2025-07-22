@@ -47,6 +47,13 @@ export const useLive2DExpression = () => {
     if (!lappAdapter) return;
 
     try {
+      // Check if model is loaded and has expressions
+      const model = lappAdapter.getModel();
+      if (!model || !model._modelSetting) {
+        console.log('Model or model settings not loaded yet, skipping expression reset');
+        return;
+      }
+
       // If model has a default emotion defined, use it
       if (modelInfo?.defaultEmotion !== undefined) {
         setExpression(
@@ -55,13 +62,16 @@ export const useLive2DExpression = () => {
           `Reset expression to default: ${modelInfo.defaultEmotion}`,
         );
       } else {
-        // If no default is defined, use the first expression (index 0)
-        const defaultExpressionName = lappAdapter.getExpressionName(0);
-        if (defaultExpressionName) {
-          setExpression(
-            defaultExpressionName,
-            lappAdapter,
-          );
+        // Check if model has any expressions before trying to get the first one
+        const expressionCount = lappAdapter.getExpressionCount();
+        if (expressionCount > 0) {
+          const defaultExpressionName = lappAdapter.getExpressionName(0);
+          if (defaultExpressionName) {
+            setExpression(
+              defaultExpressionName,
+              lappAdapter,
+            );
+          }
         }
       }
     } catch (error) {
