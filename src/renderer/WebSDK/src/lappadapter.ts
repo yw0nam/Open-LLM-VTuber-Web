@@ -70,7 +70,7 @@ export class LAppAdapter {
   }
 
   public getExpressionName(index: number): string {
-    return this.getModel()?._modelSetting.getExpressionName(index);
+    return this.getModel()?._modelSetting?.getExpressionName(index) ?? '';
   }
 
   public setExpression(name: string): void {
