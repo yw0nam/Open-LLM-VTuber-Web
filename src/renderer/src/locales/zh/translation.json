@@ -24,7 +24,9 @@
       "customBgUrl": "或输入自定义背景URL",
       "characterPreset": "角色预设",
       "wsUrl": "WebSocket地址",
-      "baseUrl": "基础URL"
+      "baseUrl": "基础URL",
+      "imageCompressionQuality": "图片压缩质量",
+      "imageMaxWidth": "图片最大宽度"
     },
     "live2d": {
       "pointerInteractive": "鼠标交互",

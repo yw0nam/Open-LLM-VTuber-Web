@@ -151,7 +151,6 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
             handleSettingChange("imageCompressionQuality", settings.imageCompressionQuality);
           }
         }}
-        placeholder={t("settings.general.imageCompressionQualityPlaceholder")}
       />
 
       <InputField
@@ -165,7 +164,6 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
             handleSettingChange("imageMaxWidth", settings.imageMaxWidth);
           }
         }}
-        placeholder={t("settings.general.imageMaxWidthPlaceholder")}
       />
     </Stack>
   );
