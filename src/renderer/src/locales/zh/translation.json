@@ -34,11 +34,17 @@
     },
     "asr": {
       "autoStopMic": "AI开始说话时自动关闭麦克风",
+      "autoStopMicDesc": "当AI开始说话时自动关闭麦克风，防止音频反馈",
       "autoStartMicOnConvEnd": "对话结束时自动开启麦克风",
+      "autoStartMicOnConvEndDesc": "AI说话结束时自动重新开启麦克风，实现无缝对话",
       "autoStartMicOn": "AI被打断时自动开启麦克风",
+      "autoStartMicOnDesc": "当您打断AI时自动重新开启麦克风，保持连续交互",
       "positiveSpeechThreshold": "语音识别阈值",
+      "positiveSpeechThresholdDesc": "检测语音所需的最低置信度(1-100)，数值越高越能减少误检测",
       "negativeSpeechThreshold": "负面语音阈值",
-      "redemptionFrames": "验证帧数"
+      "negativeSpeechThresholdDesc": "停止语音检测的置信度下限(0-100)，数值越低检测越不敏感",
+      "redemptionFrames": "验证帧数",
+      "redemptionFramesDesc": "确认语音检测所需的连续帧数(1-100)，数值越高越能减少噪音触发"
     },
     "agent": {
       "allowProactiveSpeak": "允许AI主动发言",
@@ -109,7 +115,8 @@
     "cannotDeleteCurrentHistory": "无法删除当前聊天记录",
     "failedCapture": "捕获{{source}}帧失败",
     "failedParseWebSocket": "解析WebSocket消息失败",
-    "websocketNotOpen": "WebSocket未连接"
+    "websocketNotOpen": "WebSocket未连接",
+    "vadMisfire": "检测到语音但过于简短，请尝试说话更久或检查音频设置"
   },
   "aiState": {
     "idle": "空闲",

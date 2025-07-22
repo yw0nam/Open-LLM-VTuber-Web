@@ -1,9 +1,12 @@
 /* eslint-disable react/require-default-props */
+import { useState } from 'react';
 import {
-  Text, Input, NumberInput, createListCollection,
+  Text, Input, NumberInput, createListCollection, Flex, Box,
 } from '@chakra-ui/react';
+import { HiQuestionMarkCircle } from 'react-icons/hi';
 import { Field } from '@/components/ui/field';
 import { Switch } from '@/components/ui/switch';
+import { Tooltip } from '@/components/ui/tooltip';
 import {
   SelectContent,
   SelectItem,
@@ -12,6 +15,43 @@ import {
   SelectValueText,
 } from '@/components/ui/select';
 import { settingStyles } from './setting-styles';
+
+// Help Icon Component
+interface HelpIconProps {
+  content: string;
+}
+
+function HelpIcon({ content }: HelpIconProps): JSX.Element {
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleMouseEnter = () => setIsHovering(true);
+  const handleMouseLeave = () => setIsHovering(false);
+
+  return (
+    <Tooltip
+      showArrow
+      content={
+        <Text fontSize="sm" maxW="300px" lineHeight="1.4">
+          {content}
+        </Text>
+      }
+      open={isHovering}
+    >
+      <Box
+        as={HiQuestionMarkCircle}
+        color="gray.400"
+        _hover={{ color: 'gray.600' }}
+        cursor="help"
+        w="16px"
+        h="16px"
+        ml="2"
+        transition="color 0.2s"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      />
+    </Tooltip>
+  );
+}
 
 // Common Props Types
 interface SelectFieldProps {
@@ -30,12 +70,14 @@ interface NumberFieldProps {
   max?: number
   step?: number
   allowMouseWheel?: boolean
+  help?: string
 }
 
 interface SwitchFieldProps {
   label: string
   checked: boolean
   onChange: (checked: boolean) => void
+  help?: string
 }
 
 interface InputFieldProps {
@@ -87,11 +129,17 @@ export function NumberField({
   max,
   step,
   allowMouseWheel,
+  help,
 }: NumberFieldProps): JSX.Element {
   return (
     <Field
       {...settingStyles.common.field}
-      label={<Text {...settingStyles.common.fieldLabel}>{label}</Text>}
+      label={
+        <Flex align="center">
+          <Text {...settingStyles.common.fieldLabel}>{label}</Text>
+          {help && <HelpIcon content={help} />}
+        </Flex>
+      }
     >
       <NumberInput.Root
         {...settingStyles.common.numberInput.root}
@@ -112,11 +160,16 @@ export function NumberField({
   );
 }
 
-export function SwitchField({ label, checked, onChange }: SwitchFieldProps): JSX.Element {
+export function SwitchField({ label, checked, onChange, help }: SwitchFieldProps): JSX.Element {
   return (
     <Field
       {...settingStyles.common.field}
-      label={<Text {...settingStyles.common.fieldLabel}>{label}</Text>}
+      label={
+        <Flex align="center">
+          <Text {...settingStyles.common.fieldLabel}>{label}</Text>
+          {help && <HelpIcon content={help} />}
+        </Flex>
+      }
     >
       <Switch
         {...settingStyles.common.switch}

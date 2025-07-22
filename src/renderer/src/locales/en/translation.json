@@ -26,7 +26,9 @@
       "wsUrl": "WebSocket URL",
       "baseUrl": "Base URL",
       "imageCompressionQuality": "Image Compression Quality",
-      "imageMaxWidth": "Image Max Width"
+      "imageCompressionQualityPlaceholder": "Enter compression quality (0-100)",
+      "imageMaxWidth": "Image Max Width",
+      "imageMaxWidthPlaceholder": "Enter maximum width in pixels"
     },
     "live2d": {
       "pointerInteractive": "Pointer Interactive",
@@ -34,11 +36,17 @@
     },
     "asr": {
       "autoStopMic": "Auto Stop Mic When AI Start Speaking",
+      "autoStopMicDesc": "Automatically stops microphone when AI begins speaking to prevent audio feedback",
       "autoStartMicOnConvEnd": "Auto Start Mic When Conversation End",
+      "autoStartMicOnConvEndDesc": "Automatically restarts microphone when AI finishes speaking for seamless conversation",
       "autoStartMicOn": "Auto Start Mic When AI Interrupted",
+      "autoStartMicOnDesc": "Automatically restarts microphone when you interrupt AI for continuous interaction",
       "positiveSpeechThreshold": "Speech Prob Threshold",
+      "positiveSpeechThresholdDesc": "Minimum confidence level (1-100) required to detect speech. Higher values reduce false positives",
       "negativeSpeechThreshold": "Negative Speech Threshold",
-      "redemptionFrames": "Redemption Frames"
+      "negativeSpeechThresholdDesc": "Confidence level (0-100) below which speech detection stops. Lower values make detection less sensitive",
+      "redemptionFrames": "Redemption Frames",
+      "redemptionFramesDesc": "Number of consecutive frames (1-100) needed to confirm speech detection. Higher values reduce noise triggers"
     },
     "agent": {
       "allowProactiveSpeak": "Allow AI to Speak Proactively",
@@ -110,7 +118,8 @@
     "cannotDeleteCurrentHistory": "Cannot delete current chat history",
     "failedCapture": "Failed to capture {{source}} frame",
     "failedParseWebSocket": "Failed to parse WebSocket message",
-    "websocketNotOpen": "WebSocket is not open."
+    "websocketNotOpen": "WebSocket is not open.",
+    "vadMisfire": "Voice detected but too brief. Try speaking longer or check audio settings."
   },
   "aiState": {
     "idle": "idle",

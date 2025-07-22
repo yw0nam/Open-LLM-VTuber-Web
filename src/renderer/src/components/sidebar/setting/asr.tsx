@@ -61,6 +61,7 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
 
       <NumberField
         label={t('settings.asr.positiveSpeechThreshold')}
+        help={t('settings.asr.positiveSpeechThresholdDesc')}
         value={localSettings.positiveSpeechThreshold}
         onChange={(value) => handleInputChange('positiveSpeechThreshold', value)}
         min={1}
@@ -69,6 +70,7 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
 
       <NumberField
         label={t('settings.asr.negativeSpeechThreshold')}
+        help={t('settings.asr.negativeSpeechThresholdDesc')}
         value={localSettings.negativeSpeechThreshold}
         onChange={(value) => handleInputChange('negativeSpeechThreshold', value)}
         min={0}
@@ -77,6 +79,7 @@ function ASR({ onSave, onCancel }: ASRProps): JSX.Element {
 
       <NumberField
         label={t('settings.asr.redemptionFrames')}
+        help={t('settings.asr.redemptionFramesDesc')}
         value={localSettings.redemptionFrames}
         onChange={(value) => handleInputChange('redemptionFrames', value)}
         min={1}

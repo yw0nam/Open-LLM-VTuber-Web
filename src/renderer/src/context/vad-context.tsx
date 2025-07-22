@@ -108,6 +108,7 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
   // Refs for VAD instance and state
   const vadRef = useRef<MicVAD | null>(null);
   const previousTriggeredProbabilityRef = useRef(0);
+  const previousAiStateRef = useRef<string>('idle');
 
   // Persistent state management
   const [micOn, setMicOn] = useLocalStorage('micOn', DEFAULT_VAD_STATE.micOn);
@@ -191,15 +192,24 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   /**
-   * Handle speech start event
+   * Handle speech start event (initial detection)
    */
   const handleSpeechStart = useCallback(() => {
-    console.log('Speech started');
+    console.log('Speech started - entering listening state');
+    // Save current AI state before changing to listening
+    previousAiStateRef.current = aiStateRef.current;
+    isProcessingRef.current = true;
+    setAiStateRef.current('listening');
+  }, []);
+
+  /**
+   * Handle real speech start event (confirmed speech)
+   */
+  const handleSpeechRealStart = useCallback(() => {
+    console.log('Real speech confirmed - interrupting AI if needed');
     if (aiStateRef.current === 'thinking-speaking') {
       interruptRef.current();
     }
-    isProcessingRef.current = true;
-    setAiStateRef.current('listening');
   }, []);
 
   /**
@@ -239,10 +249,9 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
     setPreviousTriggeredProbability(0);
     isProcessingRef.current = false;
 
-    if (aiStateRef.current === 'interrupted' || aiStateRef.current === 'listening') {
-      setAiStateRef.current('idle');
-    }
-    setSubtitleTextRef.current(t('error.llmCantHear'));
+    // Restore previous AI state and show helpful misfire message
+    setAiStateRef.current(previousAiStateRef.current);
+    setSubtitleTextRef.current(t('error.vadMisfire'));
   }, [t]);
 
   /**
@@ -271,6 +280,7 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
       baseAssetPath: './libs/',
       onnxWASMBasePath: './libs/',
       onSpeechStart: handleSpeechStart,
+      onSpeechRealStart: handleSpeechRealStart,
       onFrameProcessed: handleFrameProcessed,
       onSpeechEnd: handleSpeechEnd,
       onVADMisfire: handleVADMisfire,
