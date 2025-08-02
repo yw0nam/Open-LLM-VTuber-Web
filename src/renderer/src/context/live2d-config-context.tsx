@@ -161,7 +161,7 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
       isLoading,
       setIsLoading,
     }),
-    [modelInfo, setModelInfo, isLoading, setIsLoading],
+    [modelInfo, isLoading, setIsLoading],
   );
 
   return (

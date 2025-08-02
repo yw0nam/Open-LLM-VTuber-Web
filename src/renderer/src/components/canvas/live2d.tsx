@@ -24,7 +24,7 @@ export const Live2D = memo(
     const { mode } = useMode();
     const internalContainerRef = useRef<HTMLDivElement>(null);
     const { aiState } = useAiState();
-    const { resetExpression, setExpression } = useLive2DExpression();
+    const { resetExpression } = useLive2DExpression();
     const isPet = mode === 'pet';
 
     // Get canvasRef from useLive2DResize
