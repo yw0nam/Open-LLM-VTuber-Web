@@ -42,6 +42,11 @@ export class LAppGlManager {
     canvas = document.getElementById('canvas') as HTMLCanvasElement;
     // canvas = document.createElement("canvas");
 
+    if (!canvas) {
+      console.warn("Canvas element not found during LAppGlManager initialization");
+      return;
+    }
+
      gl = canvas.getContext("webgl2");
 
      if (!gl) {

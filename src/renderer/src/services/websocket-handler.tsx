@@ -46,7 +46,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   }, [autoStartMicOnConvEnd]);
 
   useEffect(() => {
-    if (pendingModelInfo) {
+    if (pendingModelInfo && confUid) {
       setModelInfo(pendingModelInfo);
       setPendingModelInfo(undefined);
     }

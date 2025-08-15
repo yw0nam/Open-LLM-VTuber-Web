@@ -44,7 +44,11 @@ export class LAppView {
    * 初期化する。
    */
   public initialize(): void {
-    const { width, height } = canvas!;
+    if (!canvas) {
+      console.warn("Canvas is null, cannot initialize LAppView");
+      return;
+    }
+    const { width, height } = canvas;
 
     const ratio: number = width / height;
     const left: number = -ratio;

@@ -121,36 +121,25 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
 
   const setModelInfo = (info: ModelInfo | undefined) => {
     if (!info?.url) {
-      setModelInfoState(undefined); // Clear state if no URL
-      return;
-    }
-
-    if (!confUid) {
-      console.warn("Attempting to set model info without confUid");
-      // toaster.create({
-      //   title: "Attempting to set model info without confUid",
-      //   type: "error",
-      //   duration: 2000,
-      // });
+      setModelInfoState(undefined);
       return;
     }
 
     // Always use the scale defined in the incoming info object (from config)
-    const finalScale = Number(info.kScale || 0.5) * 2; // Use default scale if kScale is missing
+    const finalScale = Number(info.kScale || 0.5) * 2;
     console.log("Setting model info with default scale:", finalScale);
 
     setModelInfoState({
       ...info,
       kScale: finalScale,
-      // Preserve other potentially user-modified settings if needed, otherwise use defaults from info
       pointerInteractive:
         "pointerInteractive" in info
           ? info.pointerInteractive
-          : (modelInfo?.pointerInteractive ?? true), // Or default to info.pointerInteractive
+          : (modelInfo?.pointerInteractive ?? true),
       scrollToResize:
         "scrollToResize" in info
           ? info.scrollToResize
-          : (modelInfo?.scrollToResize ?? true), // Or default to info.scrollToResize
+          : (modelInfo?.scrollToResize ?? true),
     });
   };
 

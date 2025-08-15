@@ -120,7 +120,7 @@ export class LAppDelegate {
     this._resizeCanvas();
     
     // Ensure view is properly initialized
-    if (this._view) {
+    if (this._view && canvas) {
       this._view.initialize();
       this._view.initializeSprite();
       
@@ -336,9 +336,15 @@ export class LAppDelegate {
    * Resize the canvas to fill the screen.
    */
   private _resizeCanvas(): void {
-    canvas!.width = canvas!.clientWidth * window.devicePixelRatio;
-    canvas!.height = canvas!.clientHeight * window.devicePixelRatio;
-    gl!.viewport(0, 0, gl!.drawingBufferWidth, gl!.drawingBufferHeight);
+    if (!canvas) {
+      console.warn("Canvas is null, skipping resize");
+      return;
+    }
+    canvas.width = canvas.clientWidth * window.devicePixelRatio;
+    canvas.height = canvas.clientHeight * window.devicePixelRatio;
+    if (gl) {
+      gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    }
   }
 
   _cubismOption: Option; // Cubism SDK Option

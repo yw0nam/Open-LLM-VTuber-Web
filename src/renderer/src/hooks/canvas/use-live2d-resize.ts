@@ -248,6 +248,7 @@ export const useLive2DResize = ({
     }
   }, []);
 
+
   // Monitor container size changes using ResizeObserver
   useEffect(() => {
     const containerElement = containerRef.current;

@@ -19,7 +19,7 @@ function About(): JSX.Element {
     window.open(url, '_blank');
   };
   
-  const appVersion = '1.2.0';
+  const appVersion = '1.2.1';
   // const appAuthor = 'Open LLM VTuber Team';
 
   return (
