@@ -7,6 +7,7 @@ import { useAiState } from '@/context/ai-state-context';
 import { useSubtitle } from '@/context/subtitle-context';
 import { useChatHistory } from '@/context/chat-history-context';
 import { audioTaskQueue } from '@/utils/task-queue';
+import { audioManager } from '@/utils/audio-manager';
 import { toaster } from '@/components/ui/toaster';
 import { useWebSocket } from '@/context/websocket-context';
 import { DisplayText } from '@/services/websocket-service';
@@ -45,9 +46,7 @@ export const useAudioTask = () => {
     appendAIMessage,
   });
 
-  // Track current audio and model
-  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
-  const currentModelRef = useRef<Live2DModel | null>(null);
+  // Note: currentAudioRef and currentModelRef are now managed by the global audioManager
 
   stateRef.current = {
     aiState,
@@ -57,42 +56,10 @@ export const useAudioTask = () => {
   };
 
   /**
-   * Stop current audio playback and lip sync
+   * Stop current audio playback and lip sync (delegates to global audioManager)
    */
   const stopCurrentAudioAndLipSync = useCallback(() => {
-    if (currentAudioRef.current) {
-      console.log('Stopping current audio and lip sync');
-      const audio = currentAudioRef.current;
-      audio.pause();
-      audio.src = '';
-      audio.load();
-
-      const model = currentModelRef.current;
-      if (model && model._wavFileHandler) {
-        try {
-          // Release PCM data to stop lip sync calculation in update()
-          model._wavFileHandler.releasePcmData();
-          console.log('Called _wavFileHandler.releasePcmData()');
-
-          // Additional reset of state variables as fallback
-          model._wavFileHandler._lastRms = 0.0;
-          model._wavFileHandler._sampleOffset = 0;
-          model._wavFileHandler._userTimeSeconds = 0.0;
-          console.log('Also reset _lastRms, _sampleOffset, _userTimeSeconds as fallback');
-        } catch (e) {
-          console.error('Error stopping/resetting wavFileHandler:', e);
-        }
-      } else if (model) {
-        console.warn('Current model does not have _wavFileHandler to stop/reset.');
-      } else {
-        console.log('No associated model found to stop lip sync.');
-      }
-
-      currentAudioRef.current = null;
-      currentModelRef.current = null;
-    } else {
-      console.log('No current audio playing to stop.');
-    }
+    audioManager.stopCurrentAudioAndLipSync();
   }, []);
 
   /**
@@ -151,7 +118,6 @@ export const useAudioTask = () => {
           return;
         }
         console.log('Found model for audio playback');
-        currentModelRef.current = model;
 
         if (!model._wavFileHandler) {
           console.warn('Model does not have _wavFileHandler for lip sync');
@@ -182,14 +148,13 @@ export const useAudioTask = () => {
 
         // Setup audio element
         const audio = new Audio(audioDataUrl);
-        currentAudioRef.current = audio;
+        
+        // Register with global audio manager IMMEDIATELY after creating audio
+        audioManager.setCurrentAudio(audio, model);
         let isFinished = false;
 
         const cleanup = () => {
-          if (currentAudioRef.current === audio) {
-            currentAudioRef.current = null;
-            currentModelRef.current = null;
-          }
+          audioManager.clearCurrentAudio(audio);
           if (!isFinished) {
             isFinished = true;
             resolve();
@@ -201,8 +166,8 @@ export const useAudioTask = () => {
 
         audio.addEventListener('canplaythrough', () => {
           // Check for interruption before playback
-          if (stateRef.current.aiState === 'interrupted' || currentAudioRef.current !== audio) {
-            console.warn('Audio playback cancelled due to interruption or new audio');
+          if (stateRef.current.aiState === 'interrupted' || !audioManager.hasCurrentAudio()) {
+            console.warn('Audio playback cancelled due to interruption or audio was stopped');
             cleanup();
             return;
           }
@@ -228,7 +193,7 @@ export const useAudioTask = () => {
               };
             }
 
-            if (currentAudioRef.current === audio) {
+            if (audioManager.hasCurrentAudio()) {
               model._wavFileHandler.start(audioDataUrl);
             } else {
               console.warn('WavFileHandler start skipped - audio was stopped');
@@ -257,8 +222,6 @@ export const useAudioTask = () => {
         type: "error",
         duration: 2000,
       });
-      currentAudioRef.current = null;
-      currentModelRef.current = null;
       resolve();
     }
   });
