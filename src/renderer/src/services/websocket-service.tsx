@@ -200,6 +200,29 @@ class WebSocketService {
     this.disconnect();
   }
 
+  private handlePingMessage(pingReceived: number) {
+    // Create pong message using adapter
+    const pongMessage = desktopMateAdapter.createPongMessage();
+    
+    // Send pong response immediately
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(pongMessage));
+      
+      const pongSent = performance.now();
+      const responseTime = pongSent - pingReceived;
+      
+      // Log heartbeat event for debugging
+      console.debug(`Heartbeat: Ping received, Pong sent in ${responseTime.toFixed(2)}ms`);
+      
+      // Warn if response time exceeds 100ms threshold
+      if (responseTime > 100) {
+        console.warn(`Heartbeat response time exceeded 100ms: ${responseTime.toFixed(2)}ms`);
+      }
+    } else {
+      console.error('Cannot send pong: WebSocket not open');
+    }
+  }
+
   connect(url: string) {
     if (this.ws?.readyState === WebSocket.CONNECTING ||
         this.ws?.readyState === WebSocket.OPEN) {
@@ -219,6 +242,7 @@ class WebSocketService {
 
       this.ws.onmessage = (event) => {
         try {
+          const pingReceived = performance.now();
           const message = JSON.parse(event.data);
           
           // Handle authorization messages separately
@@ -229,6 +253,12 @@ class WebSocketService {
           
           if (message.type === 'authorize_error') {
             this.handleAuthorizationError(message.error || 'Unknown authorization error');
+            return;
+          }
+
+          // Handle ping messages - respond with pong immediately
+          if (message.type === 'ping') {
+            this.handlePingMessage(pingReceived);
             return;
           }
 
