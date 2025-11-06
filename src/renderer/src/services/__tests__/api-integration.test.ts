@@ -350,6 +350,183 @@ describe('API Integration Tests', () => {
       });
     });
 
+    describe('Session Auto-Creation', () => {
+      it('should automatically create a session when no session_id is provided', async () => {
+        // Simulate first-time conversation with no session ID
+        const firstMessages: STMMessage[] = [
+          { type: 'human' as const, content: 'This is my first message' },
+        ];
+
+        const createRequest: AddChatHistoryRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          // Intentionally omit session_id to trigger auto-creation
+          messages: firstMessages,
+        };
+
+        const createResponse = await desktopMateAdapter.addChatHistory(createRequest);
+
+        // Verify session was auto-created
+        assert.isDefined(createResponse.session_id);
+        assert.isString(createResponse.session_id);
+        assert.isAbove(createResponse.session_id.length, 0);
+        assert.equal(createResponse.message_count, 1);
+
+        const autoCreatedSessionId = createResponse.session_id;
+        testSessionIds.push(autoCreatedSessionId);
+
+        // Verify subsequent messages reuse the same session
+        const followUpMessages: STMMessage[] = [
+          { type: 'human' as const, content: 'This is my first message' },
+          { type: 'ai' as const, content: 'Hello! I received your first message.' },
+          { type: 'human' as const, content: 'This is my second message' },
+        ];
+
+        const followUpRequest: AddChatHistoryRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          session_id: autoCreatedSessionId, // Reuse auto-created session
+          messages: followUpMessages,
+        };
+
+        const followUpResponse = await desktopMateAdapter.addChatHistory(followUpRequest);
+
+        // Verify same session is reused
+        assert.equal(followUpResponse.session_id, autoCreatedSessionId);
+        assert.equal(followUpResponse.message_count, 3);
+
+        // Retrieve history to verify persistence
+        const historyRequest: GetChatHistoryRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          session_id: autoCreatedSessionId,
+        };
+
+        const historyResponse = await desktopMateAdapter.getChatHistory(historyRequest);
+
+        // Verify all messages were persisted
+        assert.equal(historyResponse.messages.length, 4); // 1 initial + 3 follow-up
+        assert.equal(historyResponse.messages[0].type, 'human');
+        assert.equal(historyResponse.messages[0].content, 'This is my first message');
+        assert.equal(historyResponse.messages[3].type, 'human');
+        assert.equal(historyResponse.messages[3].content, 'This is my second message');
+      });
+
+      it('should handle session recovery after simulated app restart', async () => {
+        // Create initial session
+        const initialMessages: STMMessage[] = [
+          { type: 'human' as const, content: 'Message before restart' },
+          { type: 'ai' as const, content: 'I understand' },
+        ];
+
+        const initialRequest: AddChatHistoryRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          messages: initialMessages,
+        };
+
+        const initialResponse = await desktopMateAdapter.addChatHistory(initialRequest);
+        const persistentSessionId = initialResponse.session_id;
+        testSessionIds.push(persistentSessionId);
+
+        // Simulate app restart: forget session ID and retrieve it by listing sessions
+        const listRequest: ListSessionsRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+        };
+
+        const listResponse = await desktopMateAdapter.listSessions(listRequest);
+        
+        // Find our session
+        const recoveredSession = listResponse.sessions.find(
+          s => s.session_id === persistentSessionId
+        );
+
+        assert.isDefined(recoveredSession);
+        assert.equal(recoveredSession!.session_id, persistentSessionId);
+
+        // Add message to recovered session (simulating post-restart usage)
+        const postRestartMessages: STMMessage[] = [
+          { type: 'human' as const, content: 'Message before restart' },
+          { type: 'ai' as const, content: 'I understand' },
+          { type: 'human' as const, content: 'Message after restart' },
+        ];
+
+        const postRestartRequest: AddChatHistoryRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          session_id: recoveredSession!.session_id,
+          messages: postRestartMessages,
+        };
+
+        const postRestartResponse = await desktopMateAdapter.addChatHistory(postRestartRequest);
+
+        // Verify session persistence
+        assert.equal(postRestartResponse.session_id, persistentSessionId);
+        assert.equal(postRestartResponse.message_count, 3);
+
+        // Verify complete history is maintained
+        const finalHistoryRequest: GetChatHistoryRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          session_id: persistentSessionId,
+        };
+
+        const finalHistoryResponse = await desktopMateAdapter.getChatHistory(finalHistoryRequest);
+        
+        // Should have 2 initial + 3 post-restart = 5 total
+        assert.equal(finalHistoryResponse.messages.length, 5);
+        assert.equal(finalHistoryResponse.messages[4].content, 'Message after restart');
+      });
+
+      it('should create unique sessions for different conversations', async () => {
+        // Create first conversation
+        const conv1Request: AddChatHistoryRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          messages: [
+            { type: 'human' as const, content: 'Conversation 1 message' },
+          ],
+        };
+
+        const conv1Response = await desktopMateAdapter.addChatHistory(conv1Request);
+        const session1Id = conv1Response.session_id;
+        testSessionIds.push(session1Id);
+
+        // Create second conversation (no session_id means new session)
+        const conv2Request: AddChatHistoryRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          messages: [
+            { type: 'human' as const, content: 'Conversation 2 message' },
+          ],
+        };
+
+        const conv2Response = await desktopMateAdapter.addChatHistory(conv2Request);
+        const session2Id = conv2Response.session_id;
+        testSessionIds.push(session2Id);
+
+        // Verify different sessions were created
+        assert.notEqual(session1Id, session2Id);
+
+        // Verify each session has independent history
+        const history1Response = await desktopMateAdapter.getChatHistory({
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          session_id: session1Id,
+        });
+
+        const history2Response = await desktopMateAdapter.getChatHistory({
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          session_id: session2Id,
+        });
+
+        assert.equal(history1Response.messages[0].content, 'Conversation 1 message');
+        assert.equal(history2Response.messages[0].content, 'Conversation 2 message');
+      });
+    });
+
     describe('List Sessions', () => {
       it('should list all sessions for user and agent', async () => {
         const request: ListSessionsRequest = {

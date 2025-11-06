@@ -31,6 +31,8 @@ export interface SessionManagerState {
   messages: STMMessage[];
   /** Loading state for async operations */
   isLoading: boolean;
+  /** Loading state for session creation */
+  isCreatingSession: boolean;
   /** Error state for failed operations */
   error: Error | null;
 }
@@ -91,6 +93,12 @@ export interface UseSessionManagerReturn extends SessionManagerState {
    * @returns Promise resolving when history is refreshed
    */
   refreshCurrentSession: () => Promise<void>;
+
+  /**
+   * Get current session ID or create a new one if it doesn't exist
+   * @returns Promise resolving to the session ID
+   */
+  getOrCreateSession: () => Promise<string>;
 }
 
 /**
@@ -105,6 +113,8 @@ export interface SessionManagerConfig {
   autoLoadSessions?: boolean;
   /** Auto-load history when session changes */
   autoLoadHistory?: boolean;
+  /** Auto-create a session on mount if none exists */
+  autoCreateSession?: boolean;
 }
 
 /**
@@ -145,6 +155,7 @@ export function useSessionManager(config: SessionManagerConfig): UseSessionManag
     agentId,
     autoLoadSessions = false,
     autoLoadHistory = true,
+    autoCreateSession = false,
   } = config;
 
   // State management
@@ -152,6 +163,7 @@ export function useSessionManager(config: SessionManagerConfig): UseSessionManag
   const [sessions, setSessions] = useState<SessionMetadata[]>([]);
   const [messages, setMessages] = useState<STMMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   /**
@@ -327,7 +339,7 @@ export function useSessionManager(config: SessionManagerConfig): UseSessionManag
         throw err;
       }
 
-      setIsLoading(true);
+      setIsCreatingSession(true);
       setError(null);
 
       try {
@@ -362,7 +374,7 @@ export function useSessionManager(config: SessionManagerConfig): UseSessionManag
         setError(error);
         throw error;
       } finally {
-        setIsLoading(false);
+        setIsCreatingSession(false);
       }
     },
     [userId, agentId, listSessions],
@@ -455,12 +467,33 @@ export function useSessionManager(config: SessionManagerConfig): UseSessionManag
     }
   }, [autoLoadHistory, currentSessionId, userId, agentId]); // Intentionally not including loadHistory to avoid infinite loop
 
+  const getOrCreateSession = useCallback(async (): Promise<string> => {
+    if (currentSessionId) {
+      return currentSessionId;
+    }
+
+    debugLog('use-session-manager', 'No active session, creating a new one.');
+    return createSession();
+  }, [currentSessionId, createSession]);
+
+  // Auto-create session on mount if configured
+  useEffect(() => {
+    if (autoCreateSession && !currentSessionId && !isLoading && !isCreatingSession) {
+      debugLog('use-session-manager', 'Auto-creating session on mount.');
+      getOrCreateSession().catch((err) => {
+        errorLog('use-session-manager', 'Auto-create session failed', err);
+      });
+    }
+  }, [autoCreateSession, currentSessionId, isLoading, isCreatingSession, getOrCreateSession]);
+
+
   return {
     // State
     currentSessionId,
     sessions,
     messages,
     isLoading,
+    isCreatingSession,
     error,
 
     // Operations
@@ -472,5 +505,6 @@ export function useSessionManager(config: SessionManagerConfig): UseSessionManag
     setCurrentSessionId,
     clearError,
     refreshCurrentSession,
+    getOrCreateSession,
   };
 }

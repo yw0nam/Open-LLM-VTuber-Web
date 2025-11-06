@@ -1,3 +1,5 @@
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { useSessionManager } from '../use-session-manager';
 /**
  * Tests for Session Manager Hook
  * Tests the adapter integration layer for session management operations
@@ -420,5 +422,116 @@ describe('Session Manager Adapter Integration', () => {
       assert.equal(listResult.sessions.length, 2);
       assert.equal(historyResult.messages.length, 2);
     });
+  });
+});
+
+describe('useSessionManager Hook', () => {
+  const mockUserId = 'test-user-123';
+  const mockAgentId = 'test-agent-456';
+  const newSessionId = 'new-session-from-hook';
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(desktopMateAdapter.addChatHistory).mockResolvedValue({
+      session_id: newSessionId,
+      message_count: 0,
+    });
+    vi.mocked(desktopMateAdapter.listSessions).mockResolvedValue({ sessions: [] });
+  });
+
+  it('should automatically create a session if autoCreateSession is true', async () => {
+    const { result } = renderHook(() =>
+      useSessionManager({
+        userId: mockUserId,
+        agentId: mockAgentId,
+        autoCreateSession: true,
+      }),
+    );
+
+    await waitFor(() => expect(result.current.currentSessionId).toBe(newSessionId));
+
+    expect(desktopMateAdapter.addChatHistory).toHaveBeenCalledTimes(1);
+  });
+
+  it('getOrCreateSession should return existing session ID if available', async () => {
+    const { result } = renderHook(() =>
+      useSessionManager({
+        userId: mockUserId,
+        agentId: mockAgentId,
+      }),
+    );
+
+    act(() => {
+      result.current.setCurrentSessionId('existing-session');
+    });
+
+    let sessionId;
+    await act(async () => {
+      sessionId = await result.current.getOrCreateSession();
+    });
+
+    expect(sessionId).toBe('existing-session');
+    expect(desktopMateAdapter.addChatHistory).not.toHaveBeenCalled();
+  });
+
+  it('getOrCreateSession should create a new session if none exists', async () => {
+    const { result } = renderHook(() =>
+      useSessionManager({
+        userId: mockUserId,
+        agentId: mockAgentId,
+      }),
+    );
+
+    let sessionId;
+    await act(async () => {
+      sessionId = await result.current.getOrCreateSession();
+    });
+
+    expect(sessionId).toBe(newSessionId);
+    expect(result.current.currentSessionId).toBe(newSessionId);
+    expect(desktopMateAdapter.addChatHistory).toHaveBeenCalledTimes(1);
+  });
+
+  it('should reuse the same session ID for subsequent messages', async () => {
+    const { result } = renderHook(() =>
+      useSessionManager({
+        userId: mockUserId,
+        agentId: mockAgentId,
+      }),
+    );
+
+    // First message, creates a session
+    await act(async () => {
+      await result.current.saveMessages([{ type: 'human', content: 'Hello' }]);
+    });
+
+    expect(result.current.currentSessionId).toBe(newSessionId);
+    expect(desktopMateAdapter.addChatHistory).toHaveBeenCalledTimes(1);
+
+    // Second message, should reuse the session
+    await act(async () => {
+      await result.current.saveMessages([{ type: 'ai', content: 'Hi' }]);
+    });
+
+    expect(desktopMateAdapter.addChatHistory).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(desktopMateAdapter.addChatHistory).mock.calls[1][0].session_id).toBe(newSessionId);
+  });
+
+  it('should handle errors during session creation', async () => {
+    const mockError = new Error('Failed to create session');
+    vi.mocked(desktopMateAdapter.addChatHistory).mockRejectedValue(mockError);
+
+    const { result } = renderHook(() =>
+      useSessionManager({
+        userId: mockUserId,
+        agentId: mockAgentId,
+      }),
+    );
+
+    await act(async () => {
+      await expect(result.current.createSession()).rejects.toThrow(mockError);
+    });
+
+    expect(result.current.error).toBe(mockError);
   });
 });
