@@ -164,6 +164,9 @@ export interface ChatMessage extends BaseMessage {
   content: string;
   agent_id: string;
   user_id: string;
+  persona?: string;
+  images?: string[];
+  limit?: number;
   conversation_id?: string;
   metadata?: {
     [key: string]: any;

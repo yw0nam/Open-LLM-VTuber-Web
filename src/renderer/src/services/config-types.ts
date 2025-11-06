@@ -12,6 +12,12 @@ export interface URLConfiguration {
   wsUrl: string;
   /** Base URL for HTTP API calls */
   baseUrl: string;
+  /** TTS (Text-to-Speech) API endpoint */
+  tts: string;
+  /** VLM (Vision-Language Model) API endpoint */
+  vlm: string;
+  /** STM (Short-Term Memory) API base endpoint */
+  stm: string;
 }
 
 /**
@@ -55,6 +61,8 @@ export interface UIPreferences {
   backgroundUrl: string;
   /** Custom background URL (if not using preset) */
   customBgUrl: string;
+  /** Default TTS voice */
+  defaultVoice: string;
 }
 
 /**
@@ -102,6 +110,9 @@ export const DEFAULT_CONFIG: AppConfiguration = {
   urls: {
     wsUrl: "ws://127.0.0.1:5500/v1/chat/stream",
     baseUrl: "http://127.0.0.1:5500",
+    tts: "http://127.0.0.1:5500/v1/tts/synthesize",
+    vlm: "http://127.0.0.1:5500/v1/vlm/analyze",
+    stm: "http://127.0.0.1:5500/v1/stm",
   },
   features: {
     showSubtitle: true,
@@ -119,6 +130,7 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     selectedCharacterPreset: null,
     backgroundUrl: "",
     customBgUrl: "",
+    defaultVoice: "default",
   },
   version: "1.0.0",
   lastUpdated: new Date().toISOString(),
@@ -209,4 +221,118 @@ export interface SessionInfo {
   user_id: string;
   created_at: string;
   last_active: string;
+}
+
+// ============================================================================
+// STM (Short-Term Memory) API TYPES
+// ============================================================================
+
+/**
+ * Message type for STM chat history
+ */
+export type STMMessageType = "human" | "ai" | "system";
+
+/**
+ * Single message in STM format
+ */
+export interface STMMessage {
+  type: STMMessageType;
+  content: string;
+}
+
+/**
+ * Add Chat History Request
+ */
+export interface AddChatHistoryRequest {
+  user_id: string;
+  agent_id: string;
+  session_id?: string;
+  messages: STMMessage[];
+}
+
+/**
+ * Add Chat History Response
+ */
+export interface AddChatHistoryResponse {
+  session_id: string;
+  message_count: number;
+}
+
+/**
+ * Get Chat History Request (query parameters)
+ */
+export interface GetChatHistoryRequest {
+  user_id: string;
+  agent_id: string;
+  session_id: string;
+  limit?: number;
+}
+
+/**
+ * Get Chat History Response
+ */
+export interface GetChatHistoryResponse {
+  session_id: string;
+  messages: STMMessage[];
+}
+
+/**
+ * List Sessions Request (query parameters)
+ */
+export interface ListSessionsRequest {
+  user_id: string;
+  agent_id: string;
+}
+
+/**
+ * Session Metadata
+ */
+export interface SessionMetadata {
+  session_id: string;
+  user_id: string;
+  agent_id: string;
+  created_at: string;
+  updated_at: string;
+  metadata: Record<string, unknown>;
+}
+
+/**
+ * List Sessions Response
+ */
+export interface ListSessionsResponse {
+  sessions: SessionMetadata[];
+}
+
+/**
+ * Delete Session Request (query parameters)
+ */
+export interface DeleteSessionRequest {
+  session_id: string;
+  user_id: string;
+  agent_id: string;
+}
+
+/**
+ * Delete Session Response
+ */
+export interface DeleteSessionResponse {
+  success: boolean;
+  message: string;
+}
+
+/**
+ * Update Session Metadata Request
+ * Note: session_id should be passed as path parameter
+ */
+export interface UpdateSessionMetadataRequest {
+  session_id: string; // Required in request body even though it's also a path parameter
+  metadata: Record<string, unknown>;
+}
+
+/**
+ * Update Session Metadata Response
+ */
+export interface UpdateSessionMetadataResponse {
+  success: boolean;
+  message: string;
 }
