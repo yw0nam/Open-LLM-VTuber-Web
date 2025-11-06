@@ -109,7 +109,8 @@
   },
   "success": {
     "messagesSynced": "Messages Synchronized",
-    "pendingMessagesSyncedToBackend": "Pending messages have been synced to the backend"
+    "pendingMessagesSyncedToBackend": "Pending messages have been synced to the backend",
+    "sessionCreated": "New session created successfully"
   },
   "error": {
     "cameraApiNotSupported": "Camera API is not supported on this device",
@@ -129,7 +130,9 @@
     "saveMessageFailed": "Failed to save messages to backend",
     "messagesSavedLocally": "Messages saved locally. Will sync when connection is restored.",
     "loadHistoryFailed": "Failed to load history from backend",
-    "historyLoadedFromLocal": "History loaded from local storage"
+    "historyLoadedFromLocal": "History loaded from local storage",
+    "sessionCreationFailed": "Failed to create session via backend",
+    "sessionCreatedLocally": "Session created locally. Will sync when connection is restored."
   },
   "aiState": {
     "idle": "idle",

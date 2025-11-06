@@ -106,7 +106,8 @@
   },
   "success": {
     "messagesSynced": "消息已同步",
-    "pendingMessagesSyncedToBackend": "待同步消息已成功同步到后端"
+    "pendingMessagesSyncedToBackend": "待同步消息已成功同步到后端",
+    "sessionCreated": "新会话创建成功"
   },
   "error": {
     "cameraApiNotSupported": "此设备不支持摄像头API",
@@ -122,11 +123,13 @@
     "failedCapture": "捕获{{source}}帧失败",
     "failedParseWebSocket": "解析WebSocket消息失败",
     "websocketNotOpen": "WebSocket未连接",
-    "vadMisfire": "检测到语音但过于简短，请尝试提高音量或说得更久一些，或调整识别设置（降低语音识别阈值、降低负面语音阈值、减少验证帧数）",
+    "vadMisfire": "检测到语音但过于简短,请尝试提高音量或说得更久一些,或调整识别设置(降低语音识别阈值、降低负面语音阈值、减少验证帧数)",
     "saveMessageFailed": "保存消息到后端失败",
-    "messagesSavedLocally": "消息已保存到本地，连接恢复后将自动同步",
+    "messagesSavedLocally": "消息已保存到本地,连接恢复后将自动同步",
     "loadHistoryFailed": "从后端加载历史记录失败",
-    "historyLoadedFromLocal": "已从本地存储加载历史记录"
+    "historyLoadedFromLocal": "已从本地存储加载历史记录",
+    "sessionCreationFailed": "通过后端创建会话失败",
+    "sessionCreatedLocally": "会话已在本地创建,连接恢复后将自动同步"
   },
   "aiState": {
     "idle": "空闲",
