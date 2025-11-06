@@ -278,6 +278,76 @@ describe('API Integration Tests', () => {
         assert.isDefined(response);
         assert.isAtMost(response.messages.length, 2);
       });
+
+      it('should save and reload conversation history on app initialization', async () => {
+        // Create a new session with conversation history
+        const initialMessages: STMMessage[] = [
+          { type: 'human' as const, content: 'What is the meaning of life?' },
+          { type: 'ai' as const, content: 'The meaning of life is a philosophical question.' },
+          { type: 'human' as const, content: 'Can you elaborate?' },
+          { type: 'ai' as const, content: 'Different philosophies offer different perspectives...' },
+        ];
+
+        const addRequest: AddChatHistoryRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          messages: initialMessages,
+        };
+
+        const addResponse = await desktopMateAdapter.addChatHistory(addRequest);
+        const newSessionId = addResponse.session_id;
+        testSessionIds.push(newSessionId);
+
+        assert.isDefined(newSessionId);
+        assert.equal(addResponse.message_count, 4);
+
+        // Simulate app reload - retrieve the conversation history
+        const getRequest: GetChatHistoryRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          session_id: newSessionId,
+        };
+
+        const getResponse = await desktopMateAdapter.getChatHistory(getRequest);
+
+        // Verify all messages were persisted and retrieved correctly
+        assert.isDefined(getResponse);
+        assert.equal(getResponse.session_id, newSessionId);
+        assert.isDefined(getResponse.messages);
+        assert.equal(getResponse.messages.length, 4);
+
+        // Verify message order and content
+        assert.equal(getResponse.messages[0].type, 'human');
+        assert.equal(getResponse.messages[0].content, 'What is the meaning of life?');
+        assert.equal(getResponse.messages[1].type, 'ai');
+        assert.equal(getResponse.messages[1].content, 'The meaning of life is a philosophical question.');
+        assert.equal(getResponse.messages[2].type, 'human');
+        assert.equal(getResponse.messages[2].content, 'Can you elaborate?');
+        assert.equal(getResponse.messages[3].type, 'ai');
+        assert.equal(getResponse.messages[3].content, 'Different philosophies offer different perspectives...');
+
+        // Add more messages to the same session
+        const additionalMessages: STMMessage[] = [
+          { type: 'human' as const, content: 'Thank you for the explanation.' },
+          { type: 'ai' as const, content: 'You\'re welcome! Feel free to ask more questions.' },
+        ];
+
+        const addMoreRequest: AddChatHistoryRequest = {
+          user_id: TEST_USER_ID,
+          agent_id: TEST_AGENT_ID,
+          session_id: newSessionId,
+          messages: additionalMessages,
+        };
+
+        const addMoreResponse = await desktopMateAdapter.addChatHistory(addMoreRequest);
+        assert.equal(addMoreResponse.message_count, 2);
+
+        // Reload and verify all 6 messages are present
+        const finalGetResponse = await desktopMateAdapter.getChatHistory(getRequest);
+        assert.equal(finalGetResponse.messages.length, 6);
+        assert.equal(finalGetResponse.messages[4].content, 'Thank you for the explanation.');
+        assert.equal(finalGetResponse.messages[5].content, 'You\'re welcome! Feel free to ask more questions.');
+      });
     });
 
     describe('List Sessions', () => {

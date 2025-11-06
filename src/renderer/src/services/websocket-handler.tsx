@@ -3,7 +3,7 @@
 // eslint-disable-next-line object-curly-newline
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { wsService, MessageEvent } from '@/services/websocket-service';
+import { wsService, MessageEvent, Message } from '@/services/websocket-service';
 import {
   WebSocketContext, HistoryInfo, defaultWsUrl, defaultBaseUrl,
 } from '@/context/websocket-context';
@@ -22,6 +22,16 @@ import { useGroup } from '@/context/group-context';
 import { useInterrupt } from '@/hooks/utils/use-interrupt';
 import { useBrowser } from '@/context/browser-context';
 import { extractVolumesFromWAV } from '@/services/audio-processor';
+import { desktopMateAdapter } from '@/services/desktopmate-adapter';
+import { useSession } from '@/context/session-context';
+import {
+  saveMessagesToLocal,
+  loadMessagesFromLocal,
+  addToPendingSync,
+  getPendingSync,
+  removePendingSync,
+  hasPendingSync,
+} from '@/services/message-persistence';
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
@@ -31,16 +41,30 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { aiState, setAiState, backendSynthComplete, setBackendSynthComplete } = useAiState();
   const { setModelInfo } = useLive2DConfig();
   const { setSubtitleText } = useSubtitle();
-  const { clearResponse, setForceNewMessage, appendHumanMessage, appendOrUpdateToolCallMessage } = useChatHistory();
+  const {
+    messages: currentMessages,
+    clearResponse,
+    setForceNewMessage,
+    appendHumanMessage,
+    appendOrUpdateToolCallMessage,
+    setCurrentHistoryUid,
+    setMessages,
+    setHistoryList,
+    currentHistoryUid,
+  } = useChatHistory();
   const { addAudioTask } = useAudioTask();
   const bgUrlContext = useBgUrl();
   const { confUid, setConfName, setConfUid, setConfigFiles } = useConfig();
   const [pendingModelInfo, setPendingModelInfo] = useState<ModelInfo | undefined>(undefined);
-  const { setSelfUid, setGroupMembers, setIsOwner } = useGroup();
+  const { selfUid, setSelfUid, setGroupMembers, setIsOwner } = useGroup();
   const { startMic, stopMic, autoStartMicOnConvEnd } = useVAD();
   const autoStartMicOnConvEndRef = useRef(autoStartMicOnConvEnd);
   const { interrupt } = useInterrupt();
   const { setBrowserViewData } = useBrowser();
+  const { sessionId } = useSession();
+
+  const [shouldSaveMessages, setShouldSaveMessages] = useState(false);
+  const [hasLoadedHistory, setHasLoadedHistory] = useState(false);
 
   useEffect(() => {
     autoStartMicOnConvEndRef.current = autoStartMicOnConvEnd;
@@ -53,9 +77,171 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
     }
   }, [pendingModelInfo, setModelInfo, confUid]);
 
-  const {
-    setCurrentHistoryUid, setMessages, setHistoryList,
-  } = useChatHistory();
+  const saveMessages = useCallback(async (messagesToSave: Message[]) => {
+    if (!selfUid || !confUid || !sessionId || messagesToSave.length === 0) {
+      console.warn('Cannot save messages: missing user ID, agent ID, session ID, or no messages');
+      return;
+    }
+
+    const stmMessages = messagesToSave.map((msg) => ({
+      type: (msg.role === 'human' ? 'human' : 'ai') as 'human' | 'ai',
+      content: msg.content,
+    }));
+
+    try {
+      await desktopMateAdapter.addChatHistory({
+        user_id: selfUid,
+        agent_id: confUid,
+        session_id: sessionId,
+        messages: stmMessages,
+      });
+      console.log('Messages saved to backend STM API.');
+      
+      // Also save to local storage as backup
+      saveMessagesToLocal(sessionId, selfUid, confUid, messagesToSave);
+    } catch (error) {
+      console.error('Failed to save messages to backend STM API:', error);
+      
+      // Fallback: Save to local storage
+      saveMessagesToLocal(sessionId, selfUid, confUid, messagesToSave);
+      
+      // Add to pending sync queue
+      addToPendingSync(sessionId, selfUid, confUid, stmMessages);
+      
+      toaster.create({
+        title: t('error.saveMessageFailed'),
+        description: t('error.messagesSavedLocally'),
+        type: 'warning',
+        duration: 5000,
+      });
+    }
+  }, [selfUid, confUid, sessionId, t]);
+
+  const loadHistory = useCallback(async () => {
+    if (!selfUid || !confUid || !sessionId) {
+      console.warn('Cannot load history: missing user ID, agent ID, or session ID');
+      return;
+    }
+
+    try {
+      const response = await desktopMateAdapter.getChatHistory({
+        user_id: selfUid,
+        agent_id: confUid,
+        session_id: sessionId,
+      });
+      const loadedMessages: Message[] = response.messages.map((msg) => ({
+        id: Math.random().toString(), // Generate a temporary ID for loaded messages
+        content: msg.content,
+        role: (msg.type === 'human' ? 'human' : 'ai') as 'human' | 'ai',
+        type: 'text',
+        timestamp: new Date().toISOString(),
+      }));
+      setMessages(loadedMessages);
+      setHasLoadedHistory(true);
+      console.log('History loaded from backend STM API.', { count: loadedMessages.length });
+      
+      // Also save to local storage for backup
+      saveMessagesToLocal(sessionId, selfUid, confUid, loadedMessages);
+    } catch (error) {
+      console.error('Failed to load history from backend STM API:', error);
+      
+      // Fallback: Try to load from local storage
+      const localMessages = loadMessagesFromLocal(sessionId);
+      if (localMessages && localMessages.length > 0) {
+        setMessages(localMessages);
+        setHasLoadedHistory(true);
+        console.log('History loaded from local storage.', { count: localMessages.length });
+        
+        toaster.create({
+          title: t('error.loadHistoryFailed'),
+          description: t('error.historyLoadedFromLocal'),
+          type: 'warning',
+          duration: 5000,
+        });
+      } else {
+        toaster.create({
+          title: t('error.loadHistoryFailed'),
+          type: 'error',
+          duration: 3000,
+        });
+      }
+    }
+  }, [selfUid, confUid, sessionId, setMessages, t]);
+
+  // Synchronize pending messages with backend
+  const syncPendingMessages = useCallback(async () => {
+    if (!selfUid || !confUid) {
+      return;
+    }
+
+    const pending = getPendingSync();
+    if (pending.length === 0) {
+      return;
+    }
+
+    console.log(`Attempting to sync ${pending.length} pending message batch(es)...`);
+
+    for (const batch of pending) {
+      try {
+        await desktopMateAdapter.addChatHistory({
+          user_id: batch.userId,
+          agent_id: batch.agentId,
+          session_id: batch.sessionId,
+          messages: batch.messages,
+        });
+        
+        // Successfully synced, remove from pending queue
+        removePendingSync(batch.sessionId);
+        console.log('Pending messages synced for session:', batch.sessionId);
+      } catch (error) {
+        console.error('Failed to sync pending messages for session:', batch.sessionId, error);
+        // Keep in pending queue for next attempt
+      }
+    }
+
+    // Notify user if sync was successful
+    const remainingPending = getPendingSync();
+    if (pending.length > remainingPending.length) {
+      toaster.create({
+        title: t('success.messagesSynced'),
+        description: t('success.pendingMessagesSyncedToBackend'),
+        type: 'success',
+        duration: 3000,
+      });
+    }
+  }, [selfUid, confUid, t]);
+
+  useEffect(() => {
+    if (shouldSaveMessages) {
+      saveMessages(currentMessages);
+      setShouldSaveMessages(false);
+    }
+  }, [shouldSaveMessages, currentMessages, saveMessages]);
+
+  // Load history on app initialization when all required IDs are available
+  useEffect(() => {
+    if (selfUid && confUid && sessionId && !hasLoadedHistory) {
+      loadHistory();
+    }
+  }, [selfUid, confUid, sessionId, hasLoadedHistory, loadHistory]);
+
+  // Sync pending messages when connection is established
+  useEffect(() => {
+    if (wsState === 'OPEN' && hasPendingSync()) {
+      // Add a small delay to ensure backend is ready
+      const timer = setTimeout(() => {
+        syncPendingMessages();
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [wsState, syncPendingMessages]);
+
+  useEffect(() => {
+    if (selfUid && confUid && currentHistoryUid) {
+      loadHistory();
+    }
+  }, [selfUid, confUid, currentHistoryUid, loadHistory]);
 
   const handleControlMessage = useCallback((controlText: string) => {
     switch (controlText) {
@@ -90,7 +276,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       default:
         console.warn('Unknown control command:', controlText);
     }
-  }, [setAiState, clearResponse, setForceNewMessage, startMic, stopMic]);
+  }, [setAiState, clearResponse, startMic, stopMic]);
 
   const handleWebSocketMessage = useCallback((message: MessageEvent) => {
     console.log('Received message from server:', message);
@@ -177,6 +363,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           type: 'success',
           duration: 2000,
         });
+        setShouldSaveMessages(true);
         break;
       case 'new-history-created':
         setAiState('idle');
@@ -219,6 +406,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         console.log('user-input-transcription: ', message.text);
         if (message.text) {
           appendHumanMessage(message.text);
+          setShouldSaveMessages(true);
         }
         break;
       case 'error':
@@ -264,6 +452,17 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         // Handle forwarded interrupt
         interrupt(false); // do not send interrupt signal to server
         break;
+      case 'chat_response':
+        if (message.content) {
+          appendHumanMessage(message.content);
+          setShouldSaveMessages(true);
+        }
+        break;
+      case 'stream_token':
+        if (message.chunk) {
+          setSubtitleText(message.chunk);
+        }
+        break;
       case 'tool_call_status':
         if (message.tool_id && message.tool_name && message.status) {
           // If there's browser view data included, store it in the browser context
@@ -281,8 +480,9 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
             name: message.name,
             status: message.status as ('running' | 'completed' | 'error'),
             content: message.content || '',
-            timestamp: message.timestamp || new Date().toISOString(),
+            timestamp: new Date().toISOString(),
           });
+          setShouldSaveMessages(true);
         } else {
           console.warn('Received incomplete tool_call_status message:', message);
         }

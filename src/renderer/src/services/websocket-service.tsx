@@ -322,8 +322,6 @@ class WebSocketService {
    */
   private handleError(error: Event) {
     console.error('WebSocket error:', error);
-    this.currentState = 'CLOSING';
-    this.stateSubject.next('CLOSING');
     this.isAuthorized = false;
     this.authorizationPending = false;
 
