@@ -21,6 +21,17 @@ export interface URLConfiguration {
 }
 
 /**
+ * Authentication Configuration
+ * Contains authentication-related settings
+ */
+export interface AuthConfiguration {
+  /** Authorization token for WebSocket connection */
+  token: string;
+  /** Connection ID received from server after successful authorization */
+  connectionId: string | null;
+}
+
+/**
  * Feature Flags
  * Toggle features on/off at runtime
  */
@@ -71,6 +82,7 @@ export interface UIPreferences {
  */
 export interface AppConfiguration {
   urls: URLConfiguration;
+  auth: AuthConfiguration;
   features: FeatureFlags;
   performance: PerformanceParameters;
   ui: UIPreferences;
@@ -113,6 +125,10 @@ export const DEFAULT_CONFIG: AppConfiguration = {
     tts: "http://127.0.0.1:5500/v1/tts/synthesize",
     vlm: "http://127.0.0.1:5500/v1/vlm/analyze",
     stm: "http://127.0.0.1:5500/v1/stm",
+  },
+  auth: {
+    token: "",
+    connectionId: null,
   },
   features: {
     showSubtitle: true,

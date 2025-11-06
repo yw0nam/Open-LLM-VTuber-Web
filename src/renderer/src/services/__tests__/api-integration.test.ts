@@ -63,13 +63,7 @@ describe('API Integration Tests', () => {
     }, 30000);
 
     it('should handle empty text error', async () => {
-      // Expected error - suppress error logs for cleaner test output
-      const originalConsoleError = console.error;
-      console.error = () => {}; // Suppress error logs
-      
       await expect(desktopMateAdapter.synthesizeSpeech('')).rejects.toThrow();
-      
-      console.error = originalConsoleError; // Restore
     });
   });
 
@@ -242,10 +236,6 @@ describe('API Integration Tests', () => {
       });
 
       it('should return error for non-existent session', async () => {
-        // Expected error - suppress error logs for cleaner test output
-        const originalConsoleError = console.error;
-        console.error = () => {}; // Suppress error logs
-        
         const request: DeleteSessionRequest = {
           session_id: 'non-existent-session-id',
           user_id: TEST_USER_ID,
@@ -253,8 +243,6 @@ describe('API Integration Tests', () => {
         };
 
         await expect(desktopMateAdapter.deleteSession(request)).rejects.toThrow();
-        
-        console.error = originalConsoleError; // Restore
       });
     });
   });
