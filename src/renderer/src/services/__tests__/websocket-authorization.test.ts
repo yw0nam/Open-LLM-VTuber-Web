@@ -14,7 +14,7 @@ class MockWebSocket {
   public readyState: number = WebSocket.CONNECTING;
   public onopen: (() => void) | null = null;
   public onmessage: ((event: { data: string }) => void) | null = null;
-  public onclose: (() => void) | null = null;
+  public onclose: ((event: CloseEvent) => void) | null = null;
   public onerror: (() => void) | null = null;
   public sentMessages: string[] = [];
 
@@ -32,7 +32,16 @@ class MockWebSocket {
 
   close() {
     this.readyState = WebSocket.CLOSED;
-    if (this.onclose) this.onclose();
+    if (this.onclose) {
+      // Create a proper CloseEvent object
+      const closeEvent = new Event('close') as CloseEvent;
+      Object.assign(closeEvent, {
+        code: 1000, // Normal closure
+        reason: '',
+        wasClean: true
+      });
+      this.onclose(closeEvent);
+    }
   }
 
   // Helper to simulate receiving a message

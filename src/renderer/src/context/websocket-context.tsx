@@ -2,9 +2,20 @@
 import React, { useContext, useCallback } from 'react';
 import { wsService } from '@/services/websocket-service';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
+import { configManager } from '@/services/desktopmate-config';
 
-const DEFAULT_WS_URL = 'ws://localhost:5500/v1/chat/stream';
-const DEFAULT_BASE_URL = 'http://127.0.0.1:5500';
+// Load defaults from centralized configuration
+const getDefaultUrls = () => {
+  const urlsConfig = configManager.getSection('urls');
+  return {
+    wsUrl: urlsConfig.wsUrl || 'ws://localhost:5500/v1/chat/stream',
+    baseUrl: urlsConfig.baseUrl || 'http://127.0.0.1:5500',
+  };
+};
+
+const DEFAULT_URLS = getDefaultUrls();
+const DEFAULT_WS_URL = DEFAULT_URLS.wsUrl;
+const DEFAULT_BASE_URL = DEFAULT_URLS.baseUrl;
 
 export interface HistoryInfo {
   uid: string;
@@ -50,10 +61,20 @@ export const defaultBaseUrl = DEFAULT_BASE_URL;
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const [wsUrl, setWsUrl] = useLocalStorage('wsUrl', DEFAULT_WS_URL);
   const [baseUrl, setBaseUrl] = useLocalStorage('baseUrl', DEFAULT_BASE_URL);
+  
   const handleSetWsUrl = useCallback((url: string) => {
     setWsUrl(url);
+    // Update centralized config
+    configManager.updateValue('urls', 'wsUrl', url);
+    // Reconnect with new URL
     wsService.connect(url);
   }, [setWsUrl]);
+
+  const handleSetBaseUrl = useCallback((url: string) => {
+    setBaseUrl(url);
+    // Update centralized config
+    configManager.updateValue('urls', 'baseUrl', url);
+  }, [setBaseUrl]);
 
   const value = {
     sendMessage: wsService.sendMessage.bind(wsService),
@@ -62,7 +83,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     wsUrl,
     setWsUrl: handleSetWsUrl,
     baseUrl,
-    setBaseUrl,
+    setBaseUrl: handleSetBaseUrl,
   };
 
   return (
