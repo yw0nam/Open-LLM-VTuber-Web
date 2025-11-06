@@ -261,55 +261,147 @@ export class DesktopMateAdapter {
    *
    * @param text - Text to synthesize
    * @param referenceId - Voice reference ID (optional, uses config default)
+   * @param timeout - Request timeout in milliseconds (default: 30000)
+   * @param maxRetries - Maximum number of retry attempts (default: 3)
    * @returns Promise resolving to TTS response
    */
   async synthesizeSpeech(
     text: string,
     referenceId?: string,
+    timeout: number = 30000,
+    maxRetries: number = 3,
   ): Promise<TTSResponse> {
+    // Input validation
+    if (!text || typeof text !== 'string' || text.trim().length === 0) {
+      const error = new Error('Text must be a non-empty string');
+      errorLog("desktopmate-adapter", "Invalid input: text", error);
+      throw error;
+    }
+
+    if (referenceId !== undefined && (typeof referenceId !== 'string' || referenceId.trim().length === 0)) {
+      const error = new Error('Reference ID must be a valid non-empty string');
+      errorLog("desktopmate-adapter", "Invalid input: referenceId", error);
+      throw error;
+    }
+
     debugLog("desktopmate-adapter", "Synthesizing speech", {
       textLength: text.length,
       referenceId: referenceId || "default",
+      timeout,
+      maxRetries,
     });
 
-    try {
-      const config = configManager.getConfig();
-      const ttsUrl = config.urls.tts;
+    let lastError: Error | null = null;
 
-      const request: TTSRequest = {
-        text,
-        reference_id: referenceId,
-        output_format: "base64",
-      };
+    // Retry loop
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const config = configManager.getConfig();
+        const ttsUrl = config.urls.tts;
 
-      const response = await fetch(ttsUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(request),
-      });
+        const request: TTSRequest = {
+          text,
+          reference_id: referenceId,
+          output_format: "base64",
+        };
 
-      if (!response.ok) {
-        throw new Error(`TTS request failed: ${response.statusText}`);
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+        try {
+          const response = await fetch(ttsUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(request),
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            // Check if it's a client error (4xx) - don't retry
+            if (response.status >= 400 && response.status < 500) {
+              throw new Error(`TTS request failed with client error: ${response.status} ${response.statusText}`);
+            }
+            // Server error (5xx) - can retry
+            throw new Error(`TTS request failed: ${response.status} ${response.statusText}`);
+          }
+
+          const ttsResponse: TTSResponse = await response.json();
+
+          // Validate response format
+          if (!ttsResponse.audio_data || typeof ttsResponse.audio_data !== 'string') {
+            throw new Error('Invalid TTS response: missing or invalid audio_data field');
+          }
+
+          if (!ttsResponse.format || typeof ttsResponse.format !== 'string') {
+            throw new Error('Invalid TTS response: missing or invalid format field');
+          }
+
+          // Optional: Validate base64 format
+          const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+          if (!base64Regex.test(ttsResponse.audio_data)) {
+            throw new Error('Invalid TTS response: audio_data is not valid base64');
+          }
+
+          debugLog("desktopmate-adapter", "Speech synthesis complete", {
+            hasAudio: !!ttsResponse.audio_data,
+            format: ttsResponse.format,
+            attempts: attempt,
+          });
+
+          return ttsResponse;
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          
+          // Check if it's an abort error (timeout)
+          if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+            lastError = new Error(`TTS request timeout after ${timeout}ms`);
+            errorLog("desktopmate-adapter", `Speech synthesis timeout (attempt ${attempt}/${maxRetries})`, lastError);
+          } else {
+            lastError = fetchError as Error;
+            errorLog("desktopmate-adapter", `Speech synthesis failed (attempt ${attempt}/${maxRetries})`, lastError);
+          }
+
+          // Don't retry on client errors (4xx)
+          if (lastError.message.includes('client error')) {
+            throw lastError;
+          }
+
+          // If not the last attempt, continue to retry
+          if (attempt < maxRetries) {
+            debugLog("desktopmate-adapter", `Retrying speech synthesis (attempt ${attempt + 1}/${maxRetries})`);
+            // Optional: Add exponential backoff
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+        }
+      } catch (error) {
+        lastError = error as Error;
+        
+        // Don't retry on validation errors or client errors
+        if (error instanceof Error && (
+          error.message.includes('Invalid TTS response') ||
+          error.message.includes('client error')
+        )) {
+          errorLog("desktopmate-adapter", "Speech synthesis failed (non-retryable error)", lastError);
+          throw lastError;
+        }
+
+        // If not the last attempt, continue to retry
+        if (attempt < maxRetries) {
+          debugLog("desktopmate-adapter", `Retrying after error (attempt ${attempt + 1}/${maxRetries})`);
+          // Optional: Add exponential backoff
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
       }
-
-      const ttsResponse: TTSResponse = await response.json();
-
-      debugLog("desktopmate-adapter", "Speech synthesis complete", {
-        hasAudio: !!ttsResponse.audio_data,
-        format: ttsResponse.format,
-      });
-
-      return ttsResponse;
-    } catch (error) {
-      errorLog(
-        "desktopmate-adapter",
-        "Speech synthesis failed",
-        error as Error,
-      );
-      throw error;
     }
+
+    // All retries exhausted
+    errorLog("desktopmate-adapter", `Speech synthesis failed after ${maxRetries} attempts`, lastError!);
+    throw lastError || new Error('Speech synthesis failed for unknown reason');
   }
 
   /**
