@@ -125,6 +125,26 @@ class WebSocketService {
 
   private authorizationPending = false;
 
+  // Reconnection properties
+  private reconnectAttempts = 0;
+
+  private maxReconnectAttempts = 5;
+
+  private baseReconnectDelay = 3000; // 3 seconds
+
+  private reconnectTimer: NodeJS.Timeout | null = null;
+
+  private currentUrl = '';
+
+  private isReconnecting = false;
+
+  private shouldReconnect = true;
+
+  // Message queue for offline messages
+  private messageQueue: object[] = [];
+
+  private maxQueueSize = 100;
+
   static getInstance() {
     if (!WebSocketService.instance) {
       WebSocketService.instance = new WebSocketService();
@@ -226,10 +246,149 @@ class WebSocketService {
     }
   }
 
+  /**
+   * Calculate exponential backoff delay with jitter
+   * Formula: baseDelay * (2 ^ attempt) + random jitter
+   */
+  private getReconnectDelay(): number {
+    const exponentialDelay = this.baseReconnectDelay * Math.pow(2, this.reconnectAttempts);
+    const maxDelay = 60000; // Cap at 60 seconds
+    const delay = Math.min(exponentialDelay, maxDelay);
+    
+    // Add random jitter (0-25% of delay) to prevent thundering herd
+    const jitter = Math.random() * delay * 0.25;
+    return delay + jitter;
+  }
+
+  /**
+   * Attempt to reconnect with exponential backoff
+   */
+  private scheduleReconnect() {
+    // Clear any existing reconnect timer
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+
+    // Don't reconnect if we've exceeded max attempts or reconnection is disabled
+    if (!this.shouldReconnect || this.reconnectAttempts >= this.maxReconnectAttempts) {
+      if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+        console.error(`Max reconnection attempts (${this.maxReconnectAttempts}) reached. Giving up.`);
+        toaster.create({
+          title: getTranslation()('error.maxReconnectAttemptsReached'),
+          type: 'error',
+          duration: 5000,
+        });
+      }
+      this.isReconnecting = false;
+      return;
+    }
+
+    const delay = this.getReconnectDelay();
+    console.log(`Reconnecting in ${(delay / 1000).toFixed(1)}s (attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})...`);
+    
+    toaster.create({
+      title: `${getTranslation()('info.reconnecting')} (${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`,
+      type: 'info',
+      duration: 3000,
+    });
+
+    this.isReconnecting = true;
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectAttempts++;
+      this.connect(this.currentUrl);
+    }, delay);
+  }
+
+  /**
+   * Handle connection close event
+   */
+  private handleClose(event: CloseEvent) {
+    console.log('WebSocket closed:', event.code, event.reason);
+    this.currentState = 'CLOSED';
+    this.stateSubject.next('CLOSED');
+    this.isAuthorized = false;
+    this.authorizationPending = false;
+    this.ws = null;
+
+    // Only attempt reconnection if it wasn't a clean close and reconnection is enabled
+    if (event.code !== 1000 && this.shouldReconnect) {
+      this.scheduleReconnect();
+    }
+  }
+
+  /**
+   * Handle connection error event
+   */
+  private handleError(error: Event) {
+    console.error('WebSocket error:', error);
+    this.currentState = 'CLOSING';
+    this.stateSubject.next('CLOSING');
+    this.isAuthorized = false;
+    this.authorizationPending = false;
+
+    const shouldAttemptReconnect = this.shouldReconnect && !this.isReconnecting;
+
+    if (shouldAttemptReconnect) {
+      this.scheduleReconnect();
+    }
+
+    if (this.ws && this.ws.readyState !== WebSocket.CLOSED) {
+      try {
+        this.ws.close();
+      } catch (closeError) {
+        console.error('Failed to close WebSocket after error:', closeError);
+      }
+    }
+    
+    toaster.create({
+      title: getTranslation()('error.websocketConnectionError'),
+      type: 'error',
+      duration: 3000,
+    });
+  }
+
+  /**
+   * Flush queued messages after successful connection
+   */
+  private flushMessageQueue() {
+    if (this.messageQueue.length === 0) {
+      return;
+    }
+
+    console.log(`Flushing ${this.messageQueue.length} queued messages...`);
+    
+    const messages = [...this.messageQueue];
+    this.messageQueue = []; // Clear queue before sending
+
+    // Send messages directly to avoid re-queuing
+    messages.forEach((message) => {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify(message));
+      }
+    });
+
+    toaster.create({
+      title: getTranslation()('success.queuedMessagesSent'),
+      type: 'success',
+      duration: 2000,
+    });
+  }
+
   connect(url: string) {
+    // Store URL for reconnection
+    this.currentUrl = url;
+
+    // Clear any existing reconnect timer
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+
     if (this.ws?.readyState === WebSocket.CONNECTING ||
         this.ws?.readyState === WebSocket.OPEN) {
-      this.disconnect();
+      // Close existing connection without disabling reconnection
+      this.closeConnection();
     }
 
     try {
@@ -238,9 +397,31 @@ class WebSocketService {
       this.stateSubject.next('CONNECTING');
 
       this.ws.onopen = () => {
+        console.log('WebSocket connected');
         this.currentState = 'OPEN';
         this.stateSubject.next('OPEN');
+        
+        // Check if this was a reconnection before resetting
+        const wasReconnecting = this.reconnectAttempts > 0;
+        
+        // Reset reconnection state on successful connection
+        this.reconnectAttempts = 0;
+        this.isReconnecting = false;
+        
+        // Initialize connection
         this.initializeConnection();
+        
+        // Flush any queued messages
+        this.flushMessageQueue();
+
+        // Notify user of successful reconnection
+        if (wasReconnecting) {
+          toaster.create({
+            title: getTranslation()('success.reconnected'),
+            type: 'success',
+            duration: 2000,
+          });
+        }
       };
 
       this.ws.onmessage = (event) => {
@@ -277,32 +458,52 @@ class WebSocketService {
         }
       };
 
-      this.ws.onclose = () => {
-        this.currentState = 'CLOSED';
-        this.stateSubject.next('CLOSED');
+      this.ws.onclose = (event) => {
+        this.handleClose(event);
       };
 
-      this.ws.onerror = () => {
-        this.currentState = 'CLOSED';
-        this.stateSubject.next('CLOSED');
+      this.ws.onerror = (error) => {
+        this.handleError(error);
       };
     } catch (error) {
       console.error('Failed to connect to WebSocket:', error);
       this.currentState = 'CLOSED';
       this.stateSubject.next('CLOSED');
+      
+      // Attempt reconnection on connection failure
+      if (this.shouldReconnect) {
+        this.scheduleReconnect();
+      }
     }
   }
 
   sendMessage(message: object) {
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(message));
+    const socket = this.ws;
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify(message));
+      return;
     } else {
-      console.warn('WebSocket is not open. Unable to send message:', message);
-      toaster.create({
-        title: getTranslation()('error.websocketNotOpen'),
-        type: 'error',
-        duration: 2000,
-      });
+      console.warn('WebSocket is not open. Queueing message:', message);
+      
+      // Queue message if we're reconnecting or will reconnect
+      if (this.isReconnecting || this.reconnectAttempts < this.maxReconnectAttempts) {
+        if (this.messageQueue.length < this.maxQueueSize) {
+          this.messageQueue.push(message);
+          console.log(`Message queued. Queue size: ${this.messageQueue.length}`);
+        } else {
+          console.warn('Message queue is full. Dropping oldest message.');
+          this.messageQueue.shift(); // Remove oldest message
+          this.messageQueue.push(message);
+        }
+      } else {
+        // Not reconnecting, show error
+        toaster.create({
+          title: getTranslation()('error.websocketNotOpen'),
+          type: 'error',
+          duration: 2000,
+        });
+      }
     }
   }
 
@@ -314,11 +515,65 @@ class WebSocketService {
     return this.stateSubject.subscribe(callback);
   }
 
-  disconnect() {
+  /**
+   * Close the WebSocket connection without disabling reconnection
+   * Used internally when switching connections
+   */
+  private closeConnection() {
+    if (this.currentState !== 'CLOSED') {
+      this.currentState = 'CLOSING';
+      this.stateSubject.next('CLOSING');
+    }
     this.ws?.close();
     this.ws = null;
     this.isAuthorized = false;
     this.authorizationPending = false;
+    this.reconnectAttempts = 0;
+    this.isReconnecting = false;
+  }
+
+  disconnect() {
+    // Disable reconnection when manually disconnecting
+    this.shouldReconnect = false;
+    
+    // Clear any reconnect timer
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+
+    this.closeConnection();
+  }
+
+  /**
+   * Enable automatic reconnection
+   */
+  enableReconnection() {
+    this.shouldReconnect = true;
+  }
+
+  /**
+   * Disable automatic reconnection
+   */
+  disableReconnection() {
+    this.shouldReconnect = false;
+    
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+  }
+
+  /**
+   * Get reconnection status
+   */
+  getReconnectionStatus() {
+    return {
+      isReconnecting: this.isReconnecting,
+      reconnectAttempts: this.reconnectAttempts,
+      maxReconnectAttempts: this.maxReconnectAttempts,
+      queuedMessages: this.messageQueue.length,
+    };
   }
 
   getCurrentState() {

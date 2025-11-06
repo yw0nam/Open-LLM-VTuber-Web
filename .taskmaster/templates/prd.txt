@@ -1,0 +1,918 @@
+# Backend-Frontend Integration PRD
+# DesktopMatePlus Backend + Open-LLM-VTuber-Web Integration
+
+## Problem Statement
+
+The Open-LLM-VTuber-Web frontend (Live2D desktop pet) currently connects to a different backend service (port 12393) with a specific message protocol. The DesktopMatePlus backend (port 5500) provides superior features including:
+- Real-time streaming text generation with sentence-level TTS chunks
+- Advanced memory management (STM/LTM with MongoDB)
+- Vision-Language Model (VLM) for image analysis
+- Modern FastAPI WebSocket implementation
+- Tool use capabilities
+
+However, the two systems use incompatible message formats and connection protocols, preventing integration. Users cannot leverage the powerful DesktopMate backend with the polished Live2D frontend.
+
+## Target Users
+
+**Primary User**: Developers wanting to create an intelligent desktop companion with:
+- Live2D character visualization
+- Real-time conversational AI
+- Natural voice synthesis with lip-sync
+- Persistent conversation memory
+- Screen/image understanding capabilities
+
+**Secondary Users**: 
+- End users who want a responsive, natural-feeling AI assistant
+- Developers building on top of this integration for custom applications
+
+## Success Metrics
+
+- WebSocket connection establishes within 2 seconds
+- First TTS audio chunk plays within 1 second of sentence completion
+- Zero message translation errors in production
+- 100% feature parity with original frontend capabilities
+- Lip-sync accuracy > 90% (volume extraction from WAV)
+- Session persistence success rate > 99%
+
+---
+
+## Capability Tree
+
+### Capability: Message Protocol Adaptation
+Translate between DesktopMate backend protocol and frontend expectations.
+
+#### Feature: WebSocket Message Translation
+- **Description**: Convert backend messages (authorize_success, stream_start, tts_ready_chunk, etc.) to frontend format (control, text, audio, etc.)
+- **Inputs**: Raw backend WebSocket message (JSON), frontend context
+- **Outputs**: Translated message object matching frontend MessageEvent interface
+- **Behavior**: Pattern match on message type, extract relevant fields, reconstruct in frontend format, preserve metadata for TTS processing
+
+#### Feature: Authorization Flow Handling
+- **Description**: Implement DesktopMate's authorize/authorize_success handshake
+- **Inputs**: WebSocket connection, auth token
+- **Outputs**: Authorization success/failure event
+- **Behavior**: Send authorize message on connection, wait for authorize_success, handle errors, store connection_id
+
+#### Feature: Heartbeat Management
+- **Description**: Respond to ping messages with pong to maintain connection
+- **Inputs**: Ping message from backend
+- **Outputs**: Pong response
+- **Behavior**: Detect ping type, immediately send pong response, log for debugging
+
+#### Feature: User Message Formatting
+- **Description**: Convert frontend user messages to backend chat_message format
+- **Inputs**: User text input, session context (user_id, agent_id, session_id)
+- **Outputs**: Formatted chat_message with messages array
+- **Behavior**: Wrap text in human message object, include session metadata, handle optional session creation
+
+### Capability: Real-time TTS Integration
+Enable sentence-by-sentence audio synthesis during streaming.
+
+#### Feature: TTS Chunk Detection
+- **Description**: Identify messages that require TTS synthesis
+- **Inputs**: Translated message object
+- **Outputs**: Boolean flag indicating TTS need, sentence metadata
+- **Behavior**: Check for _needs_tts flag, extract sentence text and emotion, queue for synthesis
+
+#### Feature: Audio Synthesis API Client
+- **Description**: Call backend TTS API to convert text to speech
+- **Inputs**: Text chunk, voice reference_id, output format
+- **Outputs**: Base64-encoded WAV audio data
+- **Behavior**: POST to /v1/tts/synthesize, handle timeouts, retry on failure, validate response format
+
+#### Feature: Volume Extraction for Lip-Sync
+- **Description**: Extract audio volume data from WAV for character animation
+- **Inputs**: Base64 WAV audio data
+- **Outputs**: Array of volume values (0-1) for each frame
+- **Behavior**: Decode base64, parse WAV using Web Audio API, calculate RMS volume per frame (1024 samples), normalize to 0-1 range
+
+#### Feature: Audio Queue Management
+- **Description**: Queue TTS audio chunks for sequential playback
+- **Inputs**: Audio data, volume array, display text metadata
+- **Outputs**: Audio task added to queue
+- **Behavior**: Create audio task object, add to audioTaskQueue, ensure sequential playback, handle queue clearing on interruption
+
+### Capability: Configuration Management
+Centralize all integration settings and feature flags.
+
+#### Feature: Backend URL Configuration
+- **Description**: Store and update WebSocket and HTTP URLs
+- **Inputs**: User-provided URLs or defaults
+- **Outputs**: Valid URLs for connections
+- **Behavior**: Load from localStorage, validate format, provide defaults (ws://127.0.0.1:5500/v1/chat/stream), allow runtime updates
+
+#### Feature: Voice Selection
+- **Description**: Manage available TTS voices and user selection
+- **Inputs**: Voice ID or name
+- **Outputs**: Reference ID for TTS API
+- **Behavior**: Maintain voice registry, validate selection, default to ナツメ, persist user choice
+
+#### Feature: Feature Flags
+- **Description**: Enable/disable integration features
+- **Inputs**: Feature name
+- **Outputs**: Boolean enabled state
+- **Behavior**: Check flag in config, allow runtime toggling, features: TTS, VLM, session persistence, auto-mic, emotion, debug
+
+#### Feature: Performance Tuning
+- **Description**: Configure timeouts, concurrency, buffer sizes
+- **Inputs**: Performance parameter name
+- **Outputs**: Configured value
+- **Behavior**: Provide defaults (TTS timeout 30s, max concurrent 3, buffer 4096), allow overrides
+
+### Capability: Session Memory Integration
+Connect frontend to backend STM/LTM services.
+
+#### Feature: Chat History Retrieval
+- **Description**: Load conversation history from backend
+- **Inputs**: user_id, agent_id, session_id, message limit
+- **Outputs**: Array of message objects with timestamps
+- **Behavior**: GET /v1/stm/chat-history, parse response, format for display, handle empty sessions
+
+#### Feature: Chat History Persistence
+- **Description**: Save conversation messages to backend
+- **Inputs**: Messages array, session metadata
+- **Outputs**: Session ID and confirmation
+- **Behavior**: POST /v1/stm/chat-history, auto-create session if needed, handle errors gracefully
+
+#### Feature: Session Listing
+- **Description**: Retrieve all user sessions
+- **Inputs**: user_id, agent_id
+- **Outputs**: Array of session objects with metadata
+- **Behavior**: GET /v1/stm/sessions, include timestamps and latest message, sort by recent
+
+#### Feature: Session Management
+- **Description**: Create, update, delete sessions
+- **Inputs**: Session operations and parameters
+- **Outputs**: Operation success/failure
+- **Behavior**: Support PATCH for metadata updates, DELETE for removal, track current session
+
+### Capability: Vision Integration
+Enable image analysis through VLM API.
+
+#### Feature: Screenshot Capture Integration
+- **Description**: Send captured screenshots to VLM for analysis
+- **Inputs**: Base64 image data, user question
+- **Outputs**: Text description of image content
+- **Behavior**: POST to /v1/vlm/analyze, format image with data URI, handle large images, timeout after 60s
+
+#### Feature: VLM Context Integration
+- **Description**: Include VLM analysis in chat context
+- **Inputs**: Image analysis result, user message
+- **Outputs**: Enhanced chat message with visual context
+- **Behavior**: Append analysis to message, mark as containing visual data, send to chat API
+
+### Capability: Error Handling & Recovery
+Ensure robust operation with graceful degradation.
+
+#### Feature: Connection Error Recovery
+- **Description**: Handle WebSocket disconnections and reconnection
+- **Inputs**: Disconnect event, error details
+- **Outputs**: Reconnection attempt or failure notification
+- **Behavior**: Exponential backoff (3s, 6s, 12s...), max 5 attempts, notify user, preserve message queue
+
+#### Feature: API Error Handling
+- **Description**: Handle TTS/VLM/STM API failures
+- **Inputs**: HTTP error response, request context
+- **Outputs**: User-friendly error message, retry decision
+- **Behavior**: Parse error codes, implement retry logic (3 retries for TTS, 2 for VLM), show toaster notifications, log for debugging
+
+#### Feature: Message Validation
+- **Description**: Validate message formats before processing
+- **Inputs**: Raw message object
+- **Outputs**: Validation result and sanitized message
+- **Behavior**: Check required fields, validate types, sanitize content, reject malformed messages
+
+---
+
+## Repository Structure
+
+```
+Open-LLM-VTuber-Web/
+├── src/renderer/src/
+│   ├── services/
+│   │   ├── desktopmate-adapter.tsx      # Message translation
+│   │   ├── websocket-service.tsx        # Modified for DesktopMate
+│   │   └── websocket-handler.tsx        # Modified for TTS integration
+│   ├── config/
+│   │   └── desktopmate-config.ts        # Configuration management
+│   ├── context/
+│   │   └── websocket-context.tsx        # Modified for new URLs
+│   ├── hooks/
+│   │   ├── use-tts-synthesis.ts         # TTS hook (new)
+│   │   └── use-session-manager.ts       # Session management (new)
+│   └── utils/
+│       └── audio-processor.ts           # Volume extraction (new)
+└── integration/
+    ├── docs/
+    │   ├── INTEGRATION_GUIDE.md
+    │   ├── QUICK_INTEGRATION.md
+    │   └── ARCHITECTURE.md
+    └── tests/
+        ├── adapter.test.ts
+        └── integration.test.ts
+```
+
+## Module Definitions
+
+### Module: DesktopMate Adapter Service
+- **Maps to capability**: Message Protocol Adaptation
+- **Responsibility**: Bidirectional message translation between backend and frontend
+- **File structure**:
+  ```
+  services/
+  ├── desktopmate-adapter.tsx    # Main adapter class
+  └── message-types.ts           # Type definitions
+  ```
+- **Exports**:
+  - `DesktopMateAdapter` class with methods:
+    - `adaptMessage(backendMsg)` - Translate backend to frontend
+    - `createAuthorizeMessage(token)` - Create auth message
+    - `createChatMessage(text, context)` - Create chat message
+    - `createPongMessage()` - Create heartbeat response
+    - `synthesizeSpeech(text, voice)` - Call TTS API
+    - `analyzeImage(image, question)` - Call VLM API
+    - `extractVolumes(audioData)` - Extract lip-sync data
+
+### Module: Configuration Service
+- **Maps to capability**: Configuration Management
+- **Responsibility**: Central configuration with defaults and runtime updates
+- **File structure**:
+  ```
+  config/
+  ├── desktopmate-config.ts      # Config constants and helpers
+  └── config-types.ts            # Type definitions
+  ```
+- **Exports**:
+  - `DESKTOPMATE_CONFIG` - Configuration object
+  - `getConfig(path, default)` - Get config value
+  - `isFeatureEnabled(feature)` - Check feature flag
+  - `getBackendUrl(type)` - Get WS or HTTP URL
+  - `getEndpointUrl(endpoint)` - Get full API URL
+  - `debugLog()` / `errorLog()` - Logging utilities
+
+### Module: TTS Integration
+- **Maps to capability**: Real-time TTS Integration
+- **Responsibility**: Handle TTS synthesis and audio processing
+- **File structure**:
+  ```
+  hooks/
+  ├── use-tts-synthesis.ts       # TTS synthesis hook
+  utils/
+  └── audio-processor.ts         # Volume extraction utility
+  ```
+- **Exports**:
+  - `useTTSSynthesis()` - Hook for TTS operations
+  - `extractVolumesFromWAV(base64)` - Volume extraction
+  - `AudioProcessor` class for advanced processing
+
+### Module: Session Manager
+- **Maps to capability**: Session Memory Integration
+- **Responsibility**: Interact with STM API for conversation persistence
+- **File structure**:
+  ```
+  hooks/
+  └── use-session-manager.ts     # Session CRUD operations
+  ```
+- **Exports**:
+  - `useSessionManager()` - Hook providing:
+    - `loadHistory(sessionId)`
+    - `saveMessages(messages)`
+    - `listSessions()`
+    - `createSession()`
+    - `deleteSession(sessionId)`
+    - `currentSessionId` state
+
+### Module: WebSocket Integration
+- **Maps to capability**: Message Protocol Adaptation
+- **Responsibility**: Modified WebSocket service for DesktopMate protocol
+- **File structure**:
+  ```
+  services/
+  ├── websocket-service.tsx      # Modified WebSocket client
+  └── websocket-handler.tsx      # Modified event handler
+  context/
+  └── websocket-context.tsx      # Modified context provider
+  ```
+- **Exports**:
+  - Modified `WebSocketService` class
+  - Modified `WebSocketHandler` component
+  - Modified `WebSocketContext` with new URLs
+
+---
+
+## Dependency Chain
+
+### Foundation Layer (Phase 0)
+No dependencies - built first.
+
+- **Configuration Service**: Provides all settings, URLs, feature flags, performance parameters
+- **Type Definitions**: Message types, event types, API response types for TypeScript safety
+- **Logging Utilities**: Debug and error logging for all modules
+
+### Core Integration Layer (Phase 1)
+Depends on Foundation.
+
+- **DesktopMate Adapter**: Depends on [Configuration Service, Type Definitions, Logging Utilities]
+  - Needs config for URLs and timeouts
+  - Uses types for message translation
+  - Uses logging for debugging
+  
+- **Audio Processor**: Depends on [Configuration Service, Logging Utilities]
+  - Needs config for frame size and scale factor
+  - Uses logging for processing errors
+
+### Service Layer (Phase 2)
+Depends on Core Integration.
+
+- **TTS Integration**: Depends on [DesktopMate Adapter, Audio Processor, Configuration Service]
+  - Uses adapter for API calls
+  - Uses processor for volume extraction
+  - Uses config for voice selection
+
+- **Session Manager**: Depends on [DesktopMate Adapter, Configuration Service]
+  - Uses adapter for STM API calls
+  - Uses config for user/agent IDs
+
+### Presentation Layer (Phase 3)
+Depends on Services.
+
+- **WebSocket Service (Modified)**: Depends on [DesktopMate Adapter, Configuration Service, Logging Utilities]
+  - Uses adapter for message translation
+  - Uses config for connection URLs
+  - Uses logging for connection events
+
+- **WebSocket Handler (Modified)**: Depends on [WebSocket Service, TTS Integration, Session Manager]
+  - Uses service for message receiving
+  - Uses TTS for audio synthesis
+  - Uses session manager for history
+
+- **WebSocket Context (Modified)**: Depends on [WebSocket Service, Configuration Service]
+  - Provides service instance
+  - Uses config for default URLs
+
+### UI Layer (Phase 4)
+Depends on Presentation.
+
+- **Integration UI Components**: Depends on [WebSocket Context, TTS Integration, Session Manager]
+  - Settings panel for configuration
+  - Session browser for history
+  - Voice selector for TTS
+
+---
+
+## Development Phases
+
+### Phase 0: Foundation Setup
+**Goal**: Establish configuration system and type safety
+
+**Entry Criteria**: Clean repository, existing frontend codebase accessible
+
+**Tasks**:
+- [ ] Create configuration service (depends on: none)
+  - Acceptance criteria: All config values accessible via getConfig(), feature flags working
+  - Test strategy: Unit tests for config access, defaults, validation
+
+- [ ] Define TypeScript types for all messages (depends on: none)
+  - Acceptance criteria: Full type coverage for backend/frontend messages, zero TypeScript errors
+  - Test strategy: Type checking passes, example messages compile
+
+- [ ] Implement logging utilities (depends on: none)
+  - Acceptance criteria: Debug mode toggles logging, error logs always show, proper formatting
+  - Test strategy: Console output verification in dev/prod modes
+
+**Exit Criteria**: Config can be imported and used, types provide autocomplete, logging works
+
+**Delivers**: Foundation for all other modules to build upon
+
+---
+
+### Phase 1: Core Adapter Implementation
+**Goal**: Enable message translation between systems
+
+**Entry Criteria**: Phase 0 complete, backend API documentation available
+
+**Tasks**:
+- [ ] Implement DesktopMateAdapter class (depends on: [Configuration Service, Type Definitions])
+  - Acceptance criteria: All message types translate correctly, no data loss
+  - Test strategy: Unit tests for each message type translation, edge cases (null, missing fields)
+
+- [ ] Implement authorization flow (depends on: [DesktopMateAdapter])
+  - Acceptance criteria: Successful auth handshake, connection_id stored, errors handled
+  - Test strategy: Integration test with real backend, auth failure scenarios
+
+- [ ] Implement heartbeat handling (depends on: [DesktopMateAdapter])
+  - Acceptance criteria: Pong sent within 100ms of ping, connection stays alive > 5 minutes
+  - Test strategy: Mock ping messages, verify pong responses, long-running connection test
+
+- [ ] Implement user message formatting (depends on: [DesktopMateAdapter])
+  - Acceptance criteria: Frontend messages convert to backend format, session metadata included
+  - Test strategy: Message format validation, session ID propagation test
+
+**Exit Criteria**: Complete bidirectional message translation working in isolation
+
+**Delivers**: Adapter can translate any message type, auth flow works, heartbeat maintains connection
+
+---
+
+### Phase 2: TTS Pipeline Integration
+**Goal**: Real-time audio synthesis with lip-sync
+
+**Entry Criteria**: Phase 1 complete, backend TTS API accessible
+
+**Tasks**:
+- [ ] Implement TTS API client in adapter (depends on: [DesktopMateAdapter, Configuration Service])
+  - Acceptance criteria: Successful API calls, base64 audio returned, errors handled
+  - Test strategy: API integration tests, timeout handling, retry logic verification
+
+- [ ] Implement audio volume extraction (depends on: [Audio Processor, Configuration Service])
+  - Acceptance criteria: WAV decoded, volumes extracted, normalized to 0-1, matches audio length
+  - Test strategy: Test with sample WAV files, verify RMS calculation, edge cases (silence, clipping)
+
+- [ ] Integrate TTS with message handler (depends on: [TTS API client, Volume extraction])
+  - Acceptance criteria: tts_ready_chunk triggers synthesis, audio queues, plays in order
+  - Test strategy: End-to-end test with backend streaming, verify audio playback timing
+
+- [ ] Implement audio queue management (depends on: [TTS Integration])
+  - Acceptance criteria: Sequential playback, queue clearing on interrupt, no audio overlap
+  - Test strategy: Queue multiple chunks, test interruption, verify cleanup
+
+**Exit Criteria**: User sends message → streaming response → TTS chunks → audio plays with lip-sync
+
+**Delivers**: Working real-time TTS with character lip-sync animation
+
+---
+
+### Phase 3: WebSocket Service Modification
+**Goal**: Connect frontend WebSocket to DesktopMate backend
+
+**Entry Criteria**: Phase 2 complete, adapter fully tested
+
+**Tasks**:
+- [ ] Update WebSocketContext with new URLs (depends on: [Configuration Service])
+  - Acceptance criteria: Default URLs point to localhost:5500, localStorage persistence works
+  - Test strategy: URL loading test, persistence test, validation test
+
+- [ ] Modify WebSocketService.connect() (depends on: [DesktopMateAdapter, WebSocketContext])
+  - Acceptance criteria: Authorization sent on connect, ping/pong handled, adapter integrated
+  - Test strategy: Connection flow test, message routing verification
+
+- [ ] Modify WebSocketService.sendMessage() (depends on: [DesktopMateAdapter])
+  - Acceptance criteria: User messages converted to backend format, sent successfully
+  - Test strategy: Message conversion test, backend receives correct format
+
+- [ ] Modify WebSocketHandler event processing (depends on: [WebSocket Service, TTS Integration])
+  - Acceptance criteria: All backend events handled, TTS triggered correctly, UI updates
+  - Test strategy: Event flow test for each message type, UI state verification
+
+**Exit Criteria**: Full WebSocket connection working end-to-end with backend
+
+**Delivers**: Live conversation with streaming responses and real-time TTS
+
+---
+
+### Phase 4: Session & Memory Integration
+**Goal**: Persistent conversation history
+
+**Entry Criteria**: Phase 3 complete, backend STM API accessible
+
+**Tasks**:
+- [ ] Implement session manager hook (depends on: [DesktopMateAdapter, Configuration Service])
+  - Acceptance criteria: CRUD operations work, sessions list correctly, history loads
+  - Test strategy: API integration tests for each operation, error handling
+
+- [ ] Integrate session auto-creation (depends on: [Session Manager])
+  - Acceptance criteria: New conversations auto-create session, ID stored in context
+  - Test strategy: Test first message creates session, subsequent use same session
+
+- [ ] Implement session UI components (depends on: [Session Manager])
+  - Acceptance criteria: List sessions, load history, delete sessions, create new
+  - Test strategy: UI interaction tests, data display verification
+
+- [ ] Add history persistence on messages (depends on: [Session Manager, WebSocket Handler])
+  - Acceptance criteria: All messages auto-save to backend, retrievable on reload
+  - Test strategy: Send messages, reload app, verify history restored
+
+**Exit Criteria**: Conversations persist across restarts, users can browse history
+
+**Delivers**: Full conversation memory with UI for management
+
+---
+
+### Phase 5: Vision Integration (Optional Enhancement)
+**Goal**: Screen/image analysis capability
+
+**Entry Criteria**: Phase 4 complete, backend VLM API accessible
+
+**Tasks**:
+- [ ] Implement VLM API client (depends on: [DesktopMateAdapter, Configuration Service])
+  - Acceptance criteria: Image analysis works, handles large images, timeout handling
+  - Test strategy: API test with sample images, performance test
+
+- [ ] Integrate screenshot capture (depends on: [VLM API client])
+  - Acceptance criteria: Capture screen, analyze, return description
+  - Test strategy: Screenshot test, analysis verification
+
+- [ ] Add VLM context to chat (depends on: [VLM API client, WebSocket Handler])
+  - Acceptance criteria: User can ask "What's on screen?", analysis included in context
+  - Test strategy: End-to-end test with screenshot + question
+
+**Exit Criteria**: Users can analyze images/screenshots in conversation
+
+**Delivers**: Visual understanding capability
+
+---
+
+### Phase 6: Error Handling & Polish
+**Goal**: Production-ready robustness
+
+**Entry Criteria**: Phase 4 complete (Phase 5 optional)
+
+**Tasks**:
+- [ ] Implement connection recovery (depends on: [WebSocket Service])
+  - Acceptance criteria: Auto-reconnect with backoff, max attempts respected, user notified
+  - Test strategy: Disconnect scenarios, reconnection timing test
+
+- [ ] Add comprehensive error handling (depends on: [All Services])
+  - Acceptance criteria: All API errors handled gracefully, user-friendly messages, retry logic
+  - Test strategy: Error injection tests, timeout simulation, network failure tests
+
+- [ ] Implement message validation (depends on: [DesktopMateAdapter])
+  - Acceptance criteria: Malformed messages rejected, errors logged, no crashes
+  - Test strategy: Fuzzing tests, invalid message tests
+
+- [ ] Add performance monitoring (depends on: [All Modules])
+  - Acceptance criteria: TTS latency tracked, connection health monitored, metrics logged
+  - Test strategy: Performance benchmarks, latency measurements
+
+- [ ] Create settings UI (depends on: [Configuration Service, All Features])
+  - Acceptance criteria: Users can change URLs, voice, features, see connection status
+  - Test strategy: UI tests for all settings, persistence test
+
+**Exit Criteria**: Application handles all error cases gracefully, provides good UX
+
+**Delivers**: Production-ready integration with monitoring and recovery
+
+---
+
+### Phase 7: Testing & Documentation
+**Goal**: Comprehensive testing and user documentation
+
+**Entry Criteria**: Phase 6 complete
+
+**Tasks**:
+- [ ] Write integration tests (depends on: [All Modules])
+  - Acceptance criteria: >80% code coverage, all critical paths tested
+  - Test strategy: E2E tests for user flows, integration tests for APIs
+
+- [ ] Write unit tests (depends on: [All Modules])
+  - Acceptance criteria: >90% coverage for adapters and utilities
+  - Test strategy: Isolated tests for each function/method
+
+- [ ] Create user documentation (depends on: none)
+  - Acceptance criteria: Setup guide, troubleshooting, feature docs
+  - Test strategy: User testing, doc review
+
+- [ ] Create developer documentation (depends on: none)
+  - Acceptance criteria: Architecture docs, API reference, contribution guide
+  - Test strategy: Developer review, clarity check
+
+**Exit Criteria**: Full test coverage, comprehensive documentation
+
+**Delivers**: Maintainable, well-documented integration
+
+---
+
+## Test Strategy
+
+## Test Pyramid
+
+```
+        /\
+       /E2E\       ← 10% (Full conversation flows)
+      /------\
+     /Integration\ ← 30% (API interactions, message flows)
+    /------------\
+   /  Unit Tests  \ ← 60% (Message translation, utils)
+  /----------------\
+```
+
+## Coverage Requirements
+- Line coverage: 80% minimum
+- Branch coverage: 75% minimum
+- Function coverage: 85% minimum
+- Statement coverage: 80% minimum
+
+## Critical Test Scenarios
+
+### DesktopMateAdapter
+**Happy path**:
+- Backend message translates to correct frontend format
+- Expected: All fields mapped, types correct, metadata preserved
+
+**Edge cases**:
+- Missing optional fields, null values, unknown message types
+- Expected: Graceful handling, defaults applied, warnings logged
+
+**Error cases**:
+- Malformed JSON, invalid types, circular references
+- Expected: Validation fails, error logged, null returned
+
+**Integration points**:
+- WebSocket message flow, TTS API calls, VLM API calls
+- Expected: End-to-end data flow correct, no data loss
+
+### TTS Integration
+**Happy path**:
+- Text chunk → API call → base64 audio → volumes extracted → audio plays
+- Expected: Complete pipeline < 1s, lip-sync accurate
+
+**Edge cases**:
+- Empty text, very long text, special characters, emojis
+- Expected: Handled correctly, no API errors
+
+**Error cases**:
+- API timeout, network error, invalid audio format
+- Expected: Retry logic triggered, user notified, graceful degradation
+
+**Integration points**:
+- tts_ready_chunk event → TTS call → audio queue → Live2D playback
+- Expected: Seamless real-time synthesis during streaming
+
+### Session Manager
+**Happy path**:
+- Load history → display messages → send new message → auto-save
+- Expected: All operations succeed, data persists
+
+**Edge cases**:
+- Empty session, very large history, special characters in messages
+- Expected: Handled correctly, pagination if needed
+
+**Error cases**:
+- API unavailable, network timeout, MongoDB connection lost
+- Expected: Local fallback, error notification, retry option
+
+**Integration points**:
+- WebSocket handler → session manager → STM API → MongoDB
+- Expected: Messages persist reliably, retrievable on reload
+
+### WebSocket Connection
+**Happy path**:
+- Connect → authorize → send message → receive response → maintain connection
+- Expected: All steps complete successfully, connection stable
+
+**Edge cases**:
+- Rapid connect/disconnect, concurrent messages, long idle period
+- Expected: Connection recovers, messages queued, ping/pong maintains link
+
+**Error cases**:
+- Backend unavailable, auth failure, network interruption
+- Expected: Reconnect logic triggers, user notified, message queue preserved
+
+**Integration points**:
+- Full conversation flow: user input → backend → streaming → TTS → display
+- Expected: Natural conversation experience, < 2s response start
+
+## Test Generation Guidelines
+
+For Surgical Test Generator:
+- Focus on message translation accuracy - use example messages from backend docs
+- Test WebSocket state machine thoroughly - all state transitions
+- TTS pipeline needs timing tests - use mock audio for speed
+- Session persistence needs cleanup - create/delete test data
+- Integration tests should use backend test mode if available
+- Mock external APIs (OpenAI) in unit tests, use real in integration tests
+- Performance tests for TTS latency, message throughput
+- UI tests should verify Live2D integration (lip-sync timing)
+
+---
+
+## Technical Architecture
+
+## System Components
+
+### Frontend (Open-LLM-VTuber-Web)
+- **Electron Framework**: Desktop application wrapper
+- **React + TypeScript**: UI framework with type safety
+- **Live2D SDK**: Character rendering and animation
+- **Web Audio API**: Audio playback and analysis
+- **RxJS**: Reactive WebSocket message handling
+- **Zustand**: State management
+- **Chakra UI**: Component library
+
+### Backend (DesktopMatePlus)
+- **FastAPI**: Modern Python web framework
+- **WebSocket**: Real-time bidirectional communication
+- **Kokoro TTS**: Neural voice synthesis
+- **VLM Service**: Image analysis (Vision-Language Model)
+- **MongoDB**: Session and message persistence
+- **LangChain**: LLM orchestration
+- **OpenAI API**: GPT models for conversation
+
+### Integration Layer (New)
+- **DesktopMateAdapter**: Protocol translation service
+- **Configuration Service**: Centralized settings
+- **Audio Processor**: WAV analysis for lip-sync
+- **Session Manager**: STM API client
+
+## Data Models
+
+### Message Format (Backend → Frontend)
+```typescript
+// Backend format
+{
+  type: 'tts_ready_chunk',
+  chunk: 'Hello!',
+  sentence_index: 0,
+  emotion?: 'happy'
+}
+
+// Frontend format (after adaptation)
+{
+  type: 'text',
+  content: 'Hello!',
+  timestamp: '2024-11-06T...',
+  display_text: {
+    text: 'Hello!',
+    name: 'AI',
+    avatar: ''
+  },
+  _needs_tts: true,
+  _sentence_index: 0,
+  _emotion: 'happy'
+}
+```
+
+### Session Data Model
+```typescript
+interface Session {
+  session_id: string;
+  user_id: string;
+  agent_id: string;
+  created_at: string;
+  updated_at: string;
+  metadata: Record<string, any>;
+  message_count: number;
+}
+
+interface Message {
+  type: 'human' | 'ai';
+  content: string;
+  timestamp: string;
+  metadata?: {
+    emotion?: string;
+    tool_calls?: any[];
+  };
+}
+```
+
+### Audio Data Model
+```typescript
+interface AudioTask {
+  type: 'audio';
+  audio: string;  // base64 WAV
+  volumes: number[];  // 0-1 per frame
+  slice_length: number;
+  display_text: {
+    text: string;
+    name: string;
+    avatar: string;
+  };
+}
+```
+
+## Technology Stack
+
+**Frontend**:
+- TypeScript 5.x - Type safety
+- React 18.x - UI framework
+- Electron - Desktop wrapper
+- Live2D Cubism SDK - Character animation
+
+**Backend**:
+- Python 3.11+ - Modern Python features
+- FastAPI - Async web framework
+- MongoDB - Document database
+- Kokoro TTS - Neural TTS
+
+**Integration**:
+- WebSocket (native) - Real-time communication
+- Fetch API - HTTP requests
+- Web Audio API - Audio processing
+
+**Decision: WebSocket over HTTP Streaming**
+- **Rationale**: WebSocket provides bidirectional communication needed for ping/pong, allows server-initiated messages, lower latency than polling
+- **Trade-offs**: More complex connection management, requires persistent connection
+- **Alternatives considered**: Server-Sent Events (SSE) - lacks bidirectional support; HTTP polling - too much latency
+
+**Decision: Message Adapter Pattern**
+- **Rationale**: Decouples frontend from backend protocol changes, allows testing in isolation, enables protocol versioning
+- **Trade-offs**: Extra translation layer adds minimal latency (~1ms), additional code complexity
+- **Alternatives considered**: Direct integration - too brittle; GraphQL - overkill for this use case
+
+**Decision: Real-time TTS Chunks**
+- **Rationale**: Better UX - user hears response while it's still being generated, natural conversation flow
+- **Trade-offs**: More complex coordination between streaming and TTS, potential audio queue issues
+- **Alternatives considered**: Wait for full response - poor UX, higher perceived latency
+
+---
+
+## Risks
+
+## Technical Risks
+
+**Risk**: WebSocket message ordering issues during high-frequency streaming
+- **Impact**: High - Could cause audio chunks to play out of order
+- **Likelihood**: Medium - Fast LLM responses could outpace audio playback
+- **Mitigation**: Implement message sequence numbers, use audioTaskQueue for ordering
+- **Fallback**: Disable real-time TTS, wait for stream_end before synthesis
+
+**Risk**: Volume extraction accuracy varies across browsers
+- **Impact**: Medium - Affects lip-sync quality
+- **Likelihood**: Medium - Web Audio API has browser inconsistencies
+- **Mitigation**: Test across Chrome, Firefox, Edge; provide fallback volume algorithm
+- **Fallback**: Use fixed volume pattern based on text length
+
+**Risk**: TTS API latency spikes during high load
+- **Impact**: Medium - Degrades real-time experience
+- **Likelihood**: Low - Backend should be properly scaled
+- **Mitigation**: Implement caching for repeated phrases, monitor latency, timeout handling
+- **Fallback**: Show "synthesizing..." indicator, queue audio for later playback
+
+**Risk**: TypeScript type mismatches between systems
+- **Impact**: Low - Caught at compile time
+- **Likelihood**: Medium - APIs may evolve
+- **Mitigation**: Comprehensive type definitions, runtime validation, version checking
+- **Fallback**: Use 'any' types temporarily, add TODO for proper typing
+
+## Dependency Risks
+
+**Risk**: Backend API changes break adapter
+- **Impact**: High - Integration stops working
+- **Likelihood**: Medium - Backend is actively developed
+- **Mitigation**: Version API, implement compatibility layer, automated integration tests
+- **Fallback**: Pin to known-good backend version, update adapter in lockstep
+
+**Risk**: Live2D SDK updates change audio integration points
+- **Impact**: Medium - Lip-sync breaks
+- **Likelihood**: Low - SDK is stable
+- **Mitigation**: Pin SDK version, test before upgrading, maintain compatibility layer
+- **Fallback**: Revert to previous SDK version
+
+**Risk**: MongoDB connection issues in production
+- **Impact**: High - Session persistence fails
+- **Likelihood**: Low - MongoDB is reliable
+- **Mitigation**: Connection pooling, retry logic, health checks
+- **Fallback**: Local storage fallback for session data
+
+## Scope Risks
+
+**Risk**: Feature creep - adding too many capabilities
+- **Impact**: High - Delays core integration
+- **Likelihood**: Medium - Many possible enhancements
+- **Mitigation**: Strict phase gating, MVP focus (Phases 0-4), defer Phase 5+ enhancements
+- **Fallback**: Ship core integration, enhance in v2
+
+**Risk**: Underestimating Live2D integration complexity
+- **Impact**: Medium - Lip-sync may need more work
+- **Likelihood**: Low - Well-documented SDK
+- **Mitigation**: Early prototype of audio→volume→animation pipeline, spike testing
+- **Fallback**: Use simpler mouth animation (open/close only)
+
+**Risk**: Cross-platform compatibility issues (Windows/Mac/Linux)
+- **Impact**: Medium - Some platforms may not work
+- **Likelihood**: Medium - Electron can be finicky
+- **Mitigation**: Test on all platforms early, use platform-agnostic APIs
+- **Fallback**: Document known limitations, focus on Windows/Mac initially
+
+---
+
+## Appendix
+
+## References
+- DesktopMatePlus Backend API Documentation: `backend/docs/api/`
+- Open-LLM-VTuber-Web: https://github.com/t41372/Open-LLM-VTuber
+- Live2D Cubism SDK: https://www.live2d.com/en/sdk/
+- FastAPI WebSocket: https://fastapi.tiangolo.com/advanced/websockets/
+- Web Audio API: https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
+
+## Glossary
+- **STM**: Short-Term Memory - Recent conversation history
+- **LTM**: Long-Term Memory - Persistent knowledge/facts
+- **TTS**: Text-to-Speech synthesis
+- **VLM**: Vision-Language Model for image understanding
+- **Live2D**: 2D character animation SDK
+- **Kokoro**: Neural TTS model used by backend
+- **RPG**: Repository Planning Graph methodology
+- **Adapter Pattern**: Translation layer between incompatible interfaces
+
+## Open Questions
+1. Should we support multiple simultaneous characters (multi-agent)?
+   - Decision: Phase 7+ enhancement, not MVP
+2. How to handle very long streaming responses (>1000 tokens)?
+   - Decision: Test with real examples, may need chunking
+3. Should session history have a UI limit (e.g., last 100 messages)?
+   - Decision: Implement pagination in Phase 4
+4. What's the fallback if backend is down at startup?
+   - Decision: Show connection status, allow retry, work offline with limited features
+5. Should we support custom TTS models beyond Kokoro?
+   - Decision: Phase 7+ enhancement via configuration
