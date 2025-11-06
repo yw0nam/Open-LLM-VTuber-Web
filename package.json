@@ -12,6 +12,9 @@
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
@@ -58,15 +61,18 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "@vitejs/plugin-react-swc": "^3.7.2",
+    "@vitest/ui": "^4.0.7",
     "electron": "^31.0.2",
     "electron-builder": "^24.13.3",
     "electron-vite": "^2.3.0",
     "eslint-plugin-react": "^7.34.3",
+    "happy-dom": "^20.0.10",
     "prettier": "^3.3.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "~5.5.2",
     "vite": "^5.3.1",
-    "vite-plugin-static-copy": "^2.3.1"
+    "vite-plugin-static-copy": "^2.3.1",
+    "vitest": "^4.0.7"
   }
 }
