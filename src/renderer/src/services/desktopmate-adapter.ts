@@ -33,6 +33,7 @@ import {
   UpdateSessionMetadataResponse,
 } from "./config-types";
 import { extractVolumesFromWAV } from "./audio-processor";
+import { MessageValidator } from "./message-validator";
 
 /**
  * Result of message adaptation from backend to frontend format
@@ -70,16 +71,44 @@ export class DesktopMateAdapter {
    * @returns Adapted message in frontend format
    */
   adaptMessage(backendMsg: ServerMessage): AdaptedMessage {
-    debugLog("desktopmate-adapter", "Adapting backend message", {
-      type: backendMsg.type,
-    });
-
     try {
+      // Validate and sanitize the message first
+      const validationResult = MessageValidator.validateServerMessage(backendMsg);
+      
+      if (!validationResult.valid) {
+        errorLog(
+          "desktopmate-adapter",
+          "Message validation failed",
+          new Error(`Validation errors: ${validationResult.errors.join(', ')}`),
+        );
+        
+        // Return an error adapted message for invalid input
+        return {
+          type: "error",
+          data: {
+            message: "Invalid message format received from server",
+            code: "VALIDATION_ERROR",
+            details: validationResult.errors,
+          },
+          metadata: {
+            timestamp: Date.now(),
+            originalMessage: backendMsg,
+          },
+        };
+      }
+
+      // Use the sanitized message for further processing
+      const sanitizedMsg = validationResult.sanitized || backendMsg;
+      
+      debugLog("desktopmate-adapter", "Adapting backend message", {
+        type: sanitizedMsg.type,
+      });
+      
       // Extract common fields
-      const timestamp = backendMsg.timestamp;
+      const timestamp = sanitizedMsg.timestamp;
 
       // Pattern matching on message type
-      switch (backendMsg.type) {
+      switch (sanitizedMsg.type) {
         case MessageType.PING:
           return {
             type: "ping",
@@ -91,7 +120,7 @@ export class DesktopMateAdapter {
           return {
             type: "authorize_success",
             data: {
-              connection_id: (backendMsg as any).connection_id,
+              connection_id: (sanitizedMsg as any).connection_id,
             },
             metadata: { timestamp },
           };
@@ -100,7 +129,7 @@ export class DesktopMateAdapter {
           return {
             type: "authorize_error",
             data: {
-              error: (backendMsg as any).error,
+              error: (sanitizedMsg as any).error,
             },
             metadata: { timestamp },
           };
@@ -109,8 +138,8 @@ export class DesktopMateAdapter {
           return {
             type: "chat_response",
             data: {
-              content: (backendMsg as any).content,
-              metadata: (backendMsg as any).metadata,
+              content: (sanitizedMsg as any).content,
+              metadata: (sanitizedMsg as any).metadata,
             },
             metadata: { timestamp },
           };
@@ -119,8 +148,8 @@ export class DesktopMateAdapter {
           return {
             type: "stream_token",
             data: {
-              token: (backendMsg as any).token,
-              turn_id: (backendMsg as any).turn_id,
+              token: (sanitizedMsg as any).token,
+              turn_id: (sanitizedMsg as any).turn_id,
             },
             metadata: { timestamp },
           };
@@ -129,9 +158,9 @@ export class DesktopMateAdapter {
           return {
             type: "tts_ready_chunk",
             data: {
-              audio_chunk: (backendMsg as any).audio_chunk,
-              chunk_index: (backendMsg as any).chunk_index,
-              total_chunks: (backendMsg as any).total_chunks,
+              audio_chunk: (sanitizedMsg as any).audio_chunk,
+              chunk_index: (sanitizedMsg as any).chunk_index,
+              total_chunks: (sanitizedMsg as any).total_chunks,
             },
             metadata: { timestamp },
           };
@@ -140,8 +169,8 @@ export class DesktopMateAdapter {
           return {
             type: "error",
             data: {
-              message: (backendMsg as any).message,
-              code: (backendMsg as any).code,
+              message: (sanitizedMsg as any).message,
+              code: (sanitizedMsg as any).code,
             },
             metadata: { timestamp },
           };
@@ -151,13 +180,13 @@ export class DesktopMateAdapter {
           errorLog(
             "desktopmate-adapter",
             "Unknown message type received",
-            new Error(`Unknown type: ${(backendMsg as WebSocketMessage).type}`),
+            new Error(`Unknown type: ${(sanitizedMsg as WebSocketMessage).type}`),
           );
           return {
             type: "unknown",
-            data: backendMsg,
+            data: sanitizedMsg,
             metadata: {
-              originalType: (backendMsg as WebSocketMessage).type,
+              originalType: (sanitizedMsg as WebSocketMessage).type,
               timestamp,
             },
           };
