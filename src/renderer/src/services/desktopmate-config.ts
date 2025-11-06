@@ -99,6 +99,7 @@ class DesktopMateConfig {
   ): AppConfiguration {
     return {
       urls: { ...DEFAULT_CONFIG.urls, ...(stored.urls || {}) },
+      auth: { ...DEFAULT_CONFIG.auth, ...(stored.auth || {}) },
       features: { ...DEFAULT_CONFIG.features, ...(stored.features || {}) },
       performance: {
         ...DEFAULT_CONFIG.performance,

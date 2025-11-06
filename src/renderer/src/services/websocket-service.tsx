@@ -6,6 +6,8 @@ import { ModelInfo } from '@/context/live2d-config-context';
 import { HistoryInfo } from '@/context/websocket-context';
 import { ConfigFile } from '@/context/character-config-context';
 import { toaster } from '@/components/ui/toaster';
+import { desktopMateAdapter } from './desktopmate-adapter';
+import { configManager } from './desktopmate-config';
 
 export interface DisplayText {
   text: string;
@@ -116,6 +118,10 @@ class WebSocketService {
 
   private currentState: 'CONNECTING' | 'OPEN' | 'CLOSING' | 'CLOSED' = 'CLOSED';
 
+  private isAuthorized = false;
+
+  private authorizationPending = false;
+
   static getInstance() {
     if (!WebSocketService.instance) {
       WebSocketService.instance = new WebSocketService();
@@ -124,6 +130,29 @@ class WebSocketService {
   }
 
   private initializeConnection() {
+    // Send authorization message first if token is available
+    const authConfig = configManager.getSection('auth');
+    if (authConfig.token) {
+      this.sendAuthorizationMessage(authConfig.token);
+    } else {
+      // If no token, proceed with regular initialization
+      this.proceedWithRegularInitialization();
+    }
+  }
+
+  private sendAuthorizationMessage(token: string) {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      console.warn('Cannot send authorization: WebSocket not open');
+      return;
+    }
+
+    this.authorizationPending = true;
+    const authMessage = desktopMateAdapter.createAuthorizeMessage(token);
+    console.log('Sending authorization message');
+    this.ws.send(JSON.stringify(authMessage));
+  }
+
+  private proceedWithRegularInitialization() {
     this.sendMessage({
       type: 'fetch-backgrounds',
     });
@@ -136,6 +165,39 @@ class WebSocketService {
     this.sendMessage({
       type: 'create-new-history',
     });
+  }
+
+  private handleAuthorizationSuccess(connectionId: string) {
+    console.log('Authorization successful, connection ID:', connectionId);
+    this.isAuthorized = true;
+    this.authorizationPending = false;
+
+    // Store connection ID in config
+    configManager.updateValue('auth', 'connectionId', connectionId);
+
+    // Proceed with regular initialization after successful authorization
+    this.proceedWithRegularInitialization();
+
+    toaster.create({
+      title: getTranslation()('success.authorized'),
+      type: 'success',
+      duration: 2000,
+    });
+  }
+
+  private handleAuthorizationError(error: string) {
+    console.error('Authorization failed:', error);
+    this.isAuthorized = false;
+    this.authorizationPending = false;
+
+    toaster.create({
+      title: `${getTranslation()('error.authorizationFailed')}: ${error}`,
+      type: 'error',
+      duration: 5000,
+    });
+
+    // Close connection on authorization failure
+    this.disconnect();
   }
 
   connect(url: string) {
@@ -158,6 +220,19 @@ class WebSocketService {
       this.ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
+          
+          // Handle authorization messages separately
+          if (message.type === 'authorize_success') {
+            this.handleAuthorizationSuccess(message.connection_id);
+            return;
+          }
+          
+          if (message.type === 'authorize_error') {
+            this.handleAuthorizationError(message.error || 'Unknown authorization error');
+            return;
+          }
+
+          // Forward other messages to subscribers
           this.messageSubject.next(message);
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);
@@ -209,10 +284,24 @@ class WebSocketService {
   disconnect() {
     this.ws?.close();
     this.ws = null;
+    this.isAuthorized = false;
+    this.authorizationPending = false;
   }
 
   getCurrentState() {
     return this.currentState;
+  }
+
+  getAuthorizationStatus() {
+    return {
+      isAuthorized: this.isAuthorized,
+      isPending: this.authorizationPending,
+      connectionId: configManager.getSection('auth').connectionId,
+    };
+  }
+
+  setAuthToken(token: string) {
+    configManager.updateValue('auth', 'token', token);
   }
 }
 
