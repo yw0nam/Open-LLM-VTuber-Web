@@ -129,3 +129,84 @@ export const DEFAULT_CONFIG: AppConfiguration = {
  */
 export const CONFIG_STORAGE_KEY = "desktopmate_config";
 export const CONFIG_VERSION = "1.0.0";
+
+// ============================================================================
+// API REQUEST & RESPONSE TYPES
+// ============================================================================
+
+/**
+ * TTS Synthesis Request
+ */
+export interface TTSRequest {
+  text: string;
+  reference_id?: string;
+  output_format?: "bytes" | "base64";
+}
+
+/**
+ * TTS Synthesis Response
+ */
+export interface TTSResponse {
+  audio_data: string;
+  format: string;
+}
+
+/**
+ * Health Check Response
+ */
+export interface HealthCheckResponse {
+  status: "healthy" | "unhealthy";
+  services: {
+    [serviceName: string]: {
+      status: "healthy" | "unhealthy";
+      message?: string;
+    };
+  };
+}
+
+/**
+ * VLM (Vision-Language Model) Request
+ */
+export interface VLMRequest {
+  image: string;
+  prompt?: string;
+}
+
+/**
+ * VLM Response
+ */
+export interface VLMResponse {
+  description: string;
+}
+
+/**
+ * API Error Response
+ */
+export interface APIErrorResponse {
+  detail: string;
+  code?: number;
+  errors?: string[];
+}
+
+/**
+ * Agent Configuration
+ */
+export interface AgentConfig {
+  agent_id: string;
+  user_id: string;
+  persona?: string;
+  memory_limit?: number;
+  streaming?: boolean;
+}
+
+/**
+ * Session Information
+ */
+export interface SessionInfo {
+  session_id: string;
+  conversation_id: string;
+  agent_id: string;
+  user_id: string;
+  created_at: string;
+  last_active: string;
+}
