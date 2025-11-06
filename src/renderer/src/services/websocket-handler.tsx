@@ -21,6 +21,7 @@ import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 import { useGroup } from '@/context/group-context';
 import { useInterrupt } from '@/hooks/utils/use-interrupt';
 import { useBrowser } from '@/context/browser-context';
+import { extractVolumesFromWAV } from '@/services/audio-processor';
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
@@ -284,6 +285,38 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           });
         } else {
           console.warn('Received incomplete tool_call_status message:', message);
+        }
+        break;
+      case 'tts_ready_chunk':
+        console.log('Received tts_ready_chunk:', { chunk: message.chunk?.substring(0, 50), emotion: message.emotion });
+        
+        // Handle TTS chunk if not interrupted
+        if (aiState === 'interrupted' || aiState === 'listening') {
+          console.log('TTS chunk playback intercepted due to state:', aiState);
+        } else if (message.chunk) {
+          try {
+            // Extract volume information from the audio chunk
+            const volumes = extractVolumesFromWAV(message.chunk);
+            
+            // Queue the audio chunk for playback
+            addAudioTask({
+              audioBase64: message.chunk,
+              volumes,
+              sliceLength: volumes.length, // Use the number of volume frames
+              displayText: null, // TTS chunks typically don't have display text
+              expressions: message.emotion ? [message.emotion] : null,
+              forwarded: false,
+            });
+            
+            console.log('TTS chunk queued for playback:', {
+              volumeFrames: volumes.length,
+              emotion: message.emotion,
+            });
+          } catch (error) {
+            console.error('Failed to process TTS chunk:', error);
+          }
+        } else {
+          console.warn('Received tts_ready_chunk without chunk data');
         }
         break;
       default:

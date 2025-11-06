@@ -80,6 +80,9 @@ export interface MessageEvent {
   forwarded?: boolean;
   display_text?: DisplayText;
   live2d_model?: string;
+  chunk?: string; // TTS audio chunk (base64)
+  emotion?: string; // Emotion/expression for TTS chunk
+  turn_id?: string; // Turn ID for TTS chunk
   browser_view?: {
     debuggerFullscreenUrl: string;
     debuggerUrl: string;
