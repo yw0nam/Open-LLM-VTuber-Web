@@ -109,10 +109,7 @@ describe('WebSocket Authorization Flow', () => {
 
       // Verify regular initialization messages were sent
       const messageTypes = mockWs.sentMessages.map(msg => JSON.parse(msg).type);
-      expect(messageTypes).toContain('fetch-backgrounds');
-      expect(messageTypes).toContain('fetch-configs');
-      expect(messageTypes).toContain('fetch-history-list');
-      expect(messageTypes).toContain('create-new-history');
+      expect(messageTypes.length).toBe(0);
     });
 
     it('should create properly formatted authorization message', () => {
@@ -185,8 +182,7 @@ describe('WebSocket Authorization Flow', () => {
 
       // Verify regular initialization messages were sent after authorization
       const messageTypes = mockWs.sentMessages.map(msg => JSON.parse(msg).type);
-      expect(messageTypes).toContain('fetch-backgrounds');
-      expect(messageTypes).toContain('fetch-configs');
+      expect(messageTypes.length).toBe(0);
     });
   });
 

@@ -18,9 +18,6 @@ export const useSidebar = () => {
     }
 
     interrupt();
-    sendMessage({
-      type: 'create-new-history',
-    });
   };
 
   return {

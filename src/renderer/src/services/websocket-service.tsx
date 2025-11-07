@@ -184,18 +184,6 @@ class WebSocketService {
   }
 
   private proceedWithRegularInitialization() {
-    this.sendMessage({
-      type: 'fetch-backgrounds',
-    });
-    this.sendMessage({
-      type: 'fetch-configs',
-    });
-    this.sendMessage({
-      type: 'fetch-history-list',
-    });
-    this.sendMessage({
-      type: 'create-new-history',
-    });
   }
 
   private handleAuthorizationSuccess(connectionId: string) {

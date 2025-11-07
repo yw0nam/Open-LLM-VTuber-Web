@@ -14,10 +14,6 @@ export enum MessageType {
   CHAT_MESSAGE = "chat_message",
   INTERRUPT_STREAM = "interrupt_stream",
   TEXT_INPUT = "text-input",
-  FETCH_BACKGROUNDS = "fetch-backgrounds",
-  FETCH_CONFIGS = "fetch-configs",
-  FETCH_HISTORY_LIST = "fetch-history-list",
-  CREATE_NEW_HISTORY = "create-new-history",
 
   // Server -> Client Messages
   AUTHORIZE_SUCCESS = "authorize_success",
@@ -190,34 +186,6 @@ export interface TextInputMessage extends BaseMessage {
   type: MessageType.TEXT_INPUT;
   text: string;
   images?: string[];
-}
-
-/**
- * Client Fetch Backgrounds Message
- */
-export interface FetchBackgroundsMessage extends BaseMessage {
-  type: MessageType.FETCH_BACKGROUNDS;
-}
-
-/**
- * Client Fetch Configs Message
- */
-export interface FetchConfigsMessage extends BaseMessage {
-  type: MessageType.FETCH_CONFIGS;
-}
-
-/**
- * Client Fetch History List Message
- */
-export interface FetchHistoryListMessage extends BaseMessage {
-  type: MessageType.FETCH_HISTORY_LIST;
-}
-
-/**
- * Client Create New History Message
- */
-export interface CreateNewHistoryMessage extends BaseMessage {
-  type: MessageType.CREATE_NEW_HISTORY;
 }
 
 // ============================================================================
@@ -421,11 +389,7 @@ export type ClientMessage =
   | PongMessage
   | ChatMessage
   | InterruptStreamMessage
-  | TextInputMessage
-  | FetchBackgroundsMessage
-  | FetchConfigsMessage
-  | FetchHistoryListMessage
-  | CreateNewHistoryMessage;
+  | TextInputMessage;
 
 /**
  * All Server Messages
@@ -466,10 +430,6 @@ export function isClientMessage(
     MessageType.CHAT_MESSAGE,
     MessageType.INTERRUPT_STREAM,
     MessageType.TEXT_INPUT,
-    MessageType.FETCH_BACKGROUNDS,
-    MessageType.FETCH_CONFIGS,
-    MessageType.FETCH_HISTORY_LIST,
-    MessageType.CREATE_NEW_HISTORY,
   ];
   return clientTypes.includes(message.type as MessageType);
 }

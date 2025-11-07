@@ -871,6 +871,14 @@ export class LAppModel extends CubismUserModel {
       return null;
     }
 
+    // Check if modelSetting exists
+    if (!this._modelSetting) {
+      if (LAppDefine.DebugLogEnable) {
+        console.warn('[APP] anyhitTest: Model settings not loaded yet');
+      }
+      return null;
+    }
+
     const count: number = this._modelSetting.getHitAreasCount();
 
     for (let i = 0; i < count; i++) {

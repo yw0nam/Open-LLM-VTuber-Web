@@ -331,8 +331,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
 
         // setModelInfo(undefined);
 
-        wsService.sendMessage({ type: 'fetch-history-list' });
-        wsService.sendMessage({ type: 'create-new-history' });
+
         break;
       case 'background-files':
         if (message.files) {

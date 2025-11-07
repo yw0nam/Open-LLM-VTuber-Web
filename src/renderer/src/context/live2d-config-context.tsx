@@ -1,8 +1,8 @@
 import {
-  createContext, useContext, useState, useMemo,
+  createContext, useContext, useState, useMemo, useEffect,
 } from 'react';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
-import { useConfig } from '@/context/character-config-context';
+// import { useConfig } from '@/context/character-config-context'; // Not used currently
 
 /**
  * Model emotion mapping interface
@@ -105,9 +105,10 @@ export const Live2DConfigContext = createContext<Live2DConfigState | null>(null)
  * @param {React.ReactNode} props.children - Child components
  */
 export function Live2DConfigProvider({ children }: { children: React.ReactNode }) {
-  const { confUid } = useConfig();
+  // const { confUid } = useConfig(); // Not used currently
 
   const [isLoading, setIsLoading] = useState(DEFAULT_CONFIG.isLoading);
+  const [hasLoadedDefault, setHasLoadedDefault] = useState(false);
 
   const [modelInfo, setModelInfoState] = useLocalStorage<ModelInfo | undefined>(
     "modelInfo",
@@ -142,6 +143,44 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
           : (modelInfo?.scrollToResize ?? true),
     });
   };
+
+  // Load default model on startup if no model is configured
+  useEffect(() => {
+    const loadDefaultModel = async () => {
+      // Only load default if no model is currently set and we haven't loaded it yet
+      if ((!modelInfo?.url || modelInfo.url === '') && !hasLoadedDefault) {
+        console.log('No model configured, loading default model...');
+        setHasLoadedDefault(true);
+        
+        try {
+          // Fetch the default model config
+          const response = await fetch('/live2d-models/mao_config.json');
+          const config = await response.json();
+          
+          console.log('Loaded default model config:', config);
+          
+          // Set the model info with the config data
+          const defaultModelInfo: ModelInfo = {
+            name: config.name,
+            description: config.description,
+            url: config.model, // This will be '/live2d-models/mao_pro_jp/runtime/mao_pro.model3.json'
+            kScale: config.scale || 0.15,
+            initialXshift: config.x || 0,
+            initialYshift: config.y || 0,
+            emotionMap: {},
+            pointerInteractive: true,
+            scrollToResize: true,
+          };
+          
+          setModelInfo(defaultModelInfo);
+        } catch (error) {
+          console.error('Failed to load default model config:', error);
+        }
+      }
+    };
+
+    loadDefaultModel();
+  }, [modelInfo, hasLoadedDefault, setModelInfo]); // Add dependencies
 
   const contextValue = useMemo(
     () => ({
