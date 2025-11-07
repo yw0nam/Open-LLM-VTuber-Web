@@ -1,7 +1,7 @@
 /* eslint-disable react/require-default-props */
 import { Box, Button, Menu } from '@chakra-ui/react';
 import {
-  FiSettings, FiClock, FiPlus, FiChevronLeft, FiUsers, FiLayers
+  FiSettings, FiClock, FiPlus, FiChevronLeft, FiUsers, FiLayers, FiDatabase
 } from 'react-icons/fi';
 import { memo } from 'react';
 import { sidebarStyles } from './sidebar-styles';
@@ -9,6 +9,7 @@ import SettingUI from './setting/setting-ui';
 import ChatHistoryPanel from './chat-history-panel';
 import BottomTab from './bottom-tab';
 import HistoryDrawer from './history-drawer';
+import SessionDrawer from './session-drawer';
 import { useSidebar } from '@/hooks/sidebar/use-sidebar';
 import GroupDrawer from './group-drawer';
 import { ModeType } from '@/context/mode-context';
@@ -93,6 +94,12 @@ const HeaderButtons = memo(({ onSettingsOpen, onNewHistory, setMode, currentMode
         <FiUsers />
       </Button>
     </GroupDrawer>
+
+    <SessionDrawer>
+      <Button>
+        <FiDatabase />
+      </Button>
+    </SessionDrawer>
 
     <HistoryDrawer>
       <Button>

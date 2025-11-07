@@ -4,7 +4,8 @@
     "cancel": "取消",
     "settings": "设置",
     "close": "关闭",
-    "accept": "接受"
+    "accept": "接受",
+    "delete": "删除"
   },
   "settings": {
     "tabs": {
@@ -95,6 +96,32 @@
   "history": {
     "chatHistoryList": "聊天历史列表",
     "noMessages": "暂无消息"
+  },
+  "session": {
+    "sessionList": "会话列表",
+    "noSessions": "暂无会话",
+    "loading": "加载会话中...",
+    "error": "错误",
+    "selectSession": "选择会话 {{sessionId}}",
+    "deleteSession": "删除会话",
+    "createNew": "创建新会话",
+    "confirmDelete": "确认删除",
+    "confirmDeleteMessage": "确定要删除会话 {{sessionId}} 吗？此操作无法撤销。",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "messageCount": "{{count}} 条消息",
+    "invalidDate": "无效日期",
+    "loaded": "会话已加载",
+    "loadedDescription": "会话 {{sessionId}} 加载成功",
+    "loadError": "加载会话失败",
+    "sessionCreated": "会话已创建",
+    "createdDescription": "新会话 {{sessionId}} 已创建",
+    "createError": "创建会话失败",
+    "deleted": "会话已删除",
+    "deletedDescription": "会话 {{sessionId}} 删除成功",
+    "deleteError": "删除会话失败",
+    "deleteCurrentError": "无法删除当前会话",
+    "deleteCurrentErrorDescription": "您不能删除当前正在使用的会话"
   },
   "notification": {
     "characterLoaded": "新角色已加载",

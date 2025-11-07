@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": "1",
+        "id": 1,
         "title": "Implement Centralized Configuration Service",
         "description": "Create a configuration management module to handle URLs, feature flags, performance parameters, and runtime updates.",
         "details": "Develop `desktopmate-config.ts` using TypeScript 5.x. Store configuration in localStorage for persistence. Validate URLs and provide sensible defaults (e.g., ws://127.0.0.1:5500/v1/chat/stream). Implement feature flag toggling and runtime updates. Use type definitions in `config-types.ts` for type safety. Integrate logging utilities for debug/error output. Recommended: Use ESLint and Prettier for code consistency.",
@@ -76,7 +76,7 @@
         ]
       },
       {
-        "id": "2",
+        "id": 2,
         "title": "Define TypeScript Message and API Types",
         "description": "Establish strict type definitions for all backend and frontend message formats, API responses, and configuration objects.",
         "details": "Create `message-types.ts` and `config-types.ts` with interfaces for all message formats (e.g., tts_ready_chunk, text, audio, session, etc.). Ensure coverage for optional fields and metadata. Use discriminated unions for message types. Integrate with TypeScript 5.x for maximum type safety and autocomplete.",
@@ -148,7 +148,7 @@
         ]
       },
       {
-        "id": "3",
+        "id": 3,
         "title": "Implement Logging Utilities",
         "description": "Develop debug and error logging utilities for all modules, supporting toggling and proper formatting.",
         "details": "Create `debugLog()` and `errorLog()` functions in the config module. Support toggling via feature flags. Format logs for clarity and include timestamps. Integrate with Electron's console for desktop debugging. Optionally, add log levels and centralized error reporting.",
@@ -222,7 +222,7 @@
         ]
       },
       {
-        "id": "4",
+        "id": 4,
         "title": "Develop DesktopMate Adapter Class",
         "description": "Implement the protocol translation layer to convert messages between DesktopMate backend and frontend formats.",
         "details": "Create `desktopmate-adapter.tsx` exporting `DesktopMateAdapter` class. Implement methods: `adaptMessage(backendMsg)`, `createAuthorizeMessage(token)`, `createChatMessage(text, context)`, `createPongMessage()`, `synthesizeSpeech(text, voice)`, `analyzeImage(image, question)`, `extractVolumes(audioData)`. Use pattern matching for message types and preserve metadata. Integrate with configuration and type definitions.",
@@ -298,7 +298,7 @@
         ]
       },
       {
-        "id": "5",
+        "id": 5,
         "title": "Implement Authorization Flow Handling",
         "description": "Handle DesktopMate's WebSocket authorization handshake, including error management and connection ID storage.",
         "details": "Use `DesktopMateAdapter.createAuthorizeMessage(token)` to send auth messages on connection. Wait for `authorize_success` response, handle errors, and store `connection_id` in context. Integrate with WebSocket service and configuration for token management.",
@@ -370,7 +370,7 @@
         ]
       },
       {
-        "id": "6",
+        "id": 6,
         "title": "Implement Heartbeat (Ping/Pong) Management",
         "description": "Detect backend ping messages and respond with pong to maintain WebSocket connection.",
         "details": "In `DesktopMateAdapter`, implement `createPongMessage()` and integrate with WebSocket event handler. Ensure pong is sent within 100ms of ping receipt. Log heartbeat events for debugging.",
@@ -442,7 +442,7 @@
         ]
       },
       {
-        "id": "7",
+        "id": 7,
         "title": "Implement User Message Formatting",
         "description": "Convert frontend user messages to backend chat_message format, including session metadata.",
         "details": "Use `DesktopMateAdapter.createChatMessage(text, context)` to wrap user input in human message object. Include session metadata (user_id, agent_id, session_id). Handle optional session creation if session_id is missing.",
@@ -514,7 +514,7 @@
         ]
       },
       {
-        "id": "8",
+        "id": 8,
         "title": "Implement TTS API Client",
         "description": "Develop client for backend TTS API to convert text chunks to base64-encoded WAV audio.",
         "details": "In `DesktopMateAdapter`, implement `synthesizeSpeech(text, voice)` using Fetch API. POST to `/v1/tts/synthesize` with text, voice reference_id, and output format. Handle timeouts (default 30s), retry on failure (up to 3 times), and validate response format. Use async/await for concurrency.",
@@ -587,7 +587,7 @@
         ]
       },
       {
-        "id": "9",
+        "id": 9,
         "title": "Implement Audio Volume Extraction Utility",
         "description": "Extract per-frame volume data from base64 WAV audio for lip-sync animation.",
         "details": "Create `audio-processor.ts` with `extractVolumesFromWAV(base64)` using Web Audio API. Decode base64, parse WAV, calculate RMS volume per frame (1024 samples), normalize to 0-1 range. Test across Chrome, Firefox, Edge for consistency. Provide fallback algorithm for browser inconsistencies.",
@@ -660,7 +660,7 @@
         ]
       },
       {
-        "id": "10",
+        "id": 10,
         "title": "Integrate TTS with Message Handler",
         "description": "Trigger TTS synthesis and audio queueing on tts_ready_chunk events in message handler.",
         "details": "Modify `websocket-handler.tsx` to detect `_needs_tts` flag in adapted messages. Call TTS API client, extract volumes, and queue audio for playback. Ensure sequential playback and UI updates for lip-sync.",
@@ -733,7 +733,7 @@
         ]
       },
       {
-        "id": "11",
+        "id": 11,
         "title": "Implement Audio Queue Management",
         "description": "Queue TTS audio chunks for sequential playback, handling interruptions and cleanup.",
         "details": "Develop audioTaskQueue in state management (Zustand). Create audio task objects with audio, volumes, and display text. Ensure sequential playback, clear queue on interruption, and prevent audio overlap.",
@@ -806,7 +806,7 @@
         "updatedAt": "2025-11-06T16:19:15.195Z"
       },
       {
-        "id": "12",
+        "id": 12,
         "title": "Update WebSocket Context and Service",
         "description": "Modify WebSocket context and service to use new backend URLs and integrate with DesktopMate protocol.",
         "details": "Update `websocket-context.tsx` to load URLs from configuration. Modify `websocket-service.tsx` to send authorization on connect, handle ping/pong, and route messages through adapter. Persist URLs in localStorage.",
@@ -883,7 +883,7 @@
         ]
       },
       {
-        "id": "13",
+        "id": 13,
         "title": "Modify WebSocket Handler Event Processing",
         "description": "Handle all backend events, trigger TTS, update UI, and manage session state.",
         "details": "Update `websocket-handler.tsx` to process adapted messages, trigger TTS integration, update UI state, and interact with session manager. Ensure all message types are handled and errors are logged.",
@@ -956,7 +956,7 @@
         ]
       },
       {
-        "id": "14",
+        "id": 14,
         "title": "Implement Session Manager Hook",
         "description": "Develop session manager for CRUD operations on conversation sessions and history.",
         "details": "Create `use-session-manager.ts` hook providing `loadHistory(sessionId)`, `saveMessages(messages)`, `listSessions()`, `createSession()`, `deleteSession(sessionId)`, and `currentSessionId` state. Integrate with STM API via DesktopMateAdapter.",
@@ -1029,7 +1029,7 @@
         ]
       },
       {
-        "id": "15",
+        "id": 15,
         "title": "Integrate Session Auto-Creation",
         "description": "Automatically create new sessions for first-time conversations and store session ID in context.",
         "details": "In `use-session-manager.ts`, detect absence of session ID and auto-create session via STM API. Store session ID in context for subsequent messages.",
@@ -1102,7 +1102,7 @@
         "updatedAt": "2025-11-07T01:30:22.594Z"
       },
       {
-        "id": "16",
+        "id": 16,
         "title": "Implement Session UI Components",
         "description": "Develop UI for listing, loading, creating, and deleting sessions, and displaying chat history.",
         "details": "Create session browser component using Chakra UI. Integrate with session manager hook to list sessions, load history, delete sessions, and create new sessions. Ensure responsive design and accessibility.",
@@ -1111,7 +1111,7 @@
         "dependencies": [
           "14"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1119,7 +1119,7 @@
             "description": "Create the main layout for the session browser using Chakra UI components, ensuring modularity and responsiveness.",
             "dependencies": [],
             "details": "Use Chakra UI's Box, Flex, and Stack components to structure the session browser. Apply atomic design principles for modularity. Ensure the layout adapts to different screen sizes using responsive props and Flex direction changes.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Visual inspection on multiple screen sizes; verify layout responsiveness using browser dev tools.",
             "parentId": "undefined"
           },
@@ -1131,7 +1131,7 @@
               1
             ],
             "details": "Connect the session browser to the session manager hook to fetch and display session data. Use Chakra UI List, ListItem, and Button components for session entries. Ensure keyboard navigation and focus management for accessibility.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit tests for session listing; manual tests for selection and keyboard navigation; accessibility checks for focus and ARIA attributes.",
             "parentId": "undefined"
           },
@@ -1143,7 +1143,7 @@
               1
             ],
             "details": "Use Chakra UI Button and Modal components for create and delete actions. Integrate with session manager hook methods for session creation and deletion. Implement confirmation dialogs for deletion using useDisclosure and Modal.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Interaction tests for create/delete actions; verify dialogs appear and function correctly; mock session manager for edge cases.",
             "parentId": "undefined"
           },
@@ -1155,7 +1155,7 @@
               2
             ],
             "details": "Fetch chat history from the session manager hook when a session is selected. Use Chakra UI components such as Box, VStack, and Text to display messages. Ensure scrollability and proper color contrast for readability.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Data display verification; accessibility checks for color contrast and screen reader compatibility; test scroll behavior.",
             "parentId": "undefined"
           },
@@ -1170,14 +1170,14 @@
               4
             ],
             "details": "Audit all components for responsive behavior using Chakra UI's responsive props and hooks. Validate accessibility features such as keyboard navigation, focus management, ARIA attributes, and color contrast. Test in both light and dark modes.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Accessibility audits with tools (e.g., axe, Lighthouse); manual keyboard navigation tests; verify responsiveness on multiple devices.",
             "parentId": "undefined"
           }
         ]
       },
       {
-        "id": "17",
+        "id": 17,
         "title": "Add History Persistence on Messages",
         "description": "Automatically save all conversation messages to backend STM API and retrieve on reload.",
         "details": "Modify message handler to call `saveMessages()` after each message. On app reload, use `loadHistory()` to restore conversation. Handle errors gracefully and provide local fallback if backend is unavailable.",
@@ -1250,7 +1250,7 @@
         ]
       },
       {
-        "id": "18",
+        "id": 18,
         "title": "Implement VLM API Client (Optional Enhancement)",
         "description": "Develop client for Vision-Language Model API to analyze images and screenshots.",
         "details": "In `DesktopMateAdapter`, implement `analyzeImage(image, question)` using Fetch API. POST to `/v1/vlm/analyze` with base64 image and user question. Handle large images, timeout after 60s, and validate response format.",
@@ -1326,7 +1326,7 @@
         ]
       },
       {
-        "id": "19",
+        "id": 19,
         "title": "Integrate Screenshot Capture and VLM Context",
         "description": "Enable screenshot capture, send to VLM API, and include analysis in chat context.",
         "details": "Implement screenshot capture using Electron APIs. Send captured image to VLM API client, append analysis result to chat message, and mark as containing visual data. Integrate with message handler and session manager.",
@@ -1399,7 +1399,7 @@
         ]
       },
       {
-        "id": "20",
+        "id": 20,
         "title": "Implement Connection Error Recovery",
         "description": "Handle WebSocket disconnections and reconnections with exponential backoff and user notifications.",
         "details": "In `websocket-service.tsx`, implement reconnection logic with exponential backoff (3s, 6s, 12s...), max 5 attempts. Notify user of connection status and preserve message queue during reconnection.",
@@ -1475,7 +1475,7 @@
         ]
       },
       {
-        "id": "21",
+        "id": 21,
         "title": "Add Comprehensive API Error Handling",
         "description": "Handle TTS, VLM, and STM API failures gracefully with retry logic and user-friendly error messages.",
         "details": "Parse error codes, implement retry logic (3 retries for TTS, 2 for VLM), show toaster notifications, and log errors for debugging. Integrate error handling in all API clients and message handler.",
@@ -1554,7 +1554,7 @@
         ]
       },
       {
-        "id": "22",
+        "id": 22,
         "title": "Implement Message Validation and Sanitization",
         "description": "Validate message formats before processing, sanitize content, and reject malformed messages.",
         "details": "In `DesktopMateAdapter`, check required fields, validate types, sanitize content, and log errors for malformed messages. Use runtime validation in addition to TypeScript types.",
@@ -1629,7 +1629,7 @@
         ]
       },
       {
-        "id": "23",
+        "id": 23,
         "title": "Add Performance Monitoring and Metrics Logging",
         "description": "Track TTS latency, connection health, and other key metrics for monitoring and optimization.",
         "details": "Integrate performance monitoring using Electron's IPC or third-party tools (e.g., Grafana, ELK Stack). Log TTS latency, message throughput, connection status, and error rates. Provide metrics dashboard for developers.",
@@ -1704,7 +1704,7 @@
         ]
       },
       {
-        "id": "24",
+        "id": 24,
         "title": "Create Settings UI for Configuration Management",
         "description": "Develop UI components for users to change URLs, voice selection, feature flags, and view connection status.",
         "details": "Use Chakra UI to build settings panel. Integrate with configuration service for runtime updates. Provide feedback on connection status, voice selection, and feature toggling. Ensure responsive design and accessibility.",
@@ -1777,7 +1777,7 @@
         ]
       },
       {
-        "id": "25",
+        "id": 25,
         "title": "Write Integration and Unit Tests",
         "description": "Develop comprehensive integration and unit tests for all modules, targeting >80% code coverage.",
         "details": "Use Jest for unit tests and Playwright/Cypress for E2E tests. Mock backend APIs for unit tests, use real backend for integration tests. Focus on message translation, WebSocket state machine, TTS pipeline timing, session persistence, and UI flows.",
@@ -1859,7 +1859,7 @@
         ]
       },
       {
-        "id": "26",
+        "id": 26,
         "title": "Write User and Developer Documentation",
         "description": "Create comprehensive documentation for setup, troubleshooting, features, architecture, and API reference.",
         "details": "Write INTEGRATION_GUIDE.md, QUICK_INTEGRATION.md, and ARCHITECTURE.md in the integration/docs directory. Include setup instructions, feature descriptions, troubleshooting steps, and developer guides. Use Markdown for formatting and include code examples.",
@@ -1935,7 +1935,10 @@
       "completedCount": 18,
       "tags": [
         "master"
-      ]
+      ],
+      "created": "2025-11-07T01:34:14.158Z",
+      "description": "Tasks for master context",
+      "updated": "2025-11-07T01:45:10.819Z"
     }
   }
 }

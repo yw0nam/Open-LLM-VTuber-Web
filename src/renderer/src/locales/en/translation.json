@@ -4,7 +4,8 @@
     "cancel": "Cancel",
     "settings": "Settings",
     "close": "Close",
-    "accept": "Accept"
+    "accept": "Accept",
+    "delete": "Delete"
   },
   "settings": {
     "tabs": {
@@ -98,6 +99,34 @@
   "history": {
     "chatHistoryList": "Chat History List",
     "noMessages": "No messages"
+  },
+  "session": {
+    "sessionList": "Sessions",
+    "noSessions": "No sessions available",
+    "loading": "Loading sessions...",
+    "error": "Error",
+    "selectSession": "Select session {{sessionId}}",
+    "deleteSession": "Delete session",
+    "createNew": "Create New Session",
+    "confirmDelete": "Confirm Delete",
+    "confirmDeleteMessage": "Are you sure you want to delete session {{sessionId}}? This action cannot be undone.",
+    "createdAt": "Created",
+    "updatedAt": "Updated",
+    "messageCount": "{{count}} messages",
+    "messageCount_one": "{{count}} message",
+    "messageCount_other": "{{count}} messages",
+    "invalidDate": "Invalid date",
+    "loaded": "Session Loaded",
+    "loadedDescription": "Session {{sessionId}} loaded successfully",
+    "loadError": "Failed to Load Session",
+    "sessionCreated": "Session Created",
+    "createdDescription": "New session {{sessionId}} created",
+    "createError": "Failed to Create Session",
+    "deleted": "Session Deleted",
+    "deletedDescription": "Session {{sessionId}} deleted successfully",
+    "deleteError": "Failed to Delete Session",
+    "deleteCurrentError": "Cannot Delete Current Session",
+    "deleteCurrentErrorDescription": "You cannot delete the currently active session"
   },
   "notification": {
     "characterLoaded": "New Character Loaded",

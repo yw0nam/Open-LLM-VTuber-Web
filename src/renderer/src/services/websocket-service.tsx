@@ -227,8 +227,8 @@ class WebSocketService {
       duration: 5000,
     });
 
-    // Close connection on authorization failure
-    this.disconnect();
+    // Close connection on authorization failure and prevent reconnection
+    this.disconnect(true);
   }
 
   private handlePingMessage(pingReceived: number) {
@@ -330,21 +330,12 @@ class WebSocketService {
    */
   private handleError(error: Event) {
     console.error('WebSocket error:', error);
-    this.isAuthorized = false;
-    this.authorizationPending = false;
+    this.disconnect();
 
     const shouldAttemptReconnect = this.shouldReconnect && !this.isReconnecting;
 
     if (shouldAttemptReconnect) {
       this.scheduleReconnect();
-    }
-
-    if (this.ws && this.ws.readyState !== WebSocket.CLOSED) {
-      try {
-        this.ws.close();
-      } catch (closeError) {
-        console.error('Failed to close WebSocket after error:', closeError);
-      }
     }
     
     toaster.create({
@@ -385,16 +376,15 @@ class WebSocketService {
     // Store URL for reconnection
     this.currentUrl = url;
 
+    // Don't reconnect if a connection is already opening or open
+    if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
+      return;
+    }
+
     // Clear any existing reconnect timer
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
-    }
-
-    if (this.ws?.readyState === WebSocket.CONNECTING ||
-        this.ws?.readyState === WebSocket.OPEN) {
-      // Close existing connection without disabling reconnection
-      this.closeConnection();
     }
 
     try {
@@ -521,34 +511,27 @@ class WebSocketService {
     return this.stateSubject.subscribe(callback);
   }
 
-  /**
-   * Close the WebSocket connection without disabling reconnection
-   * Used internally when switching connections
-   */
-  private closeConnection() {
-    if (this.currentState !== 'CLOSED') {
-      this.currentState = 'CLOSING';
-      this.stateSubject.next('CLOSING');
+  disconnect(disableReconnection = false) {
+    // Disable reconnection if requested
+    if (disableReconnection) {
+      this.shouldReconnect = false;
     }
-    this.ws?.close();
-    this.ws = null;
-    this.isAuthorized = false;
-    this.authorizationPending = false;
-    this.reconnectAttempts = 0;
-    this.isReconnecting = false;
-  }
 
-  disconnect() {
-    // Disable reconnection when manually disconnecting
-    this.shouldReconnect = false;
-    
     // Clear any reconnect timer
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
 
-    this.closeConnection();
+    if (this.ws) {
+      if (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) {
+        try {
+          this.ws.close();
+        } catch (error) {
+          console.error('Error closing WebSocket:', error);
+        }
+      }
+    }
   }
 
   /**
