@@ -25,6 +25,7 @@
       "characterPreset": "Character Preset",
       "wsUrl": "WebSocket URL",
       "baseUrl": "Base URL",
+      "token": "Token",
       "imageCompressionQuality": "Image Compression Quality",
       "imageCompressionQualityPlaceholder": "Enter compression quality (0-100)",
       "imageCompressionQualityHelp": "JPEG compression quality (0.1-1.0). Default is 0.8 to reduce file size when transmitting images to AI models, as we don't compress images during API transmission which could result in large file sizes.",

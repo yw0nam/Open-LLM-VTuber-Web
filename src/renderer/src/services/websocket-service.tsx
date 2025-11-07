@@ -145,6 +145,14 @@ class WebSocketService {
 
   private maxQueueSize = 100;
 
+  constructor() {
+    configManager.subscribe((event) => {
+      if (event.section === 'auth') {
+        this.connect(this.currentUrl);
+      }
+    });
+  }
+
   static getInstance() {
     if (!WebSocketService.instance) {
       WebSocketService.instance = new WebSocketService();

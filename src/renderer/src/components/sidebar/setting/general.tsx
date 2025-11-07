@@ -141,6 +141,13 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
       />
 
       <InputField
+        label={t("settings.general.token")}
+        value={settings.token}
+        onChange={(value) => handleSettingChange("token", value)}
+        placeholder="Enter Token"
+      />
+
+      <InputField
         label={t("settings.general.imageCompressionQuality")}
         value={settings.imageCompressionQuality.toString()}
         onChange={(value) => {

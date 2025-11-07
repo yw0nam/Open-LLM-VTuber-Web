@@ -8,6 +8,7 @@ import { useCamera } from '@/context/camera-context';
 import { useSwitchCharacter } from '@/hooks/utils/use-switch-character';
 import { useConfig } from '@/context/character-config-context';
 import i18n from 'i18next';
+import { configManager } from '@/services/desktopmate-config';
 
 export const IMAGE_COMPRESSION_QUALITY_KEY = 'appImageCompressionQuality';
 export const DEFAULT_IMAGE_COMPRESSION_QUALITY = 0.8;
@@ -15,29 +16,30 @@ export const IMAGE_MAX_WIDTH_KEY = 'appImageMaxWidth';
 export const DEFAULT_IMAGE_MAX_WIDTH = 0;
 
 interface GeneralSettings {
-  language: string[]
-  customBgUrl: string
-  selectedBgUrl: string[]
-  backgroundUrl: string
-  selectedCharacterPreset: string[]
-  useCameraBackground: boolean
-  wsUrl: string
-  baseUrl: string
-  showSubtitle: boolean
+  language: string[];
+  customBgUrl: string;
+  selectedBgUrl: string[];
+  backgroundUrl: string;
+  selectedCharacterPreset: string[];
+  useCameraBackground: boolean;
+  wsUrl: string;
+  baseUrl: string;
+  showSubtitle: boolean;
   imageCompressionQuality: number;
   imageMaxWidth: number;
+  token: string;
 }
 
 interface UseGeneralSettingsProps {
-  bgUrlContext: BgUrlContextState | null
-  confName: string | undefined
-  setConfName: (name: string) => void
-  baseUrl: string
-  wsUrl: string
-  onWsUrlChange: (url: string) => void
-  onBaseUrlChange: (url: string) => void
-  onSave?: (callback: () => void) => () => void
-  onCancel?: (callback: () => void) => () => void
+  bgUrlContext: BgUrlContextState | null;
+  confName: string | undefined;
+  setConfName: (name: string) => void;
+  baseUrl: string;
+  wsUrl: string;
+  onWsUrlChange: (url: string) => void;
+  onBaseUrlChange: (url: string) => void;
+  onSave?: (callback: () => void) => () => void;
+  onCancel?: (callback: () => void) => () => void;
 }
 
 const loadInitialCompressionQuality = (): number => {
@@ -106,6 +108,7 @@ export const useGeneralSettings = ({
     showSubtitle,
     imageCompressionQuality: loadInitialCompressionQuality(),
     imageMaxWidth: loadInitialImageMaxWidth(),
+    token: configManager.getSection('auth').token || '',
   };
 
   const [settings, setSettings] = useState<GeneralSettings>(initialSettings);
@@ -123,6 +126,7 @@ export const useGeneralSettings = ({
 
     onWsUrlChange(settings.wsUrl);
     onBaseUrlChange(settings.baseUrl);
+    configManager.updateValue('auth', 'token', settings.token);
 
     // Apply language change if it differs from current language
     if (settings.language && settings.language[0] && settings.language[0] !== i18n.language) {

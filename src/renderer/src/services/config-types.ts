@@ -263,7 +263,7 @@ export interface AddChatHistoryRequest {
   user_id: string;
   agent_id: string;
   session_id?: string;
-  messages: STMMessage[];
+  messages?: STMMessage[];
 }
 
 /**

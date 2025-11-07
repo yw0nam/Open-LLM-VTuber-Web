@@ -25,6 +25,7 @@
       "characterPreset": "角色预设",
       "wsUrl": "WebSocket地址",
       "baseUrl": "基础URL",
+      "token": "令牌",
       "imageCompressionQuality": "图片压缩质量",
       "imageCompressionQualityHelp": "JPEG压缩质量(0.1-1.0)。默认为0.8以减小文件体积，因为我们在向AI模型传输图片时没有进行压缩，可能导致文件过大。",
       "imageMaxWidth": "图片最大宽度",

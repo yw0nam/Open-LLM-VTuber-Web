@@ -82,7 +82,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
     try {
       debugLog('session-context', 'Creating new session via STM API', { userId, agentId });
 
-      // Create session by adding empty messages (session_id omitted = new session)
+      // Create session by adding an initial system message (backend requires at least 1 message)
       const response = await desktopMateAdapter.addChatHistory({
         user_id: userId,
         agent_id: agentId,

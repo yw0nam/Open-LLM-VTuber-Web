@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
+        "id": "1",
         "title": "Implement Centralized Configuration Service",
         "description": "Create a configuration management module to handle URLs, feature flags, performance parameters, and runtime updates.",
         "details": "Develop `desktopmate-config.ts` using TypeScript 5.x. Store configuration in localStorage for persistence. Validate URLs and provide sensible defaults (e.g., ws://127.0.0.1:5500/v1/chat/stream). Implement feature flag toggling and runtime updates. Use type definitions in `config-types.ts` for type safety. Integrate logging utilities for debug/error output. Recommended: Use ESLint and Prettier for code consistency.",
@@ -18,7 +18,8 @@
             "dependencies": [],
             "details": "Create and export interfaces/types in config-types.ts to ensure type safety for all configuration values. Include types for URLs, feature flags, and any runtime-modifiable parameters. Ensure extensibility for future configuration options.",
             "status": "done",
-            "testStrategy": "Type-checking and unit tests to verify type enforcement and correct structure of configuration objects."
+            "testStrategy": "Type-checking and unit tests to verify type enforcement and correct structure of configuration objects.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -29,7 +30,8 @@
             ],
             "details": "Write functions to read configuration from localStorage on initialization, apply sensible defaults if missing, and persist updates. Ensure atomic updates and handle JSON parsing/stringification errors gracefully.",
             "status": "done",
-            "testStrategy": "Unit tests with mocked localStorage to verify correct read/write behavior, default application, and error handling."
+            "testStrategy": "Unit tests with mocked localStorage to verify correct read/write behavior, default application, and error handling.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -41,7 +43,8 @@
             ],
             "details": "Use regular expressions or URL constructors to validate URLs. If a URL is invalid or absent, assign a default such as ws://127.0.0.1:5500/v1/chat/stream. Provide clear error messages or logs for invalid entries.",
             "status": "done",
-            "testStrategy": "Unit tests for various valid/invalid URL scenarios and verification of default assignment."
+            "testStrategy": "Unit tests for various valid/invalid URL scenarios and verification of default assignment.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -53,7 +56,8 @@
             ],
             "details": "Expose methods to toggle feature flags and update configuration values dynamically. Ensure changes are persisted and propagated to consumers in real time (e.g., via event emitters or callbacks).",
             "status": "done",
-            "testStrategy": "Unit tests to verify toggling, runtime updates, and correct propagation of changes."
+            "testStrategy": "Unit tests to verify toggling, runtime updates, and correct propagation of changes.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -66,12 +70,13 @@
             ],
             "details": "Integrate logging utilities for debug and error output in all configuration methods. Configure ESLint and Prettier for the module, and ensure all code adheres to defined standards.",
             "status": "done",
-            "testStrategy": "Unit tests for logging output, and linting/formatting checks as part of CI or pre-commit hooks."
+            "testStrategy": "Unit tests for logging output, and linting/formatting checks as part of CI or pre-commit hooks.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 2,
+        "id": "2",
         "title": "Define TypeScript Message and API Types",
         "description": "Establish strict type definitions for all backend and frontend message formats, API responses, and configuration objects.",
         "details": "Create `message-types.ts` and `config-types.ts` with interfaces for all message formats (e.g., tts_ready_chunk, text, audio, session, etc.). Ensure coverage for optional fields and metadata. Use discriminated unions for message types. Integrate with TypeScript 5.x for maximum type safety and autocomplete.",
@@ -87,7 +92,8 @@
             "dependencies": [],
             "details": "Review existing code, API documentation, and message flows to enumerate all message types (e.g., tts_ready_chunk, text, audio, session) and configuration objects. Create a comprehensive list with descriptions and sample payloads for each format.",
             "status": "done",
-            "testStrategy": "Peer review of the documented list to ensure completeness and accuracy."
+            "testStrategy": "Peer review of the documented list to ensure completeness and accuracy.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -98,7 +104,8 @@
             ],
             "details": "For each message type, create a corresponding TypeScript interface in `message-types.ts`. Use optional properties (`?`) for fields that may not always be present. Prefer interfaces for extensible object shapes and type aliases for unions or tuples. Document each type inline for clarity.",
             "status": "done",
-            "testStrategy": "Type checking with sample message objects and compile-time validation."
+            "testStrategy": "Type checking with sample message objects and compile-time validation.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -109,7 +116,8 @@
             ],
             "details": "Define a union type in `message-types.ts` that combines all message interfaces using a discriminant property (e.g., `type: 'text' | 'audio' | 'tts_ready_chunk'`). Use the `never` type for exhaustive switch-case checks to ensure all variants are handled.",
             "status": "done",
-            "testStrategy": "Write switch-case handlers for the union type and verify TypeScript enforces exhaustiveness."
+            "testStrategy": "Write switch-case handlers for the union type and verify TypeScript enforces exhaustiveness.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -120,7 +128,8 @@
             ],
             "details": "Create `config-types.ts` with interfaces for configuration objects and API responses. Separate request and response types, use optional fields where appropriate, and leverage enums for fixed value sets. Ensure all configuration options and API metadata are covered.",
             "status": "done",
-            "testStrategy": "Type checking with sample API responses and configuration objects; compile-time validation."
+            "testStrategy": "Type checking with sample API responses and configuration objects; compile-time validation.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -133,12 +142,13 @@
             ],
             "details": "Update `tsconfig.json` to enable strict mode and all recommended strict checks. Compile sample messages, API responses, and configuration objects to verify type safety and autocomplete. Refactor types as needed for maximum coverage and maintainability.",
             "status": "done",
-            "testStrategy": "Compile project with strict mode enabled; run example message and API object compilations to confirm type safety."
+            "testStrategy": "Compile project with strict mode enabled; run example message and API object compilations to confirm type safety.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 3,
+        "id": "3",
         "title": "Implement Logging Utilities",
         "description": "Develop debug and error logging utilities for all modules, supporting toggling and proper formatting.",
         "details": "Create `debugLog()` and `errorLog()` functions in the config module. Support toggling via feature flags. Format logs for clarity and include timestamps. Integrate with Electron's console for desktop debugging. Optionally, add log levels and centralized error reporting.",
@@ -154,7 +164,8 @@
             "dependencies": [],
             "details": "Specify the function signatures for debugLog() and errorLog() in the config module. Ensure both functions accept message, context, and optional metadata parameters. Document expected usage and output format for each function.",
             "status": "done",
-            "testStrategy": "Unit tests for function signatures and basic invocation."
+            "testStrategy": "Unit tests for function signatures and basic invocation.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -165,7 +176,8 @@
             ],
             "details": "Create a formatting utility that prepends ISO-formatted timestamps and includes relevant context (e.g., module name, log level) to each log entry. Integrate this formatter into debugLog() and errorLog() implementations.",
             "status": "done",
-            "testStrategy": "Unit tests verifying timestamp accuracy and format consistency in log output."
+            "testStrategy": "Unit tests verifying timestamp accuracy and format consistency in log output.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -176,7 +188,8 @@
             ],
             "details": "Implement feature flag checks within debugLog() and errorLog() to control whether logs are emitted based on current flag state. Use a centralized configuration for flag management and ensure toggling can be updated without redeployment[1][2][5].",
             "status": "done",
-            "testStrategy": "Unit and integration tests simulating feature flag changes and verifying logging enable/disable behavior."
+            "testStrategy": "Unit and integration tests simulating feature flag changes and verifying logging enable/disable behavior.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -188,7 +201,8 @@
             ],
             "details": "Modify debugLog() and errorLog() to output formatted logs to Electron's console (e.g., using console.log, console.error). Ensure compatibility with Electron's logging APIs and verify output in desktop environments.",
             "status": "done",
-            "testStrategy": "Manual and automated tests verifying log visibility in Electron console during development and production."
+            "testStrategy": "Manual and automated tests verifying log visibility in Electron console during development and production.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -202,21 +216,22 @@
             ],
             "details": "Implement log level support (e.g., info, warn, error, debug) in logging functions. Optionally, connect errorLog() to a centralized error reporting service (e.g., Sentry) for critical errors, configurable via feature flags.",
             "status": "done",
-            "testStrategy": "Unit tests for log level filtering; integration tests for error reporting service connectivity and flag-based control."
+            "testStrategy": "Unit tests for log level filtering; integration tests for error reporting service connectivity and flag-based control.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 4,
+        "id": "4",
         "title": "Develop DesktopMate Adapter Class",
         "description": "Implement the protocol translation layer to convert messages between DesktopMate backend and frontend formats.",
         "details": "Create `desktopmate-adapter.tsx` exporting `DesktopMateAdapter` class. Implement methods: `adaptMessage(backendMsg)`, `createAuthorizeMessage(token)`, `createChatMessage(text, context)`, `createPongMessage()`, `synthesizeSpeech(text, voice)`, `analyzeImage(image, question)`, `extractVolumes(audioData)`. Use pattern matching for message types and preserve metadata. Integrate with configuration and type definitions.",
         "testStrategy": "Unit tests for each message type translation, edge cases (missing fields, unknown types), and integration tests with mock backend messages.",
         "priority": "high",
         "dependencies": [
-          1,
-          2,
-          3
+          "1",
+          "2",
+          "3"
         ],
         "status": "done",
         "subtasks": [
@@ -227,7 +242,8 @@
             "dependencies": [],
             "details": "Establish the TypeScript class structure, export the class, and add method signatures for all required adapter functions: `adaptMessage`, `createAuthorizeMessage`, `createChatMessage`, `createPongMessage`, `synthesizeSpeech`, `analyzeImage`, and `extractVolumes`. Integrate configuration and type definitions as needed.",
             "status": "done",
-            "testStrategy": "Verify that the file compiles, all methods are present, and type definitions are correctly imported."
+            "testStrategy": "Verify that the file compiles, all methods are present, and type definitions are correctly imported.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -238,7 +254,8 @@
             ],
             "details": "Use pattern matching to identify message types and convert them to the frontend format. Ensure all relevant metadata is preserved during translation. Handle unknown or malformed message types gracefully.",
             "status": "done",
-            "testStrategy": "Unit tests for each supported message type, including edge cases for missing fields and unknown types."
+            "testStrategy": "Unit tests for each supported message type, including edge cases for missing fields and unknown types.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -249,7 +266,8 @@
             ],
             "details": "Implement each method to construct messages according to DesktopMate protocol specifications. Ensure correct formatting, inclusion of required fields, and proper handling of context and tokens.",
             "status": "done",
-            "testStrategy": "Unit tests to verify output message structure and field correctness for each method."
+            "testStrategy": "Unit tests to verify output message structure and field correctness for each method.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -260,7 +278,8 @@
             ],
             "details": "Implement logic for each method to construct and adapt requests and responses for speech synthesis, image analysis, and audio volume extraction. Ensure compatibility with backend APIs and proper error handling.",
             "status": "done",
-            "testStrategy": "Unit and integration tests with mock data for each advanced method, including validation of request/response formats."
+            "testStrategy": "Unit and integration tests with mock data for each advanced method, including validation of request/response formats.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -273,19 +292,20 @@
             ],
             "details": "Review and refactor the adapter to ensure consistent use of configuration and type definitions. Validate that all methods interact correctly and the adapter is ready for integration with other modules.",
             "status": "done",
-            "testStrategy": "Integration tests with mock backend and frontend modules, type checking, and code review for maintainability."
+            "testStrategy": "Integration tests with mock backend and frontend modules, type checking, and code review for maintainability.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 5,
+        "id": "5",
         "title": "Implement Authorization Flow Handling",
         "description": "Handle DesktopMate's WebSocket authorization handshake, including error management and connection ID storage.",
         "details": "Use `DesktopMateAdapter.createAuthorizeMessage(token)` to send auth messages on connection. Wait for `authorize_success` response, handle errors, and store `connection_id` in context. Integrate with WebSocket service and configuration for token management.",
         "testStrategy": "Integration tests with real backend, simulate auth failure scenarios, verify connection ID persistence.",
         "priority": "high",
         "dependencies": [
-          4
+          "4"
         ],
         "status": "done",
         "subtasks": [
@@ -296,7 +316,8 @@
             "dependencies": [],
             "details": "Utilize `DesktopMateAdapter.createAuthorizeMessage(token)` to construct the authorization message. Ensure this message is sent as the first action upon WebSocket connection establishment. Retrieve the token from the configuration or context as required.",
             "status": "done",
-            "testStrategy": "Unit test that verifies the correct message is sent on connection using a mock WebSocket."
+            "testStrategy": "Unit test that verifies the correct message is sent on connection using a mock WebSocket.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -307,7 +328,8 @@
             ],
             "details": "Listen for the `authorize_success` event from the WebSocket server. Extract the `connection_id` from the response payload and store it in a shared context or state management solution for later use.",
             "status": "done",
-            "testStrategy": "Integration test that simulates a successful authorization and verifies connection ID storage."
+            "testStrategy": "Integration test that simulates a successful authorization and verifies connection ID storage.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -318,7 +340,8 @@
             ],
             "details": "Monitor for error responses related to authorization (e.g., `authorize_error`). On error, log the issue, notify the user or system, and close the WebSocket connection gracefully if required.",
             "status": "done",
-            "testStrategy": "Simulate authorization failure and verify error handling logic, including connection closure and error reporting."
+            "testStrategy": "Simulate authorization failure and verify error handling logic, including connection closure and error reporting.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -327,7 +350,8 @@
             "dependencies": [],
             "details": "Connect the WebSocket service to the application's token management system. Ensure that the latest valid token is used for each authorization attempt, and handle token refresh or expiration scenarios.",
             "status": "done",
-            "testStrategy": "Test with expired and refreshed tokens to ensure correct token usage and re-authorization."
+            "testStrategy": "Test with expired and refreshed tokens to ensure correct token usage and re-authorization.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -340,19 +364,20 @@
             ],
             "details": "Create automated tests that simulate real backend responses, including both success and failure cases. Verify that the authorization flow works end-to-end and that the connection ID is correctly stored.",
             "status": "done",
-            "testStrategy": "Automated integration tests using a mock or real backend, covering all major authorization scenarios."
+            "testStrategy": "Automated integration tests using a mock or real backend, covering all major authorization scenarios.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 6,
+        "id": "6",
         "title": "Implement Heartbeat (Ping/Pong) Management",
         "description": "Detect backend ping messages and respond with pong to maintain WebSocket connection.",
         "details": "In `DesktopMateAdapter`, implement `createPongMessage()` and integrate with WebSocket event handler. Ensure pong is sent within 100ms of ping receipt. Log heartbeat events for debugging.",
         "testStrategy": "Mock ping messages, verify pong responses, long-running connection tests (>5 minutes).",
         "priority": "medium",
         "dependencies": [
-          4
+          "4"
         ],
         "status": "done",
         "subtasks": [
@@ -363,7 +388,8 @@
             "dependencies": [],
             "details": "Modify the WebSocket message event handler to identify ping frames (opcode 0x9 or application-level 'ping' messages). Ensure the handler distinguishes ping messages from regular data and routes them to the heartbeat logic.",
             "status": "done",
-            "testStrategy": "Send mock ping messages to the WebSocket and verify that they are correctly detected and routed for pong response."
+            "testStrategy": "Send mock ping messages to the WebSocket and verify that they are correctly detected and routed for pong response.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -374,7 +400,8 @@
             ],
             "details": "Implement createPongMessage() to construct a pong frame (opcode 0xA) or application-level pong message, ensuring the payload matches the received ping as per RFC6455. Support both binary and text payloads if required by the protocol.",
             "status": "done",
-            "testStrategy": "Unit test createPongMessage() with various ping payloads to ensure correct pong message construction."
+            "testStrategy": "Unit test createPongMessage() with various ping payloads to ensure correct pong message construction.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -385,7 +412,8 @@
             ],
             "details": "Upon detecting a ping, immediately invoke createPongMessage() and send the pong response using the WebSocket send method. Use precise timing (e.g., performance.now()) to verify the pong is sent within 100ms of ping receipt.",
             "status": "done",
-            "testStrategy": "Simulate backend pings and measure response latency to confirm pong is sent within 100ms."
+            "testStrategy": "Simulate backend pings and measure response latency to confirm pong is sent within 100ms.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -396,7 +424,8 @@
             ],
             "details": "Integrate debug logging (using debugLog or similar utility) to record timestamps and details for each ping received and pong sent. Include error logs for missed deadlines or malformed messages.",
             "status": "done",
-            "testStrategy": "Review logs during heartbeat tests to ensure all relevant events are captured with accurate timestamps."
+            "testStrategy": "Review logs during heartbeat tests to ensure all relevant events are captured with accurate timestamps.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -407,19 +436,20 @@
             ],
             "details": "Develop automated tests to send mock ping messages at various intervals, verify timely pong responses, and run long-duration tests (>5 minutes) to ensure connection liveness and proper logging. Simulate network interruptions and verify recovery.",
             "status": "done",
-            "testStrategy": "Automated integration tests with mock backend, latency measurement, and log verification over extended sessions."
+            "testStrategy": "Automated integration tests with mock backend, latency measurement, and log verification over extended sessions.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 7,
+        "id": "7",
         "title": "Implement User Message Formatting",
         "description": "Convert frontend user messages to backend chat_message format, including session metadata.",
         "details": "Use `DesktopMateAdapter.createChatMessage(text, context)` to wrap user input in human message object. Include session metadata (user_id, agent_id, session_id). Handle optional session creation if session_id is missing.",
         "testStrategy": "Message format validation, session ID propagation tests, unit tests for edge cases.",
         "priority": "high",
         "dependencies": [
-          4
+          "4"
         ],
         "status": "done",
         "subtasks": [
@@ -430,7 +460,8 @@
             "dependencies": [],
             "details": "Implement logic to retrieve the raw user message input from the frontend component. Validate that the message is a non-empty string and meets any length or content requirements. Prepare the message for further processing.",
             "status": "done",
-            "testStrategy": "Unit tests for input extraction and validation, including edge cases (empty, too long, invalid characters)."
+            "testStrategy": "Unit tests for input extraction and validation, including edge cases (empty, too long, invalid characters).",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -441,7 +472,8 @@
             ],
             "details": "Fetch user_id and agent_id from the current application context. Check if session_id exists; if not, trigger session creation logic and obtain a new session_id. Ensure all metadata is available for message formatting.",
             "status": "done",
-            "testStrategy": "Unit tests for metadata retrieval and session creation logic. Mock missing session_id scenarios."
+            "testStrategy": "Unit tests for metadata retrieval and session creation logic. Mock missing session_id scenarios.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -452,7 +484,8 @@
             ],
             "details": "Call DesktopMateAdapter.createChatMessage(text, context), passing the validated message and a context object containing user_id, agent_id, and session_id. Ensure the resulting object matches the backend chat_message schema.",
             "status": "done",
-            "testStrategy": "Unit tests to verify correct structure and content of the chat_message object. Schema validation tests."
+            "testStrategy": "Unit tests to verify correct structure and content of the chat_message object. Schema validation tests.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -463,7 +496,8 @@
             ],
             "details": "Update the message sending workflow to use the new formatting logic. Ensure that every outgoing user message is processed through DesktopMateAdapter and includes all required metadata before being sent to the backend.",
             "status": "done",
-            "testStrategy": "Integration tests to confirm formatted messages are sent to the backend. End-to-end tests for message flow."
+            "testStrategy": "Integration tests to confirm formatted messages are sent to the backend. End-to-end tests for message flow.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -474,20 +508,21 @@
             ],
             "details": "Write unit and integration tests covering message formatting, metadata inclusion, session creation, and error handling. Validate that messages with and without session_id are handled correctly. Ensure all edge cases are tested.",
             "status": "done",
-            "testStrategy": "Automated test suite covering all logic branches, including message format validation, session ID propagation, and error scenarios."
+            "testStrategy": "Automated test suite covering all logic branches, including message format validation, session ID propagation, and error scenarios.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 8,
+        "id": "8",
         "title": "Implement TTS API Client",
         "description": "Develop client for backend TTS API to convert text chunks to base64-encoded WAV audio.",
         "details": "In `DesktopMateAdapter`, implement `synthesizeSpeech(text, voice)` using Fetch API. POST to `/v1/tts/synthesize` with text, voice reference_id, and output format. Handle timeouts (default 30s), retry on failure (up to 3 times), and validate response format. Use async/await for concurrency.",
         "testStrategy": "API integration tests, timeout handling, retry logic verification, mock backend responses.",
         "priority": "high",
         "dependencies": [
-          4,
-          1
+          "4",
+          "1"
         ],
         "status": "done",
         "subtasks": [
@@ -498,7 +533,8 @@
             "dependencies": [],
             "details": "Specify the method as async synthesizeSpeech(text, voice). Validate that text is a non-empty string and voice contains a valid reference_id. Throw descriptive errors for invalid inputs before making any API calls.",
             "status": "done",
-            "testStrategy": "Unit tests for input validation, including edge cases (empty text, missing voice, invalid types)."
+            "testStrategy": "Unit tests for input validation, including edge cases (empty text, missing voice, invalid types).",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -509,7 +545,8 @@
             ],
             "details": "Use Fetch API with async/await to POST to /v1/tts/synthesize. Include text, voice reference_id, and output format (e.g., WAV) in the JSON body. Set appropriate headers (Content-Type: application/json). Await the response and handle network errors.",
             "status": "done",
-            "testStrategy": "Mock API endpoint and verify correct request payload and headers are sent."
+            "testStrategy": "Mock API endpoint and verify correct request payload and headers are sent.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -520,7 +557,8 @@
             ],
             "details": "Wrap the fetch call in a timeout mechanism (e.g., using AbortController). On timeout or network failure, retry up to 2 additional times (total 3 attempts). Ensure retries are only for transient errors, not for validation failures.",
             "status": "done",
-            "testStrategy": "Simulate timeouts and network failures; verify retries occur as specified and abort after 3 attempts."
+            "testStrategy": "Simulate timeouts and network failures; verify retries occur as specified and abort after 3 attempts.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -531,7 +569,8 @@
             ],
             "details": "After a successful response, parse the JSON and verify the presence and format of the base64-encoded audio data. Throw errors for missing or invalid fields. Optionally, decode base64 to confirm it is valid WAV data.",
             "status": "done",
-            "testStrategy": "Unit tests with various mock responses (valid, missing fields, invalid base64) to ensure correct error handling."
+            "testStrategy": "Unit tests with various mock responses (valid, missing fields, invalid base64) to ensure correct error handling.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -542,20 +581,21 @@
             ],
             "details": "Add the completed method to DesktopMateAdapter, ensuring it is accessible as part of the adapter's API. Write clear JSDoc comments and a usage example. Ensure method is covered by integration tests.",
             "status": "done",
-            "testStrategy": "Integration tests calling synthesizeSpeech from DesktopMateAdapter; verify end-to-end functionality and documentation accuracy."
+            "testStrategy": "Integration tests calling synthesizeSpeech from DesktopMateAdapter; verify end-to-end functionality and documentation accuracy.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 9,
+        "id": "9",
         "title": "Implement Audio Volume Extraction Utility",
         "description": "Extract per-frame volume data from base64 WAV audio for lip-sync animation.",
         "details": "Create `audio-processor.ts` with `extractVolumesFromWAV(base64)` using Web Audio API. Decode base64, parse WAV, calculate RMS volume per frame (1024 samples), normalize to 0-1 range. Test across Chrome, Firefox, Edge for consistency. Provide fallback algorithm for browser inconsistencies.",
         "testStrategy": "Unit tests with sample WAV files, verify RMS calculation, edge cases (silence, clipping), cross-browser tests.",
         "priority": "high",
         "dependencies": [
-          1,
-          3
+          "1",
+          "3"
         ],
         "status": "done",
         "subtasks": [
@@ -566,7 +606,8 @@
             "dependencies": [],
             "details": "Write a function in `audio-processor.ts` that takes a base64 string, decodes it to an ArrayBuffer, and verifies the WAV header for validity. Ensure compatibility with typical WAV formats used for lip-sync animation.",
             "status": "done",
-            "testStrategy": "Unit tests with valid and invalid base64 WAV strings, including edge cases (empty, corrupted data)."
+            "testStrategy": "Unit tests with valid and invalid base64 WAV strings, including edge cases (empty, corrupted data).",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -577,7 +618,8 @@
             ],
             "details": "Implement WAV parsing logic to locate the 'data' chunk and extract PCM samples as Float32Array or Int16Array, depending on bit depth. Handle mono and stereo formats, and validate sample rate and channel count.",
             "status": "done",
-            "testStrategy": "Unit tests with sample WAV files of varying bit depths, channels, and sample rates. Verify correct extraction of PCM samples."
+            "testStrategy": "Unit tests with sample WAV files of varying bit depths, channels, and sample rates. Verify correct extraction of PCM samples.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -588,7 +630,8 @@
             ],
             "details": "Implement a function to segment PCM data into frames of 1024 samples, compute RMS (root mean square) for each frame, and store the results in an array. Ensure correct handling of partial frames at the end.",
             "status": "done",
-            "testStrategy": "Unit tests verifying RMS calculation accuracy for frames with silence, constant amplitude, and clipping. Compare results to known values."
+            "testStrategy": "Unit tests verifying RMS calculation accuracy for frames with silence, constant amplitude, and clipping. Compare results to known values.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -599,7 +642,8 @@
             ],
             "details": "Implement normalization logic that scales RMS values based on the maximum possible amplitude for the WAV format. Ensure output array contains only values between 0 and 1.",
             "status": "done",
-            "testStrategy": "Unit tests with various amplitude ranges, including edge cases (all silence, all max amplitude). Verify output is always within [0, 1]."
+            "testStrategy": "Unit tests with various amplitude ranges, including edge cases (all silence, all max amplitude). Verify output is always within [0, 1].",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -610,20 +654,21 @@
             ],
             "details": "Use the Web Audio API for primary extraction, but implement a fallback pure JavaScript algorithm for browsers with inconsistent results. Document browser-specific issues and ensure the utility selects the appropriate method at runtime.",
             "status": "done",
-            "testStrategy": "Manual and automated cross-browser tests with sample WAV files. Compare results and verify fallback triggers on known inconsistencies."
+            "testStrategy": "Manual and automated cross-browser tests with sample WAV files. Compare results and verify fallback triggers on known inconsistencies.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 10,
+        "id": "10",
         "title": "Integrate TTS with Message Handler",
         "description": "Trigger TTS synthesis and audio queueing on tts_ready_chunk events in message handler.",
         "details": "Modify `websocket-handler.tsx` to detect `_needs_tts` flag in adapted messages. Call TTS API client, extract volumes, and queue audio for playback. Ensure sequential playback and UI updates for lip-sync.",
         "testStrategy": "End-to-end tests with backend streaming, verify audio playback timing and lip-sync accuracy.",
         "priority": "high",
         "dependencies": [
-          8,
-          9
+          "8",
+          "9"
         ],
         "status": "done",
         "subtasks": [
@@ -634,7 +679,8 @@
             "dependencies": [],
             "details": "Modify the message adaptation logic in websocket-handler.tsx to check for the presence of the _needs_tts flag in incoming messages. Ensure that only flagged messages trigger the TTS workflow.",
             "status": "done",
-            "testStrategy": "Unit test message adaptation to verify correct detection of _needs_tts flag."
+            "testStrategy": "Unit test message adaptation to verify correct detection of _needs_tts flag.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -645,7 +691,8 @@
             ],
             "details": "Integrate TTS API client calls within websocket-handler.tsx when a message requires TTS. Listen for tts_ready_chunk events and extract audio data and volume information from the response.",
             "status": "done",
-            "testStrategy": "Mock TTS API responses and verify correct event handling and audio data extraction."
+            "testStrategy": "Mock TTS API responses and verify correct event handling and audio data extraction.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -656,7 +703,8 @@
             ],
             "details": "Design and implement a queue structure that stores incoming audio chunks. Ensure that playback of each chunk starts only after the previous chunk finishes, using event-driven logic to trigger the next chunk[2].",
             "status": "done",
-            "testStrategy": "Simulate multiple audio chunks and verify sequential playback order and timing."
+            "testStrategy": "Simulate multiple audio chunks and verify sequential playback order and timing.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -667,7 +715,8 @@
             ],
             "details": "Extract volume and timing information from TTS chunks and update the UI to reflect lip movements in sync with audio playback. Ensure smooth transitions and accurate representation of speech.",
             "status": "done",
-            "testStrategy": "End-to-end UI tests to verify lip-sync accuracy during audio playback."
+            "testStrategy": "End-to-end UI tests to verify lip-sync accuracy during audio playback.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -678,21 +727,22 @@
             ],
             "details": "Create end-to-end test cases that simulate message flow from detection to TTS synthesis, audio queueing, playback, and UI updates. Verify timing, playback order, and lip-sync accuracy.",
             "status": "done",
-            "testStrategy": "Automated end-to-end tests covering backend streaming, audio playback timing, and UI lip-sync."
+            "testStrategy": "Automated end-to-end tests covering backend streaming, audio playback timing, and UI lip-sync.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 11,
+        "id": "11",
         "title": "Implement Audio Queue Management",
         "description": "Queue TTS audio chunks for sequential playback, handling interruptions and cleanup.",
         "details": "Develop audioTaskQueue in state management (Zustand). Create audio task objects with audio, volumes, and display text. Ensure sequential playback, clear queue on interruption, and prevent audio overlap.",
         "testStrategy": "Queue multiple chunks, test interruption scenarios, verify cleanup and playback order.",
         "priority": "medium",
         "dependencies": [
-          10
+          "10"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -701,7 +751,8 @@
             "dependencies": [],
             "details": "Create a TypeScript interface or class for audio task objects. Ensure each object contains properties for audio (e.g., base64 WAV or URL), volume level, and display text. This structure will be used throughout the queue management logic.",
             "status": "pending",
-            "testStrategy": "Unit test object creation with various audio, volume, and text values to ensure all fields are correctly assigned."
+            "testStrategy": "Unit test object creation with various audio, volume, and text values to ensure all fields are correctly assigned.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -712,7 +763,8 @@
             ],
             "details": "Create a Zustand store with an array to hold audio task objects. Implement actions for adding tasks to the queue, removing tasks after playback, and clearing the queue on interruption. Ensure state updates are atomic and thread-safe.",
             "status": "pending",
-            "testStrategy": "Write unit tests for queue operations: enqueue, dequeue, and clear. Verify state consistency after each operation."
+            "testStrategy": "Write unit tests for queue operations: enqueue, dequeue, and clear. Verify state consistency after each operation.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -723,7 +775,8 @@
             ],
             "details": "Create a playback controller that monitors the queue and plays each audio chunk in order. Use event listeners or promises to detect when playback finishes before starting the next chunk. Prevent starting a new chunk if another is currently playing.",
             "status": "pending",
-            "testStrategy": "Queue multiple audio tasks and verify playback order and absence of overlap using automated and manual tests."
+            "testStrategy": "Queue multiple audio tasks and verify playback order and absence of overlap using automated and manual tests.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -734,7 +787,8 @@
             ],
             "details": "Add logic to listen for interruption events (such as user stop or new session start). On interruption, stop current playback immediately and clear all pending tasks from the queue. Ensure resources are released and no audio continues playing.",
             "status": "pending",
-            "testStrategy": "Simulate interruption scenarios during playback and verify that audio stops and the queue is cleared. Check for resource leaks."
+            "testStrategy": "Simulate interruption scenarios during playback and verify that audio stops and the queue is cleared. Check for resource leaks.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -745,21 +799,23 @@
             ],
             "details": "During playback, set the audio output volume according to the task's volume property. Display the associated text in the UI while the chunk is playing. Update UI components to reflect current playback status.",
             "status": "pending",
-            "testStrategy": "Test playback of tasks with varying volume levels and display texts. Verify correct volume and UI updates for each chunk."
+            "testStrategy": "Test playback of tasks with varying volume levels and display texts. Verify correct volume and UI updates for each chunk.",
+            "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-11-06T16:19:15.195Z"
       },
       {
-        "id": 12,
+        "id": "12",
         "title": "Update WebSocket Context and Service",
         "description": "Modify WebSocket context and service to use new backend URLs and integrate with DesktopMate protocol.",
         "details": "Update `websocket-context.tsx` to load URLs from configuration. Modify `websocket-service.tsx` to send authorization on connect, handle ping/pong, and route messages through adapter. Persist URLs in localStorage.",
         "testStrategy": "URL loading and persistence tests, connection flow verification, message routing tests.",
         "priority": "high",
         "dependencies": [
-          1,
-          4,
-          3
+          "1",
+          "4",
+          "3"
         ],
         "status": "done",
         "subtasks": [
@@ -772,7 +828,8 @@
             ],
             "details": "Refactor websocket-context.tsx to import and use the configuration management module for loading WebSocket URLs. Ensure the URLs are validated and fallback to sensible defaults if not present. Integrate with type definitions for type safety.",
             "status": "done",
-            "testStrategy": "Unit test that URLs are loaded from configuration, fallback to defaults, and type validation is enforced."
+            "testStrategy": "Unit test that URLs are loaded from configuration, fallback to defaults, and type validation is enforced.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -783,7 +840,8 @@
             ],
             "details": "Modify websocket-context.tsx to save the current WebSocket URLs to localStorage whenever they are updated and to load them on initialization. Ensure updates from the configuration service are reflected in localStorage.",
             "status": "done",
-            "testStrategy": "Test that URLs persist across reloads and are updated in localStorage when changed in configuration."
+            "testStrategy": "Test that URLs persist across reloads and are updated in localStorage when changed in configuration.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -795,7 +853,8 @@
             ],
             "details": "Update websocket-service.tsx to use the DesktopMateAdapter for adapting messages. Ensure all send and receive operations pass through the adapter, and handle unknown or malformed messages gracefully.",
             "status": "done",
-            "testStrategy": "Integration tests with mock backend messages to verify correct adaptation and routing through the adapter."
+            "testStrategy": "Integration tests with mock backend messages to verify correct adaptation and routing through the adapter.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -806,7 +865,8 @@
             ],
             "details": "On successful WebSocket connection, use DesktopMateAdapter.createAuthorizeMessage(token) to construct and send the authorization payload. Ensure token retrieval and error handling are robust.",
             "status": "done",
-            "testStrategy": "Test that authorization is sent on connect and that connection is rejected if authorization fails."
+            "testStrategy": "Test that authorization is sent on connect and that connection is rejected if authorization fails.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -817,20 +877,21 @@
             ],
             "details": "Detect incoming ping messages and respond with pong using DesktopMateAdapter.createPongMessage(). Monitor connection health and trigger reconnection logic if pings are missed.",
             "status": "done",
-            "testStrategy": "Simulate ping/pong exchanges and verify correct responses and connection health monitoring."
+            "testStrategy": "Simulate ping/pong exchanges and verify correct responses and connection health monitoring.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 13,
+        "id": "13",
         "title": "Modify WebSocket Handler Event Processing",
         "description": "Handle all backend events, trigger TTS, update UI, and manage session state.",
         "details": "Update `websocket-handler.tsx` to process adapted messages, trigger TTS integration, update UI state, and interact with session manager. Ensure all message types are handled and errors are logged.",
         "testStrategy": "Event flow tests for each message type, UI state verification, error handling tests.",
         "priority": "high",
         "dependencies": [
-          12,
-          10
+          "12",
+          "10"
         ],
         "status": "done",
         "subtasks": [
@@ -841,7 +902,8 @@
             "dependencies": [],
             "details": "Expand the event handler logic in websocket-handler.tsx to cover all message types defined by the DesktopMate adapter. Use pattern matching or switch statements to dispatch each message type to the appropriate handler. Ensure unknown or malformed messages are logged as errors for debugging and monitoring.",
             "status": "done",
-            "testStrategy": "Unit tests for each message type, including edge cases for unknown or malformed messages."
+            "testStrategy": "Unit tests for each message type, including edge cases for unknown or malformed messages.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -852,7 +914,8 @@
             ],
             "details": "Identify which message types require TTS output (e.g., chat, notifications). For these, call the synthesizeSpeech method from the DesktopMate adapter, passing the appropriate text and voice parameters. Ensure TTS is only triggered when needed and handle any synthesis errors gracefully.",
             "status": "done",
-            "testStrategy": "Mock TTS calls in tests and verify they are triggered for the correct message types; simulate TTS errors and check error handling."
+            "testStrategy": "Mock TTS calls in tests and verify they are triggered for the correct message types; simulate TTS errors and check error handling.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -863,7 +926,8 @@
             ],
             "details": "For each handled message type, update the relevant UI components or global state (e.g., chat messages, user lists, notifications). Use state management best practices to avoid unnecessary re-renders and ensure UI reflects the latest backend state.",
             "status": "done",
-            "testStrategy": "UI integration tests to verify state updates for each event type; snapshot tests for UI consistency."
+            "testStrategy": "UI integration tests to verify state updates for each event type; snapshot tests for UI consistency.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -874,7 +938,8 @@
             ],
             "details": "Interact with the session manager module to update session-related data (e.g., user authentication, session tokens, activity status) whenever relevant events are received. Ensure session state remains consistent across reconnects and event flows.",
             "status": "done",
-            "testStrategy": "Session state tests simulating login, logout, and session updates; verify state after reconnection."
+            "testStrategy": "Session state tests simulating login, logout, and session updates; verify state after reconnection.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -885,20 +950,21 @@
             ],
             "details": "Add structured error logging for all event processing failures, including malformed messages, TTS errors, and UI update issues. Integrate with existing monitoring or analytics tools if available. Ensure logs include sufficient context for troubleshooting.",
             "status": "done",
-            "testStrategy": "Inject faults in tests and verify error logs are generated; review monitoring dashboards for event handler metrics."
+            "testStrategy": "Inject faults in tests and verify error logs are generated; review monitoring dashboards for event handler metrics.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 14,
+        "id": "14",
         "title": "Implement Session Manager Hook",
         "description": "Develop session manager for CRUD operations on conversation sessions and history.",
         "details": "Create `use-session-manager.ts` hook providing `loadHistory(sessionId)`, `saveMessages(messages)`, `listSessions()`, `createSession()`, `deleteSession(sessionId)`, and `currentSessionId` state. Integrate with STM API via DesktopMateAdapter.",
         "testStrategy": "API integration tests for each operation, error handling, and session state management.",
         "priority": "high",
         "dependencies": [
-          4,
-          1
+          "4",
+          "1"
         ],
         "status": "done",
         "subtasks": [
@@ -909,7 +975,8 @@
             "dependencies": [],
             "details": "Specify the hook's exported functions: loadHistory(sessionId), saveMessages(messages), listSessions(), createSession(), deleteSession(sessionId), and currentSessionId state. Document expected input/output types and error handling requirements. Plan how session data and history will be stored and updated within the hook.",
             "status": "done",
-            "testStrategy": "Review API design with team; verify completeness and clarity against requirements."
+            "testStrategy": "Review API design with team; verify completeness and clarity against requirements.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -920,7 +987,8 @@
             ],
             "details": "Use React state and effect hooks to manage session data. Integrate session persistence using DesktopMateAdapter methods to fetch and update session information. Ensure currentSessionId is tracked and updated appropriately. Handle initialization and updates to session state.",
             "status": "done",
-            "testStrategy": "Unit tests for state updates, initialization, and synchronization with API responses."
+            "testStrategy": "Unit tests for state updates, initialization, and synchronization with API responses.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -931,7 +999,8 @@
             ],
             "details": "Implement createSession(), listSessions(), loadHistory(sessionId), saveMessages(messages), and deleteSession(sessionId) using DesktopMateAdapter API calls. Ensure proper error handling and state updates after each operation. Validate input parameters and handle API failures gracefully.",
             "status": "done",
-            "testStrategy": "API integration tests for each CRUD function; simulate success and error scenarios."
+            "testStrategy": "API integration tests for each CRUD function; simulate success and error scenarios.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -942,7 +1011,8 @@
             ],
             "details": "Implement try/catch blocks and error state management for all API interactions. Provide meaningful error messages and fallback behaviors for edge cases such as missing sessions or failed history loads. Ensure hook consumers can access error states and retry operations.",
             "status": "done",
-            "testStrategy": "Unit and integration tests for error scenarios; verify error propagation and recovery."
+            "testStrategy": "Unit and integration tests for error scenarios; verify error propagation and recovery.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -953,21 +1023,22 @@
             ],
             "details": "Create README or inline documentation covering hook API, expected behaviors, and integration steps. Provide example code snippets showing how to use the hook in a React component to manage sessions and history. Highlight error handling and state management best practices.",
             "status": "done",
-            "testStrategy": "Peer review documentation; verify example code compiles and works as intended."
+            "testStrategy": "Peer review documentation; verify example code compiles and works as intended.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 15,
+        "id": "15",
         "title": "Integrate Session Auto-Creation",
         "description": "Automatically create new sessions for first-time conversations and store session ID in context.",
         "details": "In `use-session-manager.ts`, detect absence of session ID and auto-create session via STM API. Store session ID in context for subsequent messages.",
         "testStrategy": "Test first message creates session, subsequent messages use same session, verify session ID persistence.",
         "priority": "medium",
         "dependencies": [
-          14
+          "14"
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -976,7 +1047,8 @@
             "dependencies": [],
             "details": "Add a check in the session manager hook to determine if there is no session ID present in the current context or storage. This should trigger the auto-creation flow only for first-time or new conversations.",
             "status": "done",
-            "testStrategy": "Unit test: Simulate a new conversation and verify that the absence of a session ID is correctly detected."
+            "testStrategy": "Unit test: Simulate a new conversation and verify that the absence of a session ID is correctly detected.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -987,7 +1059,8 @@
             ],
             "details": "Implement an asynchronous function that sends a request to the STM API endpoint for session creation. Ensure the response contains a securely generated session ID, following best practices for randomness and uniqueness.",
             "status": "done",
-            "testStrategy": "Mock STM API responses and verify that a new session ID is returned and handled correctly."
+            "testStrategy": "Mock STM API responses and verify that a new session ID is returned and handled correctly.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -998,7 +1071,8 @@
             ],
             "details": "Update the context provider or relevant state management logic to store the session ID immediately after creation. Ensure that the session ID is accessible to all components that require it.",
             "status": "done",
-            "testStrategy": "Integration test: After session creation, verify that the session ID is present in context and accessible by dependent components."
+            "testStrategy": "Integration test: After session creation, verify that the session ID is present in context and accessible by dependent components.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1009,7 +1083,8 @@
             ],
             "details": "Modify message handling logic to always retrieve and use the session ID from context for every outgoing message, preventing unnecessary session re-creation.",
             "status": "done",
-            "testStrategy": "End-to-end test: Send multiple messages in a conversation and confirm that the same session ID is used throughout."
+            "testStrategy": "End-to-end test: Send multiple messages in a conversation and confirm that the same session ID is used throughout.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1020,19 +1095,21 @@
             ],
             "details": "Add robust error handling for failed session creation requests, including retries, user notifications, and logging. Ensure the application can gracefully recover or inform the user if session creation is not possible.",
             "status": "done",
-            "testStrategy": "Simulate STM API failures and verify that errors are handled gracefully, with appropriate user feedback and no application crashes."
+            "testStrategy": "Simulate STM API failures and verify that errors are handled gracefully, with appropriate user feedback and no application crashes.",
+            "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-11-07T01:30:22.594Z"
       },
       {
-        "id": 16,
+        "id": "16",
         "title": "Implement Session UI Components",
         "description": "Develop UI for listing, loading, creating, and deleting sessions, and displaying chat history.",
         "details": "Create session browser component using Chakra UI. Integrate with session manager hook to list sessions, load history, delete sessions, and create new sessions. Ensure responsive design and accessibility.",
         "testStrategy": "UI interaction tests, data display verification, accessibility checks.",
         "priority": "medium",
         "dependencies": [
-          14
+          "14"
         ],
         "status": "pending",
         "subtasks": [
@@ -1043,7 +1120,8 @@
             "dependencies": [],
             "details": "Use Chakra UI's Box, Flex, and Stack components to structure the session browser. Apply atomic design principles for modularity. Ensure the layout adapts to different screen sizes using responsive props and Flex direction changes.",
             "status": "pending",
-            "testStrategy": "Visual inspection on multiple screen sizes; verify layout responsiveness using browser dev tools."
+            "testStrategy": "Visual inspection on multiple screen sizes; verify layout responsiveness using browser dev tools.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1054,7 +1132,8 @@
             ],
             "details": "Connect the session browser to the session manager hook to fetch and display session data. Use Chakra UI List, ListItem, and Button components for session entries. Ensure keyboard navigation and focus management for accessibility.",
             "status": "pending",
-            "testStrategy": "Unit tests for session listing; manual tests for selection and keyboard navigation; accessibility checks for focus and ARIA attributes."
+            "testStrategy": "Unit tests for session listing; manual tests for selection and keyboard navigation; accessibility checks for focus and ARIA attributes.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1065,7 +1144,8 @@
             ],
             "details": "Use Chakra UI Button and Modal components for create and delete actions. Integrate with session manager hook methods for session creation and deletion. Implement confirmation dialogs for deletion using useDisclosure and Modal.",
             "status": "pending",
-            "testStrategy": "Interaction tests for create/delete actions; verify dialogs appear and function correctly; mock session manager for edge cases."
+            "testStrategy": "Interaction tests for create/delete actions; verify dialogs appear and function correctly; mock session manager for edge cases.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1076,7 +1156,8 @@
             ],
             "details": "Fetch chat history from the session manager hook when a session is selected. Use Chakra UI components such as Box, VStack, and Text to display messages. Ensure scrollability and proper color contrast for readability.",
             "status": "pending",
-            "testStrategy": "Data display verification; accessibility checks for color contrast and screen reader compatibility; test scroll behavior."
+            "testStrategy": "Data display verification; accessibility checks for color contrast and screen reader compatibility; test scroll behavior.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1090,20 +1171,21 @@
             ],
             "details": "Audit all components for responsive behavior using Chakra UI's responsive props and hooks. Validate accessibility features such as keyboard navigation, focus management, ARIA attributes, and color contrast. Test in both light and dark modes.",
             "status": "pending",
-            "testStrategy": "Accessibility audits with tools (e.g., axe, Lighthouse); manual keyboard navigation tests; verify responsiveness on multiple devices."
+            "testStrategy": "Accessibility audits with tools (e.g., axe, Lighthouse); manual keyboard navigation tests; verify responsiveness on multiple devices.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 17,
+        "id": "17",
         "title": "Add History Persistence on Messages",
         "description": "Automatically save all conversation messages to backend STM API and retrieve on reload.",
         "details": "Modify message handler to call `saveMessages()` after each message. On app reload, use `loadHistory()` to restore conversation. Handle errors gracefully and provide local fallback if backend is unavailable.",
         "testStrategy": "Send messages, reload app, verify history restored, error handling tests.",
         "priority": "high",
         "dependencies": [
-          14,
-          13
+          "14",
+          "13"
         ],
         "status": "done",
         "subtasks": [
@@ -1114,7 +1196,8 @@
             "dependencies": [],
             "details": "Update the message handler code so that every time a message is processed (sent or received), the saveMessages() function is called to persist the message data to the backend STM API. Ensure metadata such as sender ID, timestamp, and message type are included for accurate restoration.",
             "status": "done",
-            "testStrategy": "Unit test message handler to verify saveMessages() is called for each message. Check backend for correct message storage."
+            "testStrategy": "Unit test message handler to verify saveMessages() is called for each message. Check backend for correct message storage.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1125,7 +1208,8 @@
             ],
             "details": "On application startup or reload, invoke loadHistory() to fetch all persisted messages from the backend STM API. Populate the chat UI with the retrieved messages, maintaining correct order and context.",
             "status": "done",
-            "testStrategy": "Reload app and verify that previous messages are restored in the correct order. Test with multiple sessions."
+            "testStrategy": "Reload app and verify that previous messages are restored in the correct order. Test with multiple sessions.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1136,7 +1220,8 @@
             ],
             "details": "Detect errors when saving or loading messages from the backend STM API. If an error occurs, store messages locally (e.g., browser localStorage) and retrieve from local storage on subsequent reloads until backend is available again.",
             "status": "done",
-            "testStrategy": "Simulate backend outages and verify messages are saved and restored from local storage. Confirm seamless transition when backend becomes available."
+            "testStrategy": "Simulate backend outages and verify messages are saved and restored from local storage. Confirm seamless transition when backend becomes available.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1147,7 +1232,8 @@
             ],
             "details": "Implement logic to detect when the backend STM API becomes available after an outage. Automatically upload any locally stored messages to the backend and reconcile message history to avoid duplication or loss.",
             "status": "done",
-            "testStrategy": "Test by sending messages during backend downtime, then restoring connectivity and verifying synchronization and deduplication."
+            "testStrategy": "Test by sending messages during backend downtime, then restoring connectivity and verifying synchronization and deduplication.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1158,20 +1244,21 @@
             ],
             "details": "Display appropriate notifications or UI indicators when messages cannot be saved to the backend and are stored locally instead. Inform users when synchronization occurs or if any messages could not be restored.",
             "status": "done",
-            "testStrategy": "Trigger backend errors and verify user receives clear feedback. Confirm notifications for fallback and synchronization events."
+            "testStrategy": "Trigger backend errors and verify user receives clear feedback. Confirm notifications for fallback and synchronization events.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 18,
+        "id": "18",
         "title": "Implement VLM API Client (Optional Enhancement)",
         "description": "Develop client for Vision-Language Model API to analyze images and screenshots.",
         "details": "In `DesktopMateAdapter`, implement `analyzeImage(image, question)` using Fetch API. POST to `/v1/vlm/analyze` with base64 image and user question. Handle large images, timeout after 60s, and validate response format.",
         "testStrategy": "API tests with sample images, performance and timeout tests, response validation.",
         "priority": "low",
         "dependencies": [
-          4,
-          1
+          "4",
+          "1"
         ],
         "status": "pending",
         "subtasks": [
@@ -1182,7 +1269,8 @@
             "dependencies": [],
             "details": "Implement logic in `analyzeImage(image, question)` to accept an image (e.g., File, Blob, or data URL), convert it to a base64-encoded string, and create a JSON object with keys for the image and question. Ensure compatibility with various image input types.",
             "status": "pending",
-            "testStrategy": "Unit test with different image formats and verify correct base64 encoding and payload structure."
+            "testStrategy": "Unit test with different image formats and verify correct base64 encoding and payload structure.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1193,7 +1281,8 @@
             ],
             "details": "Use the Fetch API to POST the JSON payload to the endpoint. Implement timeout logic (e.g., using AbortController) to abort the request if it exceeds 60 seconds. Handle network errors and ensure proper cleanup.",
             "status": "pending",
-            "testStrategy": "Integration test with a mock server to simulate normal, slow, and failed responses. Verify timeout and error handling."
+            "testStrategy": "Integration test with a mock server to simulate normal, slow, and failed responses. Verify timeout and error handling.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1204,7 +1293,8 @@
             ],
             "details": "Before encoding, check image dimensions and file size. If the image exceeds predefined limits (e.g., >2MB or >2048px width/height), resize or compress it using a canvas or image processing library. Document the limits and processing steps.",
             "status": "pending",
-            "testStrategy": "Test with images of varying sizes. Confirm that oversized images are resized/compressed and payload remains within limits."
+            "testStrategy": "Test with images of varying sizes. Confirm that oversized images are resized/compressed and payload remains within limits.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1215,7 +1305,8 @@
             ],
             "details": "After receiving the response, check that it is valid JSON and conforms to the expected structure (e.g., contains required fields such as 'interpretation' or answer). Handle missing or malformed data with appropriate error messages.",
             "status": "pending",
-            "testStrategy": "Mock API responses with valid and invalid formats. Verify correct parsing and error handling."
+            "testStrategy": "Mock API responses with valid and invalid formats. Verify correct parsing and error handling.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1229,20 +1320,21 @@
             ],
             "details": "Assemble the encoding, request, image handling, and response validation into the `analyzeImage` method. Write integration tests using sample images and questions. Ensure the method works as intended in the application context.",
             "status": "pending",
-            "testStrategy": "End-to-end tests with real and mock API endpoints, covering normal, large, and error scenarios."
+            "testStrategy": "End-to-end tests with real and mock API endpoints, covering normal, large, and error scenarios.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 19,
+        "id": "19",
         "title": "Integrate Screenshot Capture and VLM Context",
         "description": "Enable screenshot capture, send to VLM API, and include analysis in chat context.",
         "details": "Implement screenshot capture using Electron APIs. Send captured image to VLM API client, append analysis result to chat message, and mark as containing visual data. Integrate with message handler and session manager.",
         "testStrategy": "Screenshot capture tests, analysis verification, end-to-end chat flow with visual context.",
         "priority": "low",
         "dependencies": [
-          18,
-          13
+          "18",
+          "13"
         ],
         "status": "pending",
         "subtasks": [
@@ -1253,7 +1345,8 @@
             "dependencies": [],
             "details": "Use Electron's desktopCapturer API to allow users to capture screenshots. Ensure the implementation supports capturing the entire screen or a specific window. Convert the captured image to a suitable format (e.g., base64 or buffer) for further processing. Handle user permissions as required by the OS.",
             "status": "pending",
-            "testStrategy": "Unit test screenshot capture for different sources and verify image output format."
+            "testStrategy": "Unit test screenshot capture for different sources and verify image output format.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1264,7 +1357,8 @@
             ],
             "details": "Integrate with the VLM API client to send the captured image data. Ensure the image is correctly encoded (e.g., base64 or binary buffer) and meets the API's requirements. Handle API response and error cases robustly.",
             "status": "pending",
-            "testStrategy": "Mock VLM API client and verify image transmission and response handling."
+            "testStrategy": "Mock VLM API client and verify image transmission and response handling.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1275,7 +1369,8 @@
             ],
             "details": "Upon receiving the analysis result from the VLM API, append the result to the corresponding chat message object. Ensure the message structure supports visual data and analysis text. Update UI components to reflect the new message format.",
             "status": "pending",
-            "testStrategy": "Unit test message object updates and verify UI displays analysis result."
+            "testStrategy": "Unit test message object updates and verify UI displays analysis result.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1286,7 +1381,8 @@
             ],
             "details": "Modify the chat message schema to include a flag or property indicating the presence of visual data. Ensure this flag is set when a screenshot and its analysis are attached. Update any relevant UI indicators.",
             "status": "pending",
-            "testStrategy": "Test message metadata and UI indicators for messages with and without visual data."
+            "testStrategy": "Test message metadata and UI indicators for messages with and without visual data.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1297,19 +1393,20 @@
             ],
             "details": "Wire the screenshot and analysis workflow into the main message handler logic. Ensure session context is maintained and updated as needed. Test the end-to-end flow from screenshot capture to chat message update within a session.",
             "status": "pending",
-            "testStrategy": "End-to-end integration test covering screenshot capture, VLM analysis, message update, and session management."
+            "testStrategy": "End-to-end integration test covering screenshot capture, VLM analysis, message update, and session management.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 20,
+        "id": "20",
         "title": "Implement Connection Error Recovery",
         "description": "Handle WebSocket disconnections and reconnections with exponential backoff and user notifications.",
         "details": "In `websocket-service.tsx`, implement reconnection logic with exponential backoff (3s, 6s, 12s...), max 5 attempts. Notify user of connection status and preserve message queue during reconnection.",
         "testStrategy": "Disconnect scenarios, reconnection timing tests, user notification verification.",
         "priority": "high",
         "dependencies": [
-          12
+          "12"
         ],
         "status": "done",
         "subtasks": [
@@ -1320,7 +1417,8 @@
             "dependencies": [],
             "details": "Add event listeners for 'close' and 'error' events in websocket-service.tsx. Ensure that these events reliably trigger the reconnection logic and update internal connection state.",
             "status": "done",
-            "testStrategy": "Simulate server disconnects and network errors; verify that the disconnection is detected and reconnection logic is initiated."
+            "testStrategy": "Simulate server disconnects and network errors; verify that the disconnection is detected and reconnection logic is initiated.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1331,7 +1429,8 @@
             ],
             "details": "Create a function that schedules reconnection attempts with exponentially increasing delays. Reset the delay on successful connection. Add random jitter to each delay to prevent thundering herd problems. Stop after 5 failed attempts and expose status for UI updates.",
             "status": "done",
-            "testStrategy": "Unit test the backoff timing logic; verify correct delays and attempt limits. Simulate repeated failures and ensure the logic stops after 5 attempts."
+            "testStrategy": "Unit test the backoff timing logic; verify correct delays and attempt limits. Simulate repeated failures and ensure the logic stops after 5 attempts.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1342,7 +1441,8 @@
             ],
             "details": "Implement a message queue in websocket-service.tsx. On disconnect, buffer outgoing messages. On successful reconnection, flush the queue in order. Handle edge cases such as duplicate messages or queue overflow.",
             "status": "done",
-            "testStrategy": "Disconnect and reconnect while sending messages; verify that all queued messages are delivered after reconnection and no messages are lost or duplicated."
+            "testStrategy": "Disconnect and reconnect while sending messages; verify that all queued messages are delivered after reconnection and no messages are lost or duplicated.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1354,7 +1454,8 @@
             ],
             "details": "Integrate with the UI layer to show real-time connection status. Use toast notifications or status banners to inform users of reconnection progress and failures. Ensure accessibility and clarity of messages.",
             "status": "done",
-            "testStrategy": "Manually trigger connection events and verify that the UI updates correctly for each status. Check notification visibility and accuracy."
+            "testStrategy": "Manually trigger connection events and verify that the UI updates correctly for each status. Check notification visibility and accuracy.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1368,21 +1469,22 @@
             ],
             "details": "Test the full workflow: simulate disconnects, verify exponential backoff, message queue preservation, and user notifications. Validate recovery from various failure scenarios and ensure system stability.",
             "status": "done",
-            "testStrategy": "Automated and manual integration tests covering disconnects, reconnections, message delivery, and UI feedback. Include stress tests for rapid disconnect/reconnect cycles."
+            "testStrategy": "Automated and manual integration tests covering disconnects, reconnections, message delivery, and UI feedback. Include stress tests for rapid disconnect/reconnect cycles.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 21,
+        "id": "21",
         "title": "Add Comprehensive API Error Handling",
         "description": "Handle TTS, VLM, and STM API failures gracefully with retry logic and user-friendly error messages.",
         "details": "Parse error codes, implement retry logic (3 retries for TTS, 2 for VLM), show toaster notifications, and log errors for debugging. Integrate error handling in all API clients and message handler.",
         "testStrategy": "Error injection tests, timeout simulation, network failure tests, user notification checks.",
         "priority": "high",
         "dependencies": [
-          8,
-          18,
-          14
+          "8",
+          "18",
+          "14"
         ],
         "status": "pending",
         "subtasks": [
@@ -1393,7 +1495,8 @@
             "dependencies": [],
             "details": "Review API documentation for TTS, VLM, and STM to identify all possible error codes and formats. Create utility functions to extract and normalize error codes and messages, ensuring a consistent structure for downstream handling. Map error codes to human-readable messages and internal error types.",
             "status": "pending",
-            "testStrategy": "Unit tests for error code parsing and normalization, including edge cases and malformed responses."
+            "testStrategy": "Unit tests for error code parsing and normalization, including edge cases and malformed responses.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1404,7 +1507,8 @@
             ],
             "details": "Integrate retry mechanisms into TTS and VLM API client modules. Retries should be triggered only for transient errors (e.g., network timeouts, 5xx server errors). Ensure exponential backoff or fixed delay between retries. Log each retry attempt and final failure for debugging.",
             "status": "pending",
-            "testStrategy": "Simulate transient errors and verify correct retry behavior, including retry count and delay."
+            "testStrategy": "Simulate transient errors and verify correct retry behavior, including retry count and delay.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1416,7 +1520,8 @@
             ],
             "details": "Integrate toaster notification logic in the message handler and API clients. Use standardized, human-readable error messages mapped from parsed error codes. Avoid exposing sensitive or technical details. Ensure notifications are actionable and localized if needed.",
             "status": "pending",
-            "testStrategy": "Inject various error scenarios and verify correct notification content, format, and visibility."
+            "testStrategy": "Inject various error scenarios and verify correct notification content, format, and visibility.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1428,7 +1533,8 @@
             ],
             "details": "Implement structured logging for all API error events, including error code, message, request details, and correlation IDs. Integrate with existing logging infrastructure and ensure logs are accessible for monitoring and troubleshooting.",
             "status": "pending",
-            "testStrategy": "Trigger error scenarios and verify log entries contain all required information and are correctly formatted."
+            "testStrategy": "Trigger error scenarios and verify log entries contain all required information and are correctly formatted.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1442,19 +1548,20 @@
             ],
             "details": "Refactor API clients and message handler to use standardized error parsing, retry logic, notification, and logging. Validate that all API interactions are covered and error handling is consistent across modules. Update documentation to reflect new error handling flows.",
             "status": "pending",
-            "testStrategy": "End-to-end tests simulating API failures in all clients, verifying retry, notification, and logging behaviors."
+            "testStrategy": "End-to-end tests simulating API failures in all clients, verifying retry, notification, and logging behaviors.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 22,
+        "id": "22",
         "title": "Implement Message Validation and Sanitization",
         "description": "Validate message formats before processing, sanitize content, and reject malformed messages.",
         "details": "In `DesktopMateAdapter`, check required fields, validate types, sanitize content, and log errors for malformed messages. Use runtime validation in addition to TypeScript types.",
         "testStrategy": "Fuzzing tests, invalid message tests, error logging verification.",
         "priority": "high",
         "dependencies": [
-          4
+          "4"
         ],
         "status": "done",
         "subtasks": [
@@ -1465,7 +1572,8 @@
             "dependencies": [],
             "details": "Create TypeScript interfaces for message objects, listing all required fields and their types. Document the schema and ensure it covers all message variants expected by the adapter.",
             "status": "done",
-            "testStrategy": "TypeScript type checks and schema documentation review."
+            "testStrategy": "TypeScript type checks and schema documentation review.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1476,7 +1584,8 @@
             ],
             "details": "Write validation functions that verify each message against the defined schema. Use union types or predicate functions to return detailed error messages for invalid messages. Integrate these checks at the entry point of message handling in DesktopMateAdapter.",
             "status": "done",
-            "testStrategy": "Unit tests with valid and invalid message samples; verify error reporting for malformed messages."
+            "testStrategy": "Unit tests with valid and invalid message samples; verify error reporting for malformed messages.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1487,7 +1596,8 @@
             ],
             "details": "Implement sanitization routines for text fields, such as escaping HTML, removing scripts, and filtering out unsafe characters. Apply these routines after validation and before further processing.",
             "status": "done",
-            "testStrategy": "Fuzzing tests with malicious input; verify sanitized output and absence of unsafe content."
+            "testStrategy": "Fuzzing tests with malicious input; verify sanitized output and absence of unsafe content.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1499,7 +1609,8 @@
             ],
             "details": "Use the existing logging utilities to record validation and sanitization errors. Ensure logs include message context, error details, and timestamps for debugging and monitoring.",
             "status": "done",
-            "testStrategy": "Simulate malformed messages; verify error logs contain correct information and are formatted as expected."
+            "testStrategy": "Simulate malformed messages; verify error logs contain correct information and are formatted as expected.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1512,21 +1623,22 @@
             ],
             "details": "Implement logic to halt processing for invalid or unsafe messages, returning error responses or status codes as needed. Ensure the system remains robust and does not crash or leak information when encountering malformed input.",
             "status": "done",
-            "testStrategy": "Integration tests with malformed messages; verify rejection, error handling, and system stability."
+            "testStrategy": "Integration tests with malformed messages; verify rejection, error handling, and system stability.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 23,
+        "id": "23",
         "title": "Add Performance Monitoring and Metrics Logging",
         "description": "Track TTS latency, connection health, and other key metrics for monitoring and optimization.",
         "details": "Integrate performance monitoring using Electron's IPC or third-party tools (e.g., Grafana, ELK Stack). Log TTS latency, message throughput, connection status, and error rates. Provide metrics dashboard for developers.",
         "testStrategy": "Performance benchmarks, latency measurements, metrics logging verification.",
         "priority": "medium",
         "dependencies": [
-          8,
-          12,
-          3
+          "8",
+          "12",
+          "3"
         ],
         "status": "pending",
         "subtasks": [
@@ -1537,7 +1649,8 @@
             "dependencies": [],
             "details": "Research available monitoring solutions compatible with Electron. Install the chosen SDK (e.g., @sentry/electron) and initialize it in both the main and renderer processes. Configure IPC communication and set up basic error and performance tracking as per documentation.",
             "status": "pending",
-            "testStrategy": "Verify SDK initialization and basic event capture in both processes using test errors and performance events."
+            "testStrategy": "Verify SDK initialization and basic event capture in both processes using test errors and performance events.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1548,7 +1661,8 @@
             ],
             "details": "Identify TTS request and response points in the code. Record timestamps for each TTS operation and calculate latency. Track the number of messages processed per unit time. Send these metrics to the monitoring framework using custom events or logs.",
             "status": "pending",
-            "testStrategy": "Simulate TTS requests and verify that latency and throughput metrics are accurately logged and visible in the monitoring dashboard."
+            "testStrategy": "Simulate TTS requests and verify that latency and throughput metrics are accurately logged and visible in the monitoring dashboard.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1559,7 +1673,8 @@
             ],
             "details": "Hook into connection lifecycle events (connect, disconnect, error) and log status changes and error counts. Integrate these metrics with the monitoring framework, ensuring they are tagged and categorized for easy analysis.",
             "status": "pending",
-            "testStrategy": "Force connection errors and disconnections, then verify that health and error metrics are correctly logged and reported."
+            "testStrategy": "Force connection errors and disconnections, then verify that health and error metrics are correctly logged and reported.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1571,7 +1686,8 @@
             ],
             "details": "Set up periodic aggregation of metrics (e.g., average latency, error rates) and store them in a database or send them to a time-series backend. Ensure compatibility with dashboard tools (e.g., Grafana, ELK Stack) for real-time and historical visualization.",
             "status": "pending",
-            "testStrategy": "Check that aggregated metrics are correctly stored and accessible for dashboard queries. Validate with sample data and dashboard integration tests."
+            "testStrategy": "Check that aggregated metrics are correctly stored and accessible for dashboard queries. Validate with sample data and dashboard integration tests.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1582,20 +1698,21 @@
             ],
             "details": "Design and implement a dashboard UI using a suitable framework (e.g., Grafana, custom Electron window). Connect the dashboard to the metrics backend and display real-time and historical data with appropriate charts and alerts.",
             "status": "pending",
-            "testStrategy": "Verify that the dashboard displays all required metrics accurately and updates in real time. Test with simulated data and edge cases."
+            "testStrategy": "Verify that the dashboard displays all required metrics accurately and updates in real time. Test with simulated data and edge cases.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 24,
+        "id": "24",
         "title": "Create Settings UI for Configuration Management",
         "description": "Develop UI components for users to change URLs, voice selection, feature flags, and view connection status.",
         "details": "Use Chakra UI to build settings panel. Integrate with configuration service for runtime updates. Provide feedback on connection status, voice selection, and feature toggling. Ensure responsive design and accessibility.",
         "testStrategy": "UI tests for all settings, persistence tests, accessibility checks.",
         "priority": "medium",
         "dependencies": [
-          1,
-          16
+          "1",
+          "16"
         ],
         "status": "pending",
         "subtasks": [
@@ -1606,7 +1723,8 @@
             "dependencies": [],
             "details": "Install @chakra-ui/react and @emotion/react. Wrap the application with ChakraProvider in the main entry point (e.g., App.tsx). Create a dedicated directory (e.g., components/Settings) for all settings-related UI components. Ensure TypeScript configuration is compatible with Chakra UI.",
             "status": "pending",
-            "testStrategy": "Verify Chakra UI components render correctly and theming works by displaying a sample component."
+            "testStrategy": "Verify Chakra UI components render correctly and theming works by displaying a sample component.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1617,7 +1735,8 @@
             ],
             "details": "Use Chakra UI layout primitives (e.g., Box, Stack, Grid) to create a responsive panel. Apply accessible labels, ARIA attributes, and keyboard navigation. Ensure the panel adapts to different screen sizes and meets WCAG accessibility standards.",
             "status": "pending",
-            "testStrategy": "Test layout on various devices and screen sizes. Use accessibility tools (e.g., axe, Lighthouse) to check for violations."
+            "testStrategy": "Test layout on various devices and screen sizes. Use accessibility tools (e.g., axe, Lighthouse) to check for violations.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1628,7 +1747,8 @@
             ],
             "details": "Add input fields for URLs, dropdown/select for voice selection, and switches or checkboxes for feature flags. Use Chakra UI's FormControl, Input, Select, and Switch components. Validate inputs and provide user feedback for invalid entries.",
             "status": "pending",
-            "testStrategy": "Interact with each control, verify state updates, and check for validation feedback. Write unit tests for input validation."
+            "testStrategy": "Interact with each control, verify state updates, and check for validation feedback. Write unit tests for input validation.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1639,7 +1759,8 @@
             ],
             "details": "Use hooks or context to read and update configuration values. Ensure changes in the UI are reflected in the configuration service and persisted (e.g., to localStorage). Handle runtime updates and error states gracefully.",
             "status": "pending",
-            "testStrategy": "Simulate configuration changes and verify updates are persisted and reflected in the UI. Mock configuration service in tests."
+            "testStrategy": "Simulate configuration changes and verify updates are persisted and reflected in the UI. Mock configuration service in tests.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1650,29 +1771,30 @@
             ],
             "details": "Add status indicators (e.g., badges, alerts) for connection state. Show success/error messages when settings are changed. Use Chakra UI's Alert, Badge, and Toast components for feedback. Ensure feedback is accessible and non-intrusive.",
             "status": "pending",
-            "testStrategy": "Test connection status updates and feedback messages under various scenarios. Use automated and manual accessibility checks."
+            "testStrategy": "Test connection status updates and feedback messages under various scenarios. Use automated and manual accessibility checks.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 25,
+        "id": "25",
         "title": "Write Integration and Unit Tests",
         "description": "Develop comprehensive integration and unit tests for all modules, targeting >80% code coverage.",
         "details": "Use Jest for unit tests and Playwright/Cypress for E2E tests. Mock backend APIs for unit tests, use real backend for integration tests. Focus on message translation, WebSocket state machine, TTS pipeline timing, session persistence, and UI flows.",
         "testStrategy": "Run coverage reports, verify critical paths, and ensure all acceptance criteria are met.",
         "priority": "high",
         "dependencies": [
-          4,
-          8,
-          14,
-          12,
-          13,
-          16,
-          18,
-          20,
-          21,
-          22,
-          24
+          "4",
+          "8",
+          "14",
+          "12",
+          "13",
+          "16",
+          "18",
+          "20",
+          "21",
+          "22",
+          "24"
         ],
         "status": "pending",
         "subtasks": [
@@ -1683,7 +1805,8 @@
             "dependencies": [],
             "details": "Isolate the message translation functions and use Jest to create unit tests that mock external dependencies. Focus on various input scenarios, including edge cases and error handling. Ensure test names are descriptive and follow the Arrange-Act-Assert pattern.",
             "status": "pending",
-            "testStrategy": "Run Jest unit tests with mocked dependencies. Use code coverage reports to verify >80% coverage for the translation module."
+            "testStrategy": "Run Jest unit tests with mocked dependencies. Use code coverage reports to verify >80% coverage for the translation module.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1694,7 +1817,8 @@
             ],
             "details": "Mock backend APIs for unit tests to simulate different WebSocket events and states. For integration tests, use the real backend to validate end-to-end state transitions and error handling. Ensure tests cover authorization, message exchange, and disconnection scenarios.",
             "status": "pending",
-            "testStrategy": "Combine Jest unit tests (mocked) and Playwright/Cypress integration tests (real backend). Validate state transitions and error handling through automated test runs."
+            "testStrategy": "Combine Jest unit tests (mocked) and Playwright/Cypress integration tests (real backend). Validate state transitions and error handling through automated test runs.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1705,7 +1829,8 @@
             ],
             "details": "Mock timing functions and backend responses in unit tests to simulate various TTS scenarios. Use integration tests to measure actual timing and sequencing with the real backend. Ensure tests validate correct order of operations and handle timing edge cases.",
             "status": "pending",
-            "testStrategy": "Use Jest to mock and assert timing logic. Use Playwright/Cypress to validate real-world timing and sequencing with backend integration."
+            "testStrategy": "Use Jest to mock and assert timing logic. Use Playwright/Cypress to validate real-world timing and sequencing with backend integration.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1716,7 +1841,8 @@
             ],
             "details": "Use Jest to mock session storage and API calls in unit tests. Write integration tests with Playwright/Cypress to verify session creation, persistence, and restoration using the real backend. Test scenarios include new sessions, session resumption, and session loss.",
             "status": "pending",
-            "testStrategy": "Run Jest unit tests for session logic with mocked storage. Use Playwright/Cypress to validate session persistence in end-to-end flows."
+            "testStrategy": "Run Jest unit tests for session logic with mocked storage. Use Playwright/Cypress to validate session persistence in end-to-end flows.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1727,12 +1853,13 @@
             ],
             "details": "Identify critical UI flows (e.g., login, message sending, session switching) and automate their testing using Playwright or Cypress. Use the real backend to validate full-stack integration. Ensure tests cover both typical and edge-case user behaviors.",
             "status": "pending",
-            "testStrategy": "Automate UI flows with Playwright/Cypress, run tests against the real backend, and monitor coverage to ensure all critical paths are tested."
+            "testStrategy": "Automate UI flows with Playwright/Cypress, run tests against the real backend, and monitor coverage to ensure all critical paths are tested.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 26,
+        "id": "26",
         "title": "Write User and Developer Documentation",
         "description": "Create comprehensive documentation for setup, troubleshooting, features, architecture, and API reference.",
         "details": "Write INTEGRATION_GUIDE.md, QUICK_INTEGRATION.md, and ARCHITECTURE.md in the integration/docs directory. Include setup instructions, feature descriptions, troubleshooting steps, and developer guides. Use Markdown for formatting and include code examples.",
@@ -1748,7 +1875,8 @@
             "dependencies": [],
             "details": "Write INTEGRATION_GUIDE.md in the integration/docs directory. Include step-by-step setup instructions, prerequisites, environment configuration, and common troubleshooting scenarios. Use clear headings, bullet points, and code examples. Ensure instructions are accessible to both novice and experienced users.",
             "status": "pending",
-            "testStrategy": "Have a new user follow the guide to set up the integration and resolve a simulated issue. Collect feedback on clarity and completeness."
+            "testStrategy": "Have a new user follow the guide to set up the integration and resolve a simulated issue. Collect feedback on clarity and completeness.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1757,7 +1885,8 @@
             "dependencies": [],
             "details": "Create QUICK_INTEGRATION.md in the integration/docs directory. Provide a streamlined set of instructions for getting started quickly, highlighting only the most critical steps. Use code snippets and minimal explanations. Target users who want to integrate with minimal reading.",
             "status": "pending",
-            "testStrategy": "Test by timing a user with no prior experience to complete the quick integration. Verify that all necessary steps are included and nothing critical is omitted."
+            "testStrategy": "Test by timing a user with no prior experience to complete the quick integration. Verify that all necessary steps are included and nothing critical is omitted.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1768,7 +1897,8 @@
             ],
             "details": "Expand INTEGRATION_GUIDE.md to include a section listing all major features, their usage, and benefits. Add an API reference with endpoint descriptions, parameters, response formats, and example requests/responses. Use tables and code blocks for clarity.",
             "status": "pending",
-            "testStrategy": "Cross-check API documentation against actual implementation. Have a developer use the reference to make API calls and confirm accuracy."
+            "testStrategy": "Cross-check API documentation against actual implementation. Have a developer use the reference to make API calls and confirm accuracy.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1777,7 +1907,8 @@
             "dependencies": [],
             "details": "Write ARCHITECTURE.md in the integration/docs directory. Include a high-level overview, component descriptions, and data flow diagrams. Use Markdown for structure and embed diagrams as images or ASCII art. Clearly define scope and intended audience (developers).",
             "status": "pending",
-            "testStrategy": "Have a developer unfamiliar with the system review the document and explain the architecture back. Check for gaps or ambiguities."
+            "testStrategy": "Have a developer unfamiliar with the system review the document and explain the architecture back. Check for gaps or ambiguities.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1791,15 +1922,20 @@
             ],
             "details": "Edit all Markdown files for grammar, style, and formatting consistency. Ensure terminology, tone, and structure match across documents. Remove redundant or outdated information. Apply best practices for technical writing, such as active voice, concise language, and clear organization.",
             "status": "pending",
-            "testStrategy": "Peer review by both a developer and a non-technical user. Use a documentation checklist to verify adherence to standards."
+            "testStrategy": "Peer review by both a developer and a non-technical user. Use a documentation checklist to verify adherence to standards.",
+            "parentId": "undefined"
           }
         ]
       }
     ],
     "metadata": {
-      "created": "2025-11-06T02:46:14.119Z",
-      "updated": "2025-11-06T14:27:20.297Z",
-      "description": "Tasks for master context"
+      "version": "1.0.0",
+      "lastModified": "2025-11-07T01:30:22.595Z",
+      "taskCount": 26,
+      "completedCount": 18,
+      "tags": [
+        "master"
+      ]
     }
   }
 }

@@ -352,7 +352,7 @@ export function useSessionManager(config: SessionManagerConfig): UseSessionManag
         const request: AddChatHistoryRequest = {
           user_id: userId,
           agent_id: agentId,
-          messages: initialMessages || [],
+          messages: initialMessages,
         };
 
         const response = await desktopMateAdapter.addChatHistory(request);
