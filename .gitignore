@@ -60,3 +60,4 @@ out
 # Cursor files
 .cursorrules
 .env
+.gemini
