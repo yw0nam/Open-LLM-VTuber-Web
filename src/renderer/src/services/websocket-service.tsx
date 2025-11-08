@@ -184,18 +184,9 @@ class WebSocketService {
   }
 
   private proceedWithRegularInitialization() {
-    this.sendMessage({
-      type: 'fetch-backgrounds',
-    });
-    this.sendMessage({
-      type: 'fetch-configs',
-    });
-    this.sendMessage({
-      type: 'fetch-history-list',
-    });
-    this.sendMessage({
-      type: 'create-new-history',
-    });
+    // Backend initialization complete
+    // No initial fetch messages needed - backend uses REST APIs for configuration
+    console.log('WebSocket connection initialized');
   }
 
   private handleAuthorizationSuccess(connectionId: string) {

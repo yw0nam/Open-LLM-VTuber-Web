@@ -329,10 +329,8 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           duration: 2000,
         });
 
-        // setModelInfo(undefined);
-
-        wsService.sendMessage({ type: 'fetch-history-list' });
-        wsService.sendMessage({ type: 'create-new-history' });
+        // Configuration switched - no additional WebSocket messages needed
+        // Session management is handled via REST API (/v1/stm/sessions)
         break;
       case 'background-files':
         if (message.files) {
