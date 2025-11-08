@@ -18,9 +18,7 @@ import { toaster } from '@/components/ui/toaster';
 import { useVAD } from '@/context/vad-context';
 import { AiState, useAiState } from "@/context/ai-state-context";
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
-import { useGroup } from '@/context/group-context';
 import { useInterrupt } from '@/hooks/utils/use-interrupt';
-import { useBrowser } from '@/context/browser-context';
 import { extractVolumesFromWAV } from '@/services/audio-processor';
 import { desktopMateAdapter } from '@/services/desktopmate-adapter';
 import { useSession } from '@/context/session-context';
@@ -57,12 +55,13 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const bgUrlContext = useBgUrl();
   const { confUid, setConfName, setConfUid, setConfigFiles } = useConfig();
   const [pendingModelInfo, setPendingModelInfo] = useState<ModelInfo | undefined>(undefined);
-  const { selfUid, setSelfUid, setGroupMembers, setIsOwner } = useGroup();
   const { startMic, stopMic, autoStartMicOnConvEnd } = useVAD();
   const autoStartMicOnConvEndRef = useRef(autoStartMicOnConvEnd);
   const { interrupt } = useInterrupt();
-  const { setBrowserViewData } = useBrowser();
   const { sessionId } = useSession();
+
+  // Local state for user ID (not used in DesktopMatePlus backend, kept for compatibility)
+  const [selfUid, setSelfUid] = useState<string>('');
 
   const [shouldSaveMessages, setShouldSaveMessages] = useState(false);
   const [hasLoadedHistory, setHasLoadedHistory] = useState(false);
@@ -426,22 +425,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
           duration: 2000,
         });
         break;
-      case 'group-update':
-        console.log('Received group-update:', message.members);
-        if (message.members) {
-          setGroupMembers(message.members);
-        }
-        if (message.is_owner !== undefined) {
-          setIsOwner(message.is_owner);
-        }
-        break;
-      case 'group-operation-result':
-        toaster.create({
-          title: message.message,
-          type: message.success ? 'success' : 'error',
-          duration: 2000,
-        });
-        break;
       case 'backend-synth-complete':
         setBackendSynthComplete(true);
         break;
@@ -475,11 +458,8 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         break;
       case 'tool_call_status':
         if (message.tool_id && message.tool_name && message.status) {
-          // If there's browser view data included, store it in the browser context
-          if (message.browser_view) {
-            console.log('Browser view data received:', message.browser_view);
-            setBrowserViewData(message.browser_view);
-          }
+          // Tool call functionality removed - backend doesn't support tool calls
+          console.log('Ignoring tool_call_status message (not supported by backend)');
 
           appendOrUpdateToolCallMessage({
             id: message.tool_id,
@@ -532,7 +512,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       default:
         console.warn('Unknown message type:', message.type);
     }
-  }, [aiState, addAudioTask, appendHumanMessage, baseUrl, bgUrlContext, setAiState, setConfName, setConfUid, setConfigFiles, setCurrentHistoryUid, setHistoryList, setMessages, setModelInfo, setSubtitleText, startMic, stopMic, setSelfUid, setGroupMembers, setIsOwner, backendSynthComplete, setBackendSynthComplete, clearResponse, handleControlMessage, appendOrUpdateToolCallMessage, interrupt, setBrowserViewData, t]);
+  }, [aiState, addAudioTask, appendHumanMessage, baseUrl, bgUrlContext, setAiState, setConfName, setConfUid, setConfigFiles, setCurrentHistoryUid, setHistoryList, setMessages, setModelInfo, setSubtitleText, startMic, stopMic, setSelfUid, backendSynthComplete, setBackendSynthComplete, clearResponse, handleControlMessage, appendOrUpdateToolCallMessage, interrupt, t]);
 
   useEffect(() => {
     wsService.connect(wsUrl);

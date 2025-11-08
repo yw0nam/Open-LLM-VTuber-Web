@@ -21,8 +21,6 @@ import TitleBar from "./components/electron/title-bar";
 import { InputSubtitle } from "./components/electron/input-subtitle";
 import { ProactiveSpeakProvider } from "./context/proactive-speak-context";
 import { ScreenCaptureProvider } from "./context/screen-capture-context";
-import { GroupProvider } from "./context/group-context";
-import { BrowserProvider } from "./context/browser-context";
 // eslint-disable-next-line import/no-extraneous-dependencies, import/newline-after-import
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import Background from "./components/canvas/background";
@@ -181,16 +179,12 @@ function AppWithGlobalStyles(): JSX.Element {
                     <SubtitleProvider>
                       <VADProvider>
                         <BgUrlProvider>
-                          <GroupProvider>
-                            <BrowserProvider>
-                              <SessionProvider>
-                                <WebSocketHandler>
-                                  <Toaster />
-                                  <AppContent />
-                                </WebSocketHandler>
-                              </SessionProvider>
-                            </BrowserProvider>
-                          </GroupProvider>
+                          <SessionProvider>
+                            <WebSocketHandler>
+                              <Toaster />
+                              <AppContent />
+                            </WebSocketHandler>
+                          </SessionProvider>
                         </BgUrlProvider>
                       </VADProvider>
                     </SubtitleProvider>
