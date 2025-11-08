@@ -2,7 +2,7 @@
 import {
   Box, Textarea, IconButton, HStack,
 } from '@chakra-ui/react';
-import { BsMicFill, BsMicMuteFill, BsPaperclip } from 'react-icons/bs';
+import { BsMicFill, BsMicMuteFill } from 'react-icons/bs';
 import { IoHandRightSharp } from 'react-icons/io5';
 import { FiChevronDown } from 'react-icons/fi';
 import { memo } from 'react';
@@ -87,13 +87,6 @@ const MessageInput = memo(({
   return (
     <InputGroup flex={1}>
       <Box position="relative" width="100%">
-        <IconButton
-          aria-label="Attach file"
-          variant="ghost"
-          {...footerStyles.footer.attachButton}
-        >
-          <BsPaperclip size="24" />
-        </IconButton>
         <Textarea
           value={value}
           onChange={onChange}
