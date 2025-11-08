@@ -27,7 +27,9 @@ const DRAG_DISTANCE_THRESHOLD_PX = 5; // Min distance to be considered a drag
 
 function parseModelUrl(url: string): { baseUrl: string; modelDir: string; modelFileName: string } {
   try {
-    const urlObj = new URL(url);
+    // Handle relative URLs by converting to absolute
+    const absoluteUrl = url.startsWith('http') ? url : new URL(url, window.location.origin).href;
+    const urlObj = new URL(absoluteUrl);
     const { pathname } = urlObj;
 
     const lastSlashIndex = pathname.lastIndexOf('/');
@@ -45,6 +47,8 @@ function parseModelUrl(url: string): { baseUrl: string; modelDir: string; modelF
 
     const modelDir = pathname.substring(secondLastSlashIndex + 1, lastSlashIndex);
     const baseUrl = `${urlObj.protocol}//${urlObj.host}${pathname.substring(0, secondLastSlashIndex + 1)}`;
+
+    console.log('Parsed model URL:', { url, baseUrl, modelDir, modelFileName });
 
     return { baseUrl, modelDir, modelFileName };
   } catch (error) {
@@ -114,25 +118,32 @@ export const useLive2DModel = ({
     const sdkScale = (window as any).LAppDefine?.CurrentKScale;
     const modelScale = modelInfo?.kScale !== undefined ? Number(modelInfo.kScale) : undefined;
 
+    console.log('Model info changed:', { currentUrl, sdkScale, modelScale, prevUrl: prevModelUrlRef.current });
+
     const needsUpdate = currentUrl &&
                         (currentUrl !== prevModelUrlRef.current ||
                          (sdkScale !== undefined && modelScale !== undefined && sdkScale !== modelScale));
 
     if (needsUpdate) {
+      console.log('Updating model...', { currentUrl, sdkScale, modelScale });
       prevModelUrlRef.current = currentUrl;
 
       try {
         const { baseUrl, modelDir, modelFileName } = parseModelUrl(currentUrl);
 
         if (baseUrl && modelDir) {
+          console.log('Updating model config:', { baseUrl, modelDir, modelFileName, scale: Number(modelInfo.kScale) });
           updateModelConfig(baseUrl, modelDir, modelFileName, Number(modelInfo.kScale));
 
           setTimeout(() => {
             if ((window as any).LAppLive2DManager?.releaseInstance) {
               (window as any).LAppLive2DManager.releaseInstance();
             }
+            console.log('Initializing Live2D...');
             initializeLive2D();
           }, 500);
+        } else {
+          console.warn('Invalid baseUrl or modelDir:', { baseUrl, modelDir });
         }
       } catch (error) {
         console.error('Error processing model URL:', error);

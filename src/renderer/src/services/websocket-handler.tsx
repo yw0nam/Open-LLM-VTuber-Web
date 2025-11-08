@@ -24,6 +24,7 @@ import { useBrowser } from '@/context/browser-context';
 import { extractVolumesFromWAV } from '@/services/audio-processor';
 import { desktopMateAdapter } from '@/services/desktopmate-adapter';
 import { useSession } from '@/context/session-context';
+import { configManager } from '@/services/desktopmate-config';
 import {
   saveMessagesToLocal,
   loadMessagesFromLocal,
@@ -217,6 +218,17 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       setShouldSaveMessages(false);
     }
   }, [shouldSaveMessages, currentMessages, saveMessages]);
+
+  // Initialize authentication token if not set
+  useEffect(() => {
+    const authConfig = configManager.getSection('auth');
+    if (!authConfig.token) {
+      // Generate a simple random token for initial authentication
+      const defaultToken = `dm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      configManager.updateValue('auth', 'token', defaultToken);
+      console.log('Generated default authentication token:', defaultToken);
+    }
+  }, []);
 
   // Load history on app initialization when all required IDs are available
   useEffect(() => {
