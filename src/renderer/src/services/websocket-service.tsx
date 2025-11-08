@@ -148,6 +148,14 @@ class WebSocketService {
   constructor() {
     configManager.subscribe((event) => {
       if (event.section === 'auth') {
+        // If token was updated, handle it immediately
+        if (event.value && typeof event.value === 'object' && 'token' in event.value) {
+          const token = event.value.token as string;
+          if (token) {
+            this.handleTokenUpdate(token);
+          }
+        }
+        // Otherwise, reconnect if other auth settings changed
         this.connect(this.currentUrl);
       }
     });
@@ -168,6 +176,13 @@ class WebSocketService {
     } else {
       // If no token, proceed with regular initialization
       this.proceedWithRegularInitialization();
+    }
+  }
+
+  private handleTokenUpdate(token: string) {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN && !this.isAuthorized && !this.authorizationPending) {
+      // If we're connected but not authorized and we now have a token, send authorization
+      this.sendAuthorizationMessage(token);
     }
   }
 
