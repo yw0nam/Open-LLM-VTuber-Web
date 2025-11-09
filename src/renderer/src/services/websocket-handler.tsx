@@ -19,7 +19,6 @@ import { useVAD } from '@/context/vad-context';
 import { AiState, useAiState } from "@/context/ai-state-context";
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 import { useInterrupt } from '@/hooks/utils/use-interrupt';
-import { extractVolumesFromWAV } from '@/services/audio-processor';
 import { desktopMateAdapter } from '@/services/desktopmate-adapter';
 import { useSession } from '@/context/session-context';
 import { configManager } from '@/services/desktopmate-config';
@@ -478,33 +477,53 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         }
         break;
       case 'tts_ready_chunk':
-        console.log('Received tts_ready_chunk:', { chunk: message.chunk?.substring(0, 50), emotion: message.emotion });
+        console.log('Received tts_ready_chunk:', { text: message.chunk, emotion: message.emotion });
         
         // Handle TTS chunk if not interrupted
         if (aiState === 'interrupted' || aiState === 'listening') {
           console.log('TTS chunk playback intercepted due to state:', aiState);
         } else if (message.chunk) {
-          try {
-            // Extract volume information from the audio chunk
-            const volumes = extractVolumesFromWAV(message.chunk);
-            
-            // Queue the audio chunk for playback
-            addAudioTask({
-              audioBase64: message.chunk,
-              volumes,
-              sliceLength: volumes.length, // Use the number of volume frames
-              displayText: null, // TTS chunks typically don't have display text
-              expressions: message.emotion ? [message.emotion] : null,
-              forwarded: false,
+          // Backend sends TEXT, we need to synthesize it to AUDIO
+          const textChunk = message.chunk;
+          const emotion = message.emotion;
+          
+          // Get voice selection from config (default: ナツメ)
+          const config = configManager.getConfig();
+          const voice = config.ui.defaultVoice || 'ナツメ';
+          
+          // Call TTS API to synthesize speech
+          desktopMateAdapter.synthesizeSpeech(textChunk, voice)
+            .then((ttsResponse) => {
+              if (ttsResponse && ttsResponse.audio_data) {
+                // Extract volumes for lip-sync from the base64 audio data
+                const volumes = desktopMateAdapter.extractVolumes(ttsResponse.audio_data);
+                
+                // Queue the audio chunk for playback
+                addAudioTask({
+                  audioBase64: ttsResponse.audio_data,
+                  volumes,
+                  sliceLength: volumes.length,
+                  displayText: null, // TTS chunks typically don't have display text
+                  expressions: emotion ? [emotion] : null,
+                  forwarded: false,
+                });
+                
+                console.log('TTS chunk synthesized and queued:', {
+                  text: textChunk.substring(0, 50),
+                  volumeFrames: volumes.length,
+                  emotion,
+                });
+              }
+            })
+            .catch((error) => {
+              console.error('Failed to synthesize TTS chunk:', error);
+              toaster.create({
+                title: t('error.ttsSynthesisFailed'),
+                description: String(error),
+                type: 'error',
+                duration: 3000,
+              });
             });
-            
-            console.log('TTS chunk queued for playback:', {
-              volumeFrames: volumes.length,
-              emotion: message.emotion,
-            });
-          } catch (error) {
-            console.error('Failed to process TTS chunk:', error);
-          }
         } else {
           console.warn('Received tts_ready_chunk without chunk data');
         }

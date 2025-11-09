@@ -112,24 +112,6 @@ export interface ChatHistoryMessage {
   status?: "running" | "completed" | "error";
 }
 
-/**
- * Browser View Information (for automation/debugging)
- */
-export interface BrowserView {
-  debuggerFullscreenUrl: string;
-  debuggerUrl: string;
-  pages: {
-    id: string;
-    url: string;
-    faviconUrl: string;
-    title: string;
-    debuggerUrl: string;
-    debuggerFullscreenUrl: string;
-  }[];
-  wsUrl: string;
-  sessionId?: string;
-}
-
 // ============================================================================
 // CLIENT -> SERVER MESSAGES
 // ============================================================================
