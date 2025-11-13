@@ -78,20 +78,6 @@ export interface MessageEvent {
   forwarded?: boolean;
   display_text?: DisplayText;
   live2d_model?: string;
-  browser_view?: {
-    debuggerFullscreenUrl: string;
-    debuggerUrl: string;
-    pages: {
-      id: string;
-      url: string;
-      faviconUrl: string;
-      title: string;
-      debuggerUrl: string;
-      debuggerFullscreenUrl: string;
-    }[];
-    wsUrl: string;
-    sessionId?: string;
-  };
 }
 
 // Get translation function for error messages

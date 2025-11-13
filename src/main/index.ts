@@ -118,10 +118,6 @@ app.whenReady().then(() => {
     }
   });
 
-  app.on("browser-window-created", (_, window) => {
-    optimizer.watchWindowShortcuts(window);
-  });
-
   app.on('web-contents-created', (_, contents) => {
     contents.session.setPermissionRequestHandler((webContents, permission, callback) => {
       if (permission === 'media') {

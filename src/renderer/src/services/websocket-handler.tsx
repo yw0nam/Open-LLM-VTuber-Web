@@ -20,7 +20,6 @@ import { AiState, useAiState } from "@/context/ai-state-context";
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 import { useGroup } from '@/context/group-context';
 import { useInterrupt } from '@/hooks/utils/use-interrupt';
-import { useBrowser } from '@/context/browser-context';
 
 function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
@@ -39,7 +38,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
   const { startMic, stopMic, autoStartMicOnConvEnd } = useVAD();
   const autoStartMicOnConvEndRef = useRef(autoStartMicOnConvEnd);
   const { interrupt } = useInterrupt();
-  const { setBrowserViewData } = useBrowser();
 
   useEffect(() => {
     autoStartMicOnConvEndRef.current = autoStartMicOnConvEnd;
@@ -265,12 +263,6 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
         break;
       case 'tool_call_status':
         if (message.tool_id && message.tool_name && message.status) {
-          // If there's browser view data included, store it in the browser context
-          if (message.browser_view) {
-            console.log('Browser view data received:', message.browser_view);
-            setBrowserViewData(message.browser_view);
-          }
-
           appendOrUpdateToolCallMessage({
             id: message.tool_id,
             type: 'tool_call_status',
@@ -289,7 +281,7 @@ function WebSocketHandler({ children }: { children: React.ReactNode }) {
       default:
         console.warn('Unknown message type:', message.type);
     }
-  }, [aiState, addAudioTask, appendHumanMessage, baseUrl, bgUrlContext, setAiState, setConfName, setConfUid, setConfigFiles, setCurrentHistoryUid, setHistoryList, setMessages, setModelInfo, setSubtitleText, startMic, stopMic, setSelfUid, setGroupMembers, setIsOwner, backendSynthComplete, setBackendSynthComplete, clearResponse, handleControlMessage, appendOrUpdateToolCallMessage, interrupt, setBrowserViewData, t]);
+  }, [aiState, addAudioTask, appendHumanMessage, baseUrl, bgUrlContext, setAiState, setConfName, setConfUid, setConfigFiles, setCurrentHistoryUid, setHistoryList, setMessages, setModelInfo, setSubtitleText, startMic, stopMic, setSelfUid, setGroupMembers, setIsOwner, backendSynthComplete, setBackendSynthComplete, clearResponse, handleControlMessage, appendOrUpdateToolCallMessage, interrupt, t]);
 
   useEffect(() => {
     wsService.connect(wsUrl);

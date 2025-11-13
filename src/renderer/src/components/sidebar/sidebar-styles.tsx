@@ -304,43 +304,6 @@ export const sidebarStyles = {
     } as const,
   },
 
-  // Add Browser Panel Styles
-  browserPanel: {
-    container: {
-      width: '97%',
-      overflow: 'hidden',
-      px: 4,
-      minH: '240px',
-    },
-    header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      mb: 4,
-    },
-    title: commonStyles.title,
-    browserContainer: {
-      ...commonStyles.panel,
-      width: '100%',
-      height: '240px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      overflow: 'hidden',
-      transition: 'all 0.2s',
-      cursor: 'pointer',
-      _hover: {
-        bg: 'whiteAlpha.100',
-      },
-    },
-    iframe: {
-      width: '100%',
-      height: '100%',
-      border: 'none',
-      borderRadius: '8px',
-    } as const,
-  },
-
   bottomTab: {
     container: {
       width: '97%',
