@@ -3,7 +3,7 @@
 // eslint-disable-next-line object-curly-newline
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { wsService, MessageEvent } from '@/services/websocket-service';
+import { wsService, MessageEvent } from '@/services/websocket-service/websocket-service';
 import {
   WebSocketContext, HistoryInfo, defaultWsUrl, defaultBaseUrl,
 } from '@/context/websocket-context';

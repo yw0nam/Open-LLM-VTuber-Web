@@ -1,7 +1,7 @@
 # Implement Rule
 
 
-## api-service.tsx
+## REST API Service
 
 You can find more details about REST API in [REST API Guide](../../../../../backend/docs/api/REST_API_GUIDE.md).
 
@@ -15,7 +15,7 @@ You can find more details about REST API in [REST API Guide](../../../../../back
 - **[Synthesize Speech](../../../../../backend/docs/api/TTS_Synthesize.md)**: `POST /tts/synthesize`
 - **[Analyze Image](../../../../../backend/docs/api/VLM_Analyze.md)**: `POST /vlm/analyze`
 
-## websocket-service.tsx
+## WEBSOCKET Service
 
 Implement Websocket logic.
 
@@ -41,7 +41,7 @@ You can find more details about WebSocket API in [WebSocket API Guide](../../../
 - **[Tool Result](../../../../../backend/docs/api/WebSocket_ToolResult.md)**: Provides the result of a tool's execution.
 - **[Error Message](../../../../../backend/docs/api/WebSocket_ErrorMessage.md)**: Sent when an error occurs.
 
-## websocket-handler.tsx
+## WEBSOCKET Handler
 
 - Integrate API service and WebSocket service
 - Manage state updates across contexts

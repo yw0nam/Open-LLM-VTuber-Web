@@ -113,14 +113,24 @@ The app uses React Context for state management with multiple specialized contex
 
 - browser-context [ Done ]
 - group-context [ Done ]
-- bgurl-context
 
 ### Modules that should be implemented
 
-- api-service.tsx : This module should handle http requests logic with your backend.
-- websocket-service.tsx This module should handle websocket logic with your backend.
+- src/renderer/src/services/api-service/
+├── core.ts        # fetch 래퍼, Base URL, 공통 헤더 설정
+├── stm.ts         # Short-Term Memory 관련 API 모음
+├── tts.ts         # Text-to-Speech 관련 API 모음
+└── vlm.ts         # Vision Model 관련 API 모음
+- src/renderer/src/services/schemas/
+└── stm.ts         # STM 관련 zod 스키마
+└── tts.ts         # TTS 관련 zod 스키마
+└── vlm.ts         # vlm 관련 zod 스키마
+└── websocket.ts   # websocket 관련 zod 스키마
 
 ### Modules that should be modified
 
-- websocket-handler : Modify this module to use the new api-service and websocket-service modules.
+- src/renderer/src/services/websocket-service/ : For matching current backend websocket API
+└── websocket-service.tsx      # WebSocket 연결 및 기본 로직 (지금의 wsService)
+└── websocket-handler.tsx      # WebSocket 메시지 핸들러
 - chat-history: Modify this module to use the new api-service for fetching chat history using Backend STM-service.
+- bgurl-context

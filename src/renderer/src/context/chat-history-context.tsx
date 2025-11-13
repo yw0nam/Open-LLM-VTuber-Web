@@ -2,7 +2,7 @@
 import {
   createContext, useContext, useState, useMemo, useCallback,
 } from 'react';
-import { Message } from '@/services/websocket-service';
+import { Message } from '@/services/websocket-service/websocket-service';
 import { HistoryInfo } from './websocket-context';
 
 /**

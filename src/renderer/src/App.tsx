@@ -10,7 +10,7 @@ import { Live2DConfigProvider } from "./context/live2d-config-context";
 import { SubtitleProvider } from "./context/subtitle-context";
 import { BgUrlProvider } from "./context/bgurl-context";
 import { layoutStyles } from "./layout";
-import WebSocketHandler from "./services/websocket-handler";
+import WebSocketHandler from "./services/websocket-service/websocket-handler";
 import { CameraProvider } from "./context/camera-context";
 import { ChatHistoryProvider } from "./context/chat-history-context";
 import { CharacterConfigProvider } from "./context/character-config-context";

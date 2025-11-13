@@ -10,7 +10,7 @@ import { audioTaskQueue } from '@/utils/task-queue';
 import { audioManager } from '@/utils/audio-manager';
 import { toaster } from '@/components/ui/toaster';
 import { useWebSocket } from '@/context/websocket-context';
-import { DisplayText } from '@/services/websocket-service';
+import { DisplayText } from '@/services/websocket-service/websocket-service';
 import { useLive2DExpression } from '@/hooks/canvas/use-live2d-expression';
 import * as LAppDefine from '../../../WebSDK/src/lappdefine';
 

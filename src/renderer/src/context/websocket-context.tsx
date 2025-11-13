@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
 import React, { useContext, useCallback } from 'react';
-import { wsService } from '@/services/websocket-service';
+import { wsService } from '@/services/websocket-service/websocket-service';
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 
 const DEFAULT_WS_URL = 'ws://127.0.0.1:12393/client-ws';

@@ -1,6 +1,6 @@
 import { Box, Text, Flex } from '@chakra-ui/react';
 import { Avatar, AvatarGroup } from '@/components/ui/avatar';
-import { Message } from '@/services/websocket-service';
+import { Message } from '@/services/websocket-service/websocket-service';
 
 // Type definitions
 interface ChatBubbleProps {
