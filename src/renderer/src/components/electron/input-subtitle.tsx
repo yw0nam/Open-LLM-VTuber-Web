@@ -1,6 +1,4 @@
-import {
-  LuBell, LuSend, LuMic, LuMicOff, LuHand, LuX,
-} from 'react-icons/lu';
+import { LuBell, LuSend, LuMic, LuMicOff, LuHand, LuX } from "react-icons/lu";
 import {
   Box,
   Button,
@@ -10,12 +8,12 @@ import {
   Text,
   VStack,
   IconButton,
-} from '@chakra-ui/react';
-import { useState, useEffect, useCallback } from 'react';
-import { useInputSubtitle } from '@/hooks/electron/use-input-subtitle';
-import { useDraggable } from '@/hooks/electron/use-draggable';
-import { inputSubtitleStyles } from './electron-style';
-import { useMode } from '@/context/mode-context';
+} from "@chakra-ui/react";
+import { useState, useEffect, useCallback } from "react";
+import { useInputSubtitle } from "@/hooks/electron/use-input-subtitle";
+import { useDraggable } from "@/hooks/electron/use-draggable";
+import { inputSubtitleStyles } from "./electron-style";
+import { useMode } from "@/context/mode-context";
 
 export function InputSubtitle() {
   const {
@@ -34,7 +32,7 @@ export function InputSubtitle() {
   } = useInputSubtitle();
 
   const { mode } = useMode();
-  const isPet = mode === 'pet';
+  const isPet = mode === "pet";
 
   const {
     elementRef,
@@ -43,14 +41,14 @@ export function InputSubtitle() {
     handleMouseEnter,
     handleMouseLeave,
   } = useDraggable({
-    componentId: 'input-subtitle',
+    componentId: "input-subtitle",
   });
 
   const [isVisible, setIsVisible] = useState(true);
 
   const handleClose = useCallback(() => {
     if (isPet) {
-      (window.api as any)?.updateComponentHover('input-subtitle', false);
+      (window.api as any)?.updateComponentHover("input-subtitle", false);
     }
     setIsVisible(false);
   }, [isPet]);
@@ -106,13 +104,11 @@ export function InputSubtitle() {
 
         {hasAIMessages && (
           <VStack
-            minH={lastAIMessage ? '32px' : '0px'}
+            minH={lastAIMessage ? "32px" : "0px"}
             {...inputSubtitleStyles.messageStack}
           >
             {lastAIMessage && (
-              <Text {...inputSubtitleStyles.messageText}>
-                {lastAIMessage}
-              </Text>
+              <Text {...inputSubtitleStyles.messageText}>{lastAIMessage}</Text>
             )}
           </VStack>
         )}
@@ -121,9 +117,7 @@ export function InputSubtitle() {
           <Flex align="center" justify="space-between" color="whiteAlpha.700">
             <Flex align="center" gap="2">
               <LuBell size={16} />
-              <Text {...inputSubtitleStyles.statusText}>
-                {aiState}
-              </Text>
+              <Text {...inputSubtitleStyles.statusText}>{aiState}</Text>
             </Flex>
 
             <Flex gap="2">
@@ -156,10 +150,7 @@ export function InputSubtitle() {
               placeholder="Type your message..."
               {...inputSubtitleStyles.input}
             />
-            <Button
-              onClick={handleSend}
-              {...inputSubtitleStyles.sendButton}
-            >
+            <Button onClick={handleSend} {...inputSubtitleStyles.sendButton}>
               <LuSend size={16} />
             </Button>
           </Stack>

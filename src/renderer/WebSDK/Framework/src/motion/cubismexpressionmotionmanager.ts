@@ -1,14 +1,14 @@
-import { CubismId, CubismIdHandle } from '../id/cubismid';
-import { LogLevel, csmDelete } from '../live2dcubismframework';
-import { CubismModel } from '../model/cubismmodel';
-import { csmVector, iterator } from '../type/csmvector';
-import { ACubismMotion } from './acubismmotion';
-import { CubismExpressionMotion } from './cubismexpressionmotion';
-import { CubismMotionQueueEntry } from './cubismmotionqueueentry';
+import { CubismId, CubismIdHandle } from "../id/cubismid";
+import { LogLevel, csmDelete } from "../live2dcubismframework";
+import { CubismModel } from "../model/cubismmodel";
+import { csmVector, iterator } from "../type/csmvector";
+import { ACubismMotion } from "./acubismmotion";
+import { CubismExpressionMotion } from "./cubismexpressionmotion";
+import { CubismMotionQueueEntry } from "./cubismmotionqueueentry";
 import {
   CubismMotionQueueEntryHandle,
-  CubismMotionQueueManager
-} from './cubismmotionqueuemanager';
+  CubismMotionQueueManager,
+} from "./cubismmotionqueuemanager";
 
 /**
  * @brief パラメータに適用する表情の値を持たせる構造体
@@ -108,7 +108,7 @@ export class CubismExpressionMotionManager extends CubismMotionQueueManager {
   public startMotionPriority(
     motion: ACubismMotion,
     autoDelete: boolean,
-    priority: number
+    priority: number,
   ): CubismMotionQueueEntryHandle {
     if (priority == this.getReservePriority()) {
       this.setReservePriority(0);
@@ -202,14 +202,14 @@ export class CubismExpressionMotionManager extends CubismMotionQueueManager {
       // ------ 値を計算する ------
       expressionMotion.setupMotionQueueEntry(
         motionQueueEntry,
-        this._userTimeSeconds
+        this._userTimeSeconds,
       );
       this._fadeWeights.set(
         expressionIndex,
         expressionMotion.updateFadeWeight(
           motionQueueEntry,
-          this._userTimeSeconds
-        )
+          this._userTimeSeconds,
+        ),
       );
       expressionMotion.calculateExpressionParameters(
         model,
@@ -217,7 +217,7 @@ export class CubismExpressionMotionManager extends CubismMotionQueueManager {
         motionQueueEntry,
         this._expressionParameterValues,
         expressionIndex,
-        this._fadeWeights.at(expressionIndex)
+        this._fadeWeights.at(expressionIndex),
       );
 
       expressionWeight +=
@@ -225,7 +225,7 @@ export class CubismExpressionMotionManager extends CubismMotionQueueManager {
           ? 1.0
           : CubismMath.getEasingSine(
               (this._userTimeSeconds - motionQueueEntry.getFadeInStartTime()) /
-                expressionMotion.getFadeInTime()
+                expressionMotion.getFadeInTime(),
             );
 
       updated = true;
@@ -234,7 +234,7 @@ export class CubismExpressionMotionManager extends CubismMotionQueueManager {
         // フェードアウト開始
         motionQueueEntry.startFadeOut(
           motionQueueEntry.getFadeOutSeconds(),
-          this._userTimeSeconds
+          this._userTimeSeconds,
         );
       }
 
@@ -248,7 +248,7 @@ export class CubismExpressionMotionManager extends CubismMotionQueueManager {
         motions.at(motions.getSize() - 1).getCubismMotion()
       );
       const latestFadeWeight: number = this._fadeWeights.at(
-        this._fadeWeights.getSize() - 1
+        this._fadeWeights.getSize() - 1,
       );
       if (latestFadeWeight >= 1.0) {
         // 配列の最後の要素は削除しない
@@ -273,7 +273,7 @@ export class CubismExpressionMotionManager extends CubismMotionQueueManager {
         (expressionParameterValue.overwriteValue +
           expressionParameterValue.additiveValue) *
           expressionParameterValue.multiplyValue,
-        expressionWeight
+        expressionWeight,
       );
 
       expressionParameterValue.additiveValue =
@@ -293,9 +293,9 @@ export class CubismExpressionMotionManager extends CubismMotionQueueManager {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismexpressionmotionmanager';
-import { CubismMath } from '../math/cubismmath';
-import { CubismDebug, CubismLogError } from '../utils/cubismdebug';
+import * as $ from "./cubismexpressionmotionmanager";
+import { CubismMath } from "../math/cubismmath";
+import { CubismDebug, CubismLogError } from "../utils/cubismdebug";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismExpressionMotionManager = $.CubismExpressionMotionManager;

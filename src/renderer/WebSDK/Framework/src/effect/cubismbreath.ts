@@ -5,9 +5,9 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismIdHandle } from '../id/cubismid';
-import { CubismModel } from '../model/cubismmodel';
-import { csmVector } from '../type/csmvector';
+import { CubismIdHandle } from "../id/cubismid";
+import { CubismModel } from "../model/cubismmodel";
+import { csmVector } from "../type/csmvector";
 
 /**
  * 呼吸機能
@@ -64,7 +64,7 @@ export class CubismBreath {
       model.addParameterValueById(
         data.parameterId,
         data.offset + data.peak * Math.sin(t / data.cycle),
-        data.weight
+        data.weight,
       );
     }
   }
@@ -97,7 +97,7 @@ export class BreathParameterData {
     offset?: number,
     peak?: number,
     cycle?: number,
-    weight?: number
+    weight?: number,
   ) {
     this.parameterId = parameterId == undefined ? null : parameterId;
     this.offset = offset == undefined ? 0.0 : offset;
@@ -114,7 +114,7 @@ export class BreathParameterData {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismbreath';
+import * as $ from "./cubismbreath";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const BreathParameterData = $.BreathParameterData;

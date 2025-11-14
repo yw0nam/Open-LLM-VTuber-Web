@@ -45,15 +45,14 @@ function AppContent(): JSX.Element {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-    
-  document.documentElement.style.overflow = 'hidden';
-  document.body.style.overflow = 'hidden';
-  document.documentElement.style.height = '100%';
-  document.body.style.height = '100%';
-  document.documentElement.style.position = 'fixed';
-  document.body.style.position = 'fixed';
-  document.documentElement.style.width = '100%';
-  document.body.style.width = '100%';
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
+  document.documentElement.style.height = "100%";
+  document.body.style.height = "100%";
+  document.documentElement.style.position = "fixed";
+  document.body.style.position = "fixed";
+  document.documentElement.style.width = "100%";
+  document.body.style.width = "100%";
 
   // Define base style properties shared across modes/breakpoints
   const live2dBaseStyle = {
@@ -178,10 +177,10 @@ function AppWithGlobalStyles(): JSX.Element {
                     <SubtitleProvider>
                       <VADProvider>
                         <BgUrlProvider>
-                            <WebSocketHandler>
-                              <Toaster />
-                              <AppContent />
-                            </WebSocketHandler>
+                          <WebSocketHandler>
+                            <Toaster />
+                            <AppContent />
+                          </WebSocketHandler>
                         </BgUrlProvider>
                       </VADProvider>
                     </SubtitleProvider>

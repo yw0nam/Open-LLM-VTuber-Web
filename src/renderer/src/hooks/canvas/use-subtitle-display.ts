@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { useSubtitle } from '@/context/subtitle-context';
+import { useMemo } from "react";
+import { useSubtitle } from "@/context/subtitle-context";
 
 export const useSubtitleDisplay = () => {
   const context = useSubtitle();

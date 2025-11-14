@@ -19,21 +19,21 @@ src/renderer/src/
 ### 在组件中使用
 
 ```tsx
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 function MyComponent() {
   // 获取翻译函数和其他国际化工具
   const { t, i18n } = useTranslation();
-  
+
   // 使用 t 函数翻译文本
   return (
     <div>
-      <h1>{t('common.settings')}</h1>
-      <p>{t('settings.general.language')}</p>
-      
+      <h1>{t("common.settings")}</h1>
+      <p>{t("settings.general.language")}</p>
+
       {/* 改变语言 */}
-      <button onClick={() => i18n.changeLanguage('en')}>English</button>
-      <button onClick={() => i18n.changeLanguage('zh')}>中文</button>
+      <button onClick={() => i18n.changeLanguage("en")}>English</button>
+      <button onClick={() => i18n.changeLanguage("zh")}>中文</button>
     </div>
   );
 }
@@ -74,4 +74,4 @@ t('welcome', { name: 'John' }) // "欢迎, John!"
 
 ## 自动检测语言
 
-系统会自动检测用户的浏览器语言设置，并使用最接近的可用语言。用户也可以手动切换语言，选择会被保存在 localStorage 中。 
+系统会自动检测用户的浏览器语言设置，并使用最接近的可用语言。用户也可以手动切换语言，选择会被保存在 localStorage 中。

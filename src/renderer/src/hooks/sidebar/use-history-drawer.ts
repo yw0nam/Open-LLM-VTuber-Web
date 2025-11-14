@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useChatHistory } from '@/context/chat-history-context';
-import { useWebSocket, HistoryInfo } from '@/context/websocket-context';
-import { toaster } from '@/components/ui/toaster';
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useChatHistory } from "@/context/chat-history-context";
+import { useWebSocket, HistoryInfo } from "@/context/websocket-context";
+import { toaster } from "@/components/ui/toaster";
 
 export const useHistoryDrawer = () => {
   const { t } = useTranslation();
@@ -27,7 +27,7 @@ export const useHistoryDrawer = () => {
 
     setCurrentHistoryUid(uid);
     sendMessage({
-      type: 'fetch-and-set-history',
+      type: "fetch-and-set-history",
       history_uid: uid,
     });
   };
@@ -35,15 +35,15 @@ export const useHistoryDrawer = () => {
   const deleteHistory = (uid: string) => {
     if (uid === currentHistoryUid) {
       toaster.create({
-        title: t('error.cannotDeleteCurrentHistory'),
-        type: 'warning',
+        title: t("error.cannotDeleteCurrentHistory"),
+        type: "warning",
         duration: 2000,
       });
       return;
     }
 
     sendMessage({
-      type: 'delete-history',
+      type: "delete-history",
       history_uid: uid,
     });
     setHistoryList(historyList.filter((history) => history.uid !== uid));
@@ -58,7 +58,7 @@ export const useHistoryDrawer = () => {
       };
     }
     return {
-      content: history.latest_message?.content || '',
+      content: history.latest_message?.content || "",
       timestamp: history.timestamp,
     };
   };

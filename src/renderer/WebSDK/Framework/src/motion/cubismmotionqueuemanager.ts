@@ -5,11 +5,11 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { ACubismMotion } from './acubismmotion';
-import { CubismMotionQueueEntry } from './cubismmotionqueueentry';
-import { csmVector, iterator } from '../type/csmvector';
-import { CubismModel } from '../model/cubismmodel';
-import { csmString } from '../type/csmstring';
+import { ACubismMotion } from "./acubismmotion";
+import { CubismMotionQueueEntry } from "./cubismmotionqueueentry";
+import { csmVector, iterator } from "../type/csmvector";
+import { CubismModel } from "../model/cubismmodel";
+import { csmString } from "../type/csmstring";
 
 /**
  * モーション再生の管理
@@ -58,7 +58,7 @@ export class CubismMotionQueueManager {
   public startMotion(
     motion: ACubismMotion,
     autoDelete: boolean,
-    userTimeSeconds?: number
+    userTimeSeconds?: number,
   ): CubismMotionQueueEntryHandle {
     if (motion == null) {
       return InvalidMotionQueueEntryHandleValue;
@@ -133,7 +133,7 @@ export class CubismMotionQueueManager {
    * @return false 終了していない
    */
   public isFinishedByHandle(
-    motionQueueEntryNumber: CubismMotionQueueEntryHandle
+    motionQueueEntryNumber: CubismMotionQueueEntryHandle,
   ): boolean {
     for (
       let ite: iterator<CubismMotionQueueEntry> = this._motions.begin();
@@ -203,7 +203,7 @@ export class CubismMotionQueueManager {
    * @return  null   見つからなかった
    */
   public getCubismMotionQueueEntry(
-    motionQueueEntryNumber: any
+    motionQueueEntryNumber: any,
   ): CubismMotionQueueEntry {
     //------- 処理を行う -------
     for (
@@ -233,7 +233,7 @@ export class CubismMotionQueueManager {
    */
   public setEventCallback(
     callback: CubismMotionEventFunction,
-    customData: any = null
+    customData: any = null,
   ): void {
     this._eventCallBack = callback;
     this._eventCustomData = customData;
@@ -283,7 +283,7 @@ export class CubismMotionQueueManager {
       const firedList: csmVector<csmString> = motion.getFiredEvent(
         motionQueueEntry.getLastCheckEventSeconds() -
           motionQueueEntry.getStartTime(),
-        userTimeSeconds - motionQueueEntry.getStartTime()
+        userTimeSeconds - motionQueueEntry.getStartTime(),
       );
 
       for (let i = 0; i < firedList.getSize(); ++i) {
@@ -301,7 +301,7 @@ export class CubismMotionQueueManager {
         if (motionQueueEntry.isTriggeredFadeOut()) {
           motionQueueEntry.startFadeOut(
             motionQueueEntry.getFadeOutSeconds(),
-            userTimeSeconds
+            userTimeSeconds,
           );
         }
         ite.preIncrement();
@@ -329,7 +329,7 @@ export interface CubismMotionEventFunction {
   (
     caller: CubismMotionQueueManager,
     eventValue: csmString,
-    customData: any
+    customData: any,
   ): void;
 }
 
@@ -343,7 +343,7 @@ export const InvalidMotionQueueEntryHandleValue: CubismMotionQueueEntryHandle =
   -1;
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmotionqueuemanager';
+import * as $ from "./cubismmotionqueuemanager";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismMotionQueueManager = $.CubismMotionQueueManager;

@@ -6,10 +6,10 @@
 // @ts-nocheck
 import { useEffect, useRef, useCallback, useState, RefObject } from "react";
 import { ModelInfo } from "@/context/live2d-config-context";
-import { updateModelConfig } from '../../../WebSDK/src/lappdefine';
-import { LAppDelegate } from '../../../WebSDK/src/lappdelegate';
-import { initializeLive2D } from '@cubismsdksamples/main';
-import { useMode } from '@/context/mode-context';
+import { updateModelConfig } from "../../../WebSDK/src/lappdefine";
+import { LAppDelegate } from "../../../WebSDK/src/lappdelegate";
+import { initializeLive2D } from "@cubismsdksamples/main";
+import { useMode } from "@/context/mode-context";
 
 interface UseLive2DModelProps {
   modelInfo: ModelInfo | undefined;
@@ -25,75 +25,86 @@ interface Position {
 const TAP_DURATION_THRESHOLD_MS = 200; // Max duration for a tap
 const DRAG_DISTANCE_THRESHOLD_PX = 5; // Min distance to be considered a drag
 
-function parseModelUrl(url: string): { baseUrl: string; modelDir: string; modelFileName: string } {
+function parseModelUrl(url: string): {
+  baseUrl: string;
+  modelDir: string;
+  modelFileName: string;
+} {
   try {
     const urlObj = new URL(url);
     const { pathname } = urlObj;
 
-    const lastSlashIndex = pathname.lastIndexOf('/');
+    const lastSlashIndex = pathname.lastIndexOf("/");
     if (lastSlashIndex === -1) {
-      throw new Error('Invalid model URL format');
+      throw new Error("Invalid model URL format");
     }
 
     const fullFileName = pathname.substring(lastSlashIndex + 1);
-    const modelFileName = fullFileName.replace('.model3.json', '');
+    const modelFileName = fullFileName.replace(".model3.json", "");
 
-    const secondLastSlashIndex = pathname.lastIndexOf('/', lastSlashIndex - 1);
+    const secondLastSlashIndex = pathname.lastIndexOf("/", lastSlashIndex - 1);
     if (secondLastSlashIndex === -1) {
-      throw new Error('Invalid model URL format');
+      throw new Error("Invalid model URL format");
     }
 
-    const modelDir = pathname.substring(secondLastSlashIndex + 1, lastSlashIndex);
+    const modelDir = pathname.substring(
+      secondLastSlashIndex + 1,
+      lastSlashIndex,
+    );
     const baseUrl = `${urlObj.protocol}//${urlObj.host}${pathname.substring(0, secondLastSlashIndex + 1)}`;
 
     return { baseUrl, modelDir, modelFileName };
   } catch (error) {
-    console.error('Error parsing model URL:', error);
-    return { baseUrl: '', modelDir: '', modelFileName: '' };
+    console.error("Error parsing model URL:", error);
+    return { baseUrl: "", modelDir: "", modelFileName: "" };
   }
 }
 
-export const playAudioWithLipSync = (audioPath: string, modelIndex = 0): Promise<void> => new Promise((resolve, reject) => {
-  const live2dManager = window.LAppLive2DManager?.getInstance();
-  if (!live2dManager) {
-    reject(new Error('Live2D manager not initialized'));
-    return;
-  }
-
-  const fullPath = `/Resources/${audioPath}`;
-  const audio = new Audio(fullPath);
-
-  audio.addEventListener('canplaythrough', () => {
-    const model = live2dManager.getModel(modelIndex);
-    if (model) {
-      if (model._wavFileHandler) {
-        model._wavFileHandler.start(fullPath);
-        audio.play();
-      } else {
-        reject(new Error('Wav file handler not available on model'));
-      }
-    } else {
-      reject(new Error(`Model index ${modelIndex} not found`));
+export const playAudioWithLipSync = (
+  audioPath: string,
+  modelIndex = 0,
+): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const live2dManager = window.LAppLive2DManager?.getInstance();
+    if (!live2dManager) {
+      reject(new Error("Live2D manager not initialized"));
+      return;
     }
-  });
 
-  audio.addEventListener('ended', () => {
-    resolve();
-  });
+    const fullPath = `/Resources/${audioPath}`;
+    const audio = new Audio(fullPath);
 
-  audio.addEventListener('error', () => {
-    reject(new Error(`Failed to load audio: ${fullPath}`));
-  });
+    audio.addEventListener("canplaythrough", () => {
+      const model = live2dManager.getModel(modelIndex);
+      if (model) {
+        if (model._wavFileHandler) {
+          model._wavFileHandler.start(fullPath);
+          audio.play();
+        } else {
+          reject(new Error("Wav file handler not available on model"));
+        }
+      } else {
+        reject(new Error(`Model index ${modelIndex} not found`));
+      }
+    });
 
-  audio.load();
-});
+    audio.addEventListener("ended", () => {
+      resolve();
+    });
+
+    audio.addEventListener("error", () => {
+      reject(new Error(`Failed to load audio: ${fullPath}`));
+    });
+
+    audio.load();
+  });
 
 export const useLive2DModel = ({
   modelInfo,
   canvasRef,
 }: UseLive2DModelProps) => {
   const { mode } = useMode();
-  const isPet = mode === 'pet';
+  const isPet = mode === "pet";
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const dragStartPos = useRef<Position>({ x: 0, y: 0 }); // Screen coordinates at drag start
@@ -112,11 +123,15 @@ export const useLive2DModel = ({
   useEffect(() => {
     const currentUrl = modelInfo?.url;
     const sdkScale = (window as any).LAppDefine?.CurrentKScale;
-    const modelScale = modelInfo?.kScale !== undefined ? Number(modelInfo.kScale) : undefined;
+    const modelScale =
+      modelInfo?.kScale !== undefined ? Number(modelInfo.kScale) : undefined;
 
-    const needsUpdate = currentUrl &&
-                        (currentUrl !== prevModelUrlRef.current ||
-                         (sdkScale !== undefined && modelScale !== undefined && sdkScale !== modelScale));
+    const needsUpdate =
+      currentUrl &&
+      (currentUrl !== prevModelUrlRef.current ||
+        (sdkScale !== undefined &&
+          modelScale !== undefined &&
+          sdkScale !== modelScale));
 
     if (needsUpdate) {
       prevModelUrlRef.current = currentUrl;
@@ -125,7 +140,12 @@ export const useLive2DModel = ({
         const { baseUrl, modelDir, modelFileName } = parseModelUrl(currentUrl);
 
         if (baseUrl && modelDir) {
-          updateModelConfig(baseUrl, modelDir, modelFileName, Number(modelInfo.kScale));
+          updateModelConfig(
+            baseUrl,
+            modelDir,
+            modelFileName,
+            Number(modelInfo.kScale),
+          );
 
           setTimeout(() => {
             if ((window as any).LAppLive2DManager?.releaseInstance) {
@@ -135,7 +155,7 @@ export const useLive2DModel = ({
           }, 500);
         }
       } catch (error) {
-        console.error('Error processing model URL:', error);
+        console.error("Error processing model URL:", error);
       }
     }
   }, [modelInfo?.url, modelInfo?.kScale]);
@@ -183,7 +203,7 @@ export const useLive2DModel = ({
   }, [modelInfo?.url, getModelPosition]);
 
   const getCanvasScale = useCallback(() => {
-    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
     if (!canvas) return { width: 1, height: 1, scale: 1 };
 
     const { width } = canvas;
@@ -193,196 +213,241 @@ export const useLive2DModel = ({
     return { width, height, scale };
   }, []);
 
-  const screenToModelPosition = useCallback((screenX: number, screenY: number) => {
-    const { width, height, scale } = getCanvasScale();
+  const screenToModelPosition = useCallback(
+    (screenX: number, screenY: number) => {
+      const { width, height, scale } = getCanvasScale();
 
-    const x = ((screenX * scale) / width) * 2 - 1;
-    const y = -((screenY * scale) / height) * 2 + 1;
+      const x = ((screenX * scale) / width) * 2 - 1;
+      const y = -((screenY * scale) / height) * 2 + 1;
 
-    return { x, y };
-  }, [getCanvasScale]);
+      return { x, y };
+    },
+    [getCanvasScale],
+  );
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    const adapter = (window as any).getLAppAdapter?.();
-    if (!adapter || !canvasRef.current) return;
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      const adapter = (window as any).getLAppAdapter?.();
+      if (!adapter || !canvasRef.current) return;
 
-    const model = adapter.getModel();
-    const view = LAppDelegate.getInstance().getView();
-    if (!view || !model) return;
+      const model = adapter.getModel();
+      const view = LAppDelegate.getInstance().getView();
+      if (!view || !model) return;
 
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left; // Screen X relative to canvas
-    const y = e.clientY - rect.top; // Screen Y relative to canvas
-
-    // --- Check if click is on model ---
-    const scale = canvas.width / canvas.clientWidth;
-    const scaledX = x * scale;
-    const scaledY = y * scale;
-    const modelX = view._deviceToScreen.transformX(scaledX);
-    const modelY = view._deviceToScreen.transformY(scaledY);
-
-    const hitAreaName = model.anyhitTest(modelX, modelY);
-    const isHitOnModel = model.isHitOnModel(modelX, modelY);
-    // --- End Check ---
-
-    if (hitAreaName !== null || isHitOnModel) {
-      // Record potential tap/drag start
-      mouseDownTimeRef.current = Date.now();
-      mouseDownPosRef.current = { x: e.clientX, y: e.clientY }; // Use clientX/Y for distance check
-      isPotentialTapRef.current = true;
-      setIsDragging(false); // Ensure dragging is false initially
-
-      // Store initial model position IF drag starts later
-      if (model._modelMatrix) {
-        const matrix = model._modelMatrix.getArray();
-        modelStartPos.current = { x: matrix[12], y: matrix[13] };
-      }
-    }
-  }, [canvasRef, modelInfo]);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    const adapter = (window as any).getLAppAdapter?.();
-    const view = LAppDelegate.getInstance().getView();
-    const model = adapter?.getModel();
-
-    // --- Start Drag Logic ---
-    if (isPotentialTapRef.current && adapter && view && model && canvasRef.current) {
-      const timeElapsed = Date.now() - mouseDownTimeRef.current;
-      const deltaX = e.clientX - mouseDownPosRef.current.x;
-      const deltaY = e.clientY - mouseDownPosRef.current.y;
-      const distanceMoved = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-      // Check if it's a drag (moved enough distance OR held long enough while moving slightly)
-      if (distanceMoved > DRAG_DISTANCE_THRESHOLD_PX || (timeElapsed > TAP_DURATION_THRESHOLD_MS && distanceMoved > 1)) {
-        isPotentialTapRef.current = false; // It's a drag, not a tap
-        setIsDragging(true);
-
-        // Set initial drag screen position using the position from mousedown
-        const canvas = canvasRef.current;
-        const rect = canvas.getBoundingClientRect();
-        dragStartPos.current = {
-          x: mouseDownPosRef.current.x - rect.left,
-          y: mouseDownPosRef.current.y - rect.top,
-        };
-        // modelStartPos is already set in handleMouseDown
-      }
-    }
-    // --- End Start Drag Logic ---
-
-    // --- Continue Drag Logic ---
-    if (isDragging && adapter && view && model && canvasRef.current) {
       const canvas = canvasRef.current;
       const rect = canvas.getBoundingClientRect();
-      const currentX = e.clientX - rect.left; // Current screen X relative to canvas
-      const currentY = e.clientY - rect.top; // Current screen Y relative to canvas
+      const x = e.clientX - rect.left; // Screen X relative to canvas
+      const y = e.clientY - rect.top; // Screen Y relative to canvas
 
-      // Convert screen delta to model delta
-      const scale = canvas.width / canvas.clientWidth;
-      const startScaledX = dragStartPos.current.x * scale;
-      const startScaledY = dragStartPos.current.y * scale;
-      const startModelX = view._deviceToScreen.transformX(startScaledX);
-      const startModelY = view._deviceToScreen.transformY(startScaledY);
-
-      const currentScaledX = currentX * scale;
-      const currentScaledY = currentY * scale;
-      const currentModelX = view._deviceToScreen.transformX(currentScaledX);
-      const currentModelY = view._deviceToScreen.transformY(currentScaledY);
-
-      const dx = currentModelX - startModelX;
-      const dy = currentModelY - startModelY;
-
-      const newX = modelStartPos.current.x + dx;
-      const newY = modelStartPos.current.y + dy;
-
-      // Use the adapter's setModelPosition method if available, otherwise update matrix directly
-      if (adapter.setModelPosition) {
-        adapter.setModelPosition(newX, newY);
-      } else if (model._modelMatrix) {
-        const matrix = model._modelMatrix.getArray();
-        const newMatrix = [...matrix];
-        newMatrix[12] = newX;
-        newMatrix[13] = newY;
-        model._modelMatrix.setMatrix(newMatrix);
-      }
-
-      modelPositionRef.current = { x: newX, y: newY };
-      setPosition({ x: newX, y: newY }); // Update React state if needed for UI feedback
-    }
-    // --- End Continue Drag Logic ---
-
-    // --- Pet Hover Logic (Unchanged) ---
-    if (isPet && !isDragging && !isPotentialTapRef.current && electronApi && adapter && view && model && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      // --- Check if click is on model ---
       const scale = canvas.width / canvas.clientWidth;
       const scaledX = x * scale;
       const scaledY = y * scale;
       const modelX = view._deviceToScreen.transformX(scaledX);
       const modelY = view._deviceToScreen.transformY(scaledY);
 
-      const currentHitState = model.anyhitTest(modelX, modelY) !== null || model.isHitOnModel(modelX, modelY);
+      const hitAreaName = model.anyhitTest(modelX, modelY);
+      const isHitOnModel = model.isHitOnModel(modelX, modelY);
+      // --- End Check ---
 
-      if (currentHitState !== isHoveringModelRef.current) {
-        isHoveringModelRef.current = currentHitState;
-        electronApi.ipcRenderer.send('update-component-hover', 'live2d-model', currentHitState);
-      }
-    }
-    // --- End Pet Hover Logic ---
-  }, [isPet, isDragging, electronApi, canvasRef]);
+      if (hitAreaName !== null || isHitOnModel) {
+        // Record potential tap/drag start
+        mouseDownTimeRef.current = Date.now();
+        mouseDownPosRef.current = { x: e.clientX, y: e.clientY }; // Use clientX/Y for distance check
+        isPotentialTapRef.current = true;
+        setIsDragging(false); // Ensure dragging is false initially
 
-  const handleMouseUp = useCallback((e: React.MouseEvent) => {
-    const adapter = (window as any).getLAppAdapter?.();
-    const model = adapter?.getModel();
-    const view = LAppDelegate.getInstance().getView();
-
-    if (isDragging) {
-      // Finalize drag
-      setIsDragging(false);
-      if (adapter) {
-        const currentModel = adapter.getModel(); // Re-get model in case adapter changed
-        if (currentModel && currentModel._modelMatrix) {
-          const matrix = currentModel._modelMatrix.getArray();
-          const finalPos = { x: matrix[12], y: matrix[13] };
-          modelPositionRef.current = finalPos;
-          modelStartPos.current = finalPos; // Update base position for next potential drag
-          setPosition(finalPos);
+        // Store initial model position IF drag starts later
+        if (model._modelMatrix) {
+          const matrix = model._modelMatrix.getArray();
+          modelStartPos.current = { x: matrix[12], y: matrix[13] };
         }
       }
-    } else if (isPotentialTapRef.current && adapter && model && view && canvasRef.current) {
-      // --- Tap Motion Logic ---
-      const timeElapsed = Date.now() - mouseDownTimeRef.current;
-      const deltaX = e.clientX - mouseDownPosRef.current.x;
-      const deltaY = e.clientY - mouseDownPosRef.current.y;
-      const distanceMoved = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    },
+    [canvasRef, modelInfo],
+  );
 
-      // Check if it qualifies as a tap (short duration, minimal movement)
-      if (timeElapsed < TAP_DURATION_THRESHOLD_MS && distanceMoved < DRAG_DISTANCE_THRESHOLD_PX) {
-        const allowTapMotion = modelInfo?.pointerInteractive !== false;
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      const adapter = (window as any).getLAppAdapter?.();
+      const view = LAppDelegate.getInstance().getView();
+      const model = adapter?.getModel();
 
-        if (allowTapMotion && modelInfo?.tapMotions) {
-          // Use mouse down position for hit testing
+      // --- Start Drag Logic ---
+      if (
+        isPotentialTapRef.current &&
+        adapter &&
+        view &&
+        model &&
+        canvasRef.current
+      ) {
+        const timeElapsed = Date.now() - mouseDownTimeRef.current;
+        const deltaX = e.clientX - mouseDownPosRef.current.x;
+        const deltaY = e.clientY - mouseDownPosRef.current.y;
+        const distanceMoved = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        // Check if it's a drag (moved enough distance OR held long enough while moving slightly)
+        if (
+          distanceMoved > DRAG_DISTANCE_THRESHOLD_PX ||
+          (timeElapsed > TAP_DURATION_THRESHOLD_MS && distanceMoved > 1)
+        ) {
+          isPotentialTapRef.current = false; // It's a drag, not a tap
+          setIsDragging(true);
+
+          // Set initial drag screen position using the position from mousedown
           const canvas = canvasRef.current;
           const rect = canvas.getBoundingClientRect();
-          const scale = canvas.width / canvas.clientWidth;
-          const downX = (mouseDownPosRef.current.x - rect.left) * scale;
-          const downY = (mouseDownPosRef.current.y - rect.top) * scale;
-          const modelX = view._deviceToScreen.transformX(downX);
-          const modelY = view._deviceToScreen.transformY(downY);
-
-          const hitAreaName = model.anyhitTest(modelX, modelY);
-          // Trigger tap motion using the specific hit area name or null for general body tap
-          model.startTapMotion(hitAreaName, modelInfo.tapMotions);
+          dragStartPos.current = {
+            x: mouseDownPosRef.current.x - rect.left,
+            y: mouseDownPosRef.current.y - rect.top,
+          };
+          // modelStartPos is already set in handleMouseDown
         }
       }
-      // --- End Tap Motion Logic ---
-    }
+      // --- End Start Drag Logic ---
 
-    // Reset potential tap flag regardless of outcome
-    isPotentialTapRef.current = false;
-  }, [isDragging, canvasRef, modelInfo]);
+      // --- Continue Drag Logic ---
+      if (isDragging && adapter && view && model && canvasRef.current) {
+        const canvas = canvasRef.current;
+        const rect = canvas.getBoundingClientRect();
+        const currentX = e.clientX - rect.left; // Current screen X relative to canvas
+        const currentY = e.clientY - rect.top; // Current screen Y relative to canvas
+
+        // Convert screen delta to model delta
+        const scale = canvas.width / canvas.clientWidth;
+        const startScaledX = dragStartPos.current.x * scale;
+        const startScaledY = dragStartPos.current.y * scale;
+        const startModelX = view._deviceToScreen.transformX(startScaledX);
+        const startModelY = view._deviceToScreen.transformY(startScaledY);
+
+        const currentScaledX = currentX * scale;
+        const currentScaledY = currentY * scale;
+        const currentModelX = view._deviceToScreen.transformX(currentScaledX);
+        const currentModelY = view._deviceToScreen.transformY(currentScaledY);
+
+        const dx = currentModelX - startModelX;
+        const dy = currentModelY - startModelY;
+
+        const newX = modelStartPos.current.x + dx;
+        const newY = modelStartPos.current.y + dy;
+
+        // Use the adapter's setModelPosition method if available, otherwise update matrix directly
+        if (adapter.setModelPosition) {
+          adapter.setModelPosition(newX, newY);
+        } else if (model._modelMatrix) {
+          const matrix = model._modelMatrix.getArray();
+          const newMatrix = [...matrix];
+          newMatrix[12] = newX;
+          newMatrix[13] = newY;
+          model._modelMatrix.setMatrix(newMatrix);
+        }
+
+        modelPositionRef.current = { x: newX, y: newY };
+        setPosition({ x: newX, y: newY }); // Update React state if needed for UI feedback
+      }
+      // --- End Continue Drag Logic ---
+
+      // --- Pet Hover Logic (Unchanged) ---
+      if (
+        isPet &&
+        !isDragging &&
+        !isPotentialTapRef.current &&
+        electronApi &&
+        adapter &&
+        view &&
+        model &&
+        canvasRef.current
+      ) {
+        const canvas = canvasRef.current;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const scale = canvas.width / canvas.clientWidth;
+        const scaledX = x * scale;
+        const scaledY = y * scale;
+        const modelX = view._deviceToScreen.transformX(scaledX);
+        const modelY = view._deviceToScreen.transformY(scaledY);
+
+        const currentHitState =
+          model.anyhitTest(modelX, modelY) !== null ||
+          model.isHitOnModel(modelX, modelY);
+
+        if (currentHitState !== isHoveringModelRef.current) {
+          isHoveringModelRef.current = currentHitState;
+          electronApi.ipcRenderer.send(
+            "update-component-hover",
+            "live2d-model",
+            currentHitState,
+          );
+        }
+      }
+      // --- End Pet Hover Logic ---
+    },
+    [isPet, isDragging, electronApi, canvasRef],
+  );
+
+  const handleMouseUp = useCallback(
+    (e: React.MouseEvent) => {
+      const adapter = (window as any).getLAppAdapter?.();
+      const model = adapter?.getModel();
+      const view = LAppDelegate.getInstance().getView();
+
+      if (isDragging) {
+        // Finalize drag
+        setIsDragging(false);
+        if (adapter) {
+          const currentModel = adapter.getModel(); // Re-get model in case adapter changed
+          if (currentModel && currentModel._modelMatrix) {
+            const matrix = currentModel._modelMatrix.getArray();
+            const finalPos = { x: matrix[12], y: matrix[13] };
+            modelPositionRef.current = finalPos;
+            modelStartPos.current = finalPos; // Update base position for next potential drag
+            setPosition(finalPos);
+          }
+        }
+      } else if (
+        isPotentialTapRef.current &&
+        adapter &&
+        model &&
+        view &&
+        canvasRef.current
+      ) {
+        // --- Tap Motion Logic ---
+        const timeElapsed = Date.now() - mouseDownTimeRef.current;
+        const deltaX = e.clientX - mouseDownPosRef.current.x;
+        const deltaY = e.clientY - mouseDownPosRef.current.y;
+        const distanceMoved = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        // Check if it qualifies as a tap (short duration, minimal movement)
+        if (
+          timeElapsed < TAP_DURATION_THRESHOLD_MS &&
+          distanceMoved < DRAG_DISTANCE_THRESHOLD_PX
+        ) {
+          const allowTapMotion = modelInfo?.pointerInteractive !== false;
+
+          if (allowTapMotion && modelInfo?.tapMotions) {
+            // Use mouse down position for hit testing
+            const canvas = canvasRef.current;
+            const rect = canvas.getBoundingClientRect();
+            const scale = canvas.width / canvas.clientWidth;
+            const downX = (mouseDownPosRef.current.x - rect.left) * scale;
+            const downY = (mouseDownPosRef.current.y - rect.top) * scale;
+            const modelX = view._deviceToScreen.transformX(downX);
+            const modelY = view._deviceToScreen.transformY(downY);
+
+            const hitAreaName = model.anyhitTest(modelX, modelY);
+            // Trigger tap motion using the specific hit area name or null for general body tap
+            model.startTapMotion(hitAreaName, modelInfo.tapMotions);
+          }
+        }
+        // --- End Tap Motion Logic ---
+      }
+
+      // Reset potential tap flag regardless of outcome
+      isPotentialTapRef.current = false;
+    },
+    [isDragging, canvasRef, modelInfo],
+  );
 
   const handleMouseLeave = useCallback(() => {
     if (isDragging) {
@@ -396,7 +461,11 @@ export const useLive2DModel = ({
     // --- Pet Hover Logic (Unchanged) ---
     if (isPet && electronApi && isHoveringModelRef.current) {
       isHoveringModelRef.current = false;
-      electronApi.ipcRenderer.send('update-component-hover', 'live2d-model', false);
+      electronApi.ipcRenderer.send(
+        "update-component-hover",
+        "live2d-model",
+        false,
+      );
     }
   }, [isPet, isDragging, electronApi, handleMouseUp]);
 
@@ -408,26 +477,32 @@ export const useLive2DModel = ({
 
   // Expose motion debugging functions to window for console testing
   useEffect(() => {
-    const playMotion = (motionGroup: string, motionIndex: number = 0, priority: number = 3) => {
+    const playMotion = (
+      motionGroup: string,
+      motionIndex: number = 0,
+      priority: number = 3,
+    ) => {
       const adapter = (window as any).getLAppAdapter?.();
       if (!adapter) {
-        console.error('Live2D adapter not available');
+        console.error("Live2D adapter not available");
         return false;
       }
 
       const model = adapter.getModel();
       if (!model) {
-        console.error('Live2D model not available');
+        console.error("Live2D model not available");
         return false;
       }
 
       try {
-        console.log(`Playing motion: group="${motionGroup}", index=${motionIndex}, priority=${priority}`);
+        console.log(
+          `Playing motion: group="${motionGroup}", index=${motionIndex}, priority=${priority}`,
+        );
         const result = model.startMotion(motionGroup, motionIndex, priority);
-        console.log('Motion start result:', result);
+        console.log("Motion start result:", result);
         return result;
       } catch (error) {
-        console.error('Error playing motion:', error);
+        console.error("Error playing motion:", error);
         return false;
       }
     };
@@ -435,23 +510,25 @@ export const useLive2DModel = ({
     const playRandomMotion = (motionGroup: string, priority: number = 3) => {
       const adapter = (window as any).getLAppAdapter?.();
       if (!adapter) {
-        console.error('Live2D adapter not available');
+        console.error("Live2D adapter not available");
         return false;
       }
 
       const model = adapter.getModel();
       if (!model) {
-        console.error('Live2D model not available');
+        console.error("Live2D model not available");
         return false;
       }
 
       try {
-        console.log(`Playing random motion from group: "${motionGroup}", priority=${priority}`);
+        console.log(
+          `Playing random motion from group: "${motionGroup}", priority=${priority}`,
+        );
         const result = model.startRandomMotion(motionGroup, priority);
-        console.log('Random motion start result:', result);
+        console.log("Random motion start result:", result);
         return result;
       } catch (error) {
-        console.error('Error playing random motion:', error);
+        console.error("Error playing random motion:", error);
         return false;
       }
     };
@@ -459,13 +536,13 @@ export const useLive2DModel = ({
     const getMotionInfo = () => {
       const adapter = (window as any).getLAppAdapter?.();
       if (!adapter) {
-        console.error('Live2D adapter not available');
+        console.error("Live2D adapter not available");
         return null;
       }
 
       const model = adapter.getModel();
       if (!model) {
-        console.error('Live2D model not available');
+        console.error("Live2D model not available");
         return null;
       }
 
@@ -483,17 +560,17 @@ export const useLive2DModel = ({
                 count: motions.length,
                 motions: motions.map((motion: any, index: number) => ({
                   index,
-                  file: motion.File
-                }))
+                  file: motion.File,
+                })),
               });
             }
           }
         }
-        
-        console.log('Available motion groups:', motionGroups);
+
+        console.log("Available motion groups:", motionGroups);
         return motionGroups;
       } catch (error) {
-        console.error('Error getting motion info:', error);
+        console.error("Error getting motion info:", error);
         return null;
       }
     };
@@ -517,11 +594,11 @@ Live2DDebug.getMotionInfo()  // See available motions
 Live2DDebug.playMotion("", 0)  // Play first motion from default group
 Live2DDebug.playRandomMotion("")  // Play random motion from default group
         `);
-      }
+      },
     };
 
-    console.log('Live2D Debug functions exposed to window.Live2DDebug');
-    console.log('Type Live2DDebug.help() for usage information');
+    console.log("Live2D Debug functions exposed to window.Live2DDebug");
+    console.log("Type Live2DDebug.help() for usage information");
 
     // Cleanup function
     return () => {

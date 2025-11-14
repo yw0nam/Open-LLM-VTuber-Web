@@ -1,15 +1,15 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
-import React, { useContext, useCallback } from 'react';
-import { wsService } from '@/services/websocket-service/websocket-service';
-import { useLocalStorage } from '@/hooks/utils/use-local-storage';
+import React, { useContext, useCallback } from "react";
+import { wsService } from "@/services/websocket-service/websocket-service";
+import { useLocalStorage } from "@/hooks/utils/use-local-storage";
 
-const DEFAULT_WS_URL = 'ws://127.0.0.1:12393/client-ws';
-const DEFAULT_BASE_URL = 'http://127.0.0.1:12393';
+const DEFAULT_WS_URL = "ws://127.0.0.1:12393/client-ws";
+const DEFAULT_BASE_URL = "http://127.0.0.1:12393";
 
 export interface HistoryInfo {
   uid: string;
   latest_message: {
-    role: 'human' | 'ai';
+    role: "human" | "ai";
     timestamp: string;
     content: string;
   } | null;
@@ -28,7 +28,7 @@ interface WebSocketContextProps {
 
 export const WebSocketContext = React.createContext<WebSocketContextProps>({
   sendMessage: wsService.sendMessage.bind(wsService),
-  wsState: 'CLOSED',
+  wsState: "CLOSED",
   reconnect: () => wsService.connect(DEFAULT_WS_URL),
   wsUrl: DEFAULT_WS_URL,
   setWsUrl: () => {},
@@ -39,7 +39,7 @@ export const WebSocketContext = React.createContext<WebSocketContextProps>({
 export function useWebSocket() {
   const context = useContext(WebSocketContext);
   if (!context) {
-    throw new Error('useWebSocket must be used within a WebSocketProvider');
+    throw new Error("useWebSocket must be used within a WebSocketProvider");
   }
   return context;
 }
@@ -48,16 +48,19 @@ export const defaultWsUrl = DEFAULT_WS_URL;
 export const defaultBaseUrl = DEFAULT_BASE_URL;
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
-  const [wsUrl, setWsUrl] = useLocalStorage('wsUrl', DEFAULT_WS_URL);
-  const [baseUrl, setBaseUrl] = useLocalStorage('baseUrl', DEFAULT_BASE_URL);
-  const handleSetWsUrl = useCallback((url: string) => {
-    setWsUrl(url);
-    wsService.connect(url);
-  }, [setWsUrl]);
+  const [wsUrl, setWsUrl] = useLocalStorage("wsUrl", DEFAULT_WS_URL);
+  const [baseUrl, setBaseUrl] = useLocalStorage("baseUrl", DEFAULT_BASE_URL);
+  const handleSetWsUrl = useCallback(
+    (url: string) => {
+      setWsUrl(url);
+      wsService.connect(url);
+    },
+    [setWsUrl],
+  );
 
   const value = {
     sendMessage: wsService.sendMessage.bind(wsService),
-    wsState: 'CLOSED',
+    wsState: "CLOSED",
     reconnect: () => wsService.connect(wsUrl),
     wsUrl,
     setWsUrl: handleSetWsUrl,

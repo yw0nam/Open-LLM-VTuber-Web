@@ -5,12 +5,12 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismMath } from '../math/cubismmath';
-import { CubismModel } from '../model/cubismmodel';
-import { csmString } from '../type/csmstring';
-import { csmVector } from '../type/csmvector';
-import { CSM_ASSERT, CubismDebug } from '../utils/cubismdebug';
-import { CubismMotionQueueEntry } from './cubismmotionqueueentry';
+import { CubismMath } from "../math/cubismmath";
+import { CubismModel } from "../model/cubismmodel";
+import { csmString } from "../type/csmstring";
+import { csmVector } from "../type/csmvector";
+import { CSM_ASSERT, CubismDebug } from "../utils/cubismdebug";
+import { CubismMotionQueueEntry } from "./cubismmotionqueueentry";
 
 /** モーション再生終了コールバック関数定義 */
 export type FinishedMotionCallback = (self: ACubismMotion) => void;
@@ -56,7 +56,7 @@ export abstract class ACubismMotion {
   public updateParameters(
     model: CubismModel,
     motionQueueEntry: CubismMotionQueueEntry,
-    userTimeSeconds: number
+    userTimeSeconds: number,
   ): void {
     if (!motionQueueEntry.isAvailable() || motionQueueEntry.isFinished()) {
       return;
@@ -71,7 +71,7 @@ export abstract class ACubismMotion {
       model,
       userTimeSeconds,
       fadeWeight,
-      motionQueueEntry
+      motionQueueEntry,
     );
 
     // 後処理
@@ -94,7 +94,7 @@ export abstract class ACubismMotion {
    */
   public setupMotionQueueEntry(
     motionQueueEntry: CubismMotionQueueEntry,
-    userTimeSeconds: number
+    userTimeSeconds: number,
   ) {
     if (motionQueueEntry == null || motionQueueEntry.isStarted()) {
       return;
@@ -113,7 +113,7 @@ export abstract class ACubismMotion {
     if (motionQueueEntry.getEndTime() < 0.0) {
       // 開始していないうちに終了設定している場合がある
       motionQueueEntry.setEndTime(
-        duration <= 0.0 ? -1 : motionQueueEntry.getStartTime() + duration
+        duration <= 0.0 ? -1 : motionQueueEntry.getStartTime() + duration,
       );
       // duration == -1 の場合はループする
     }
@@ -129,10 +129,10 @@ export abstract class ACubismMotion {
    */
   public updateFadeWeight(
     motionQueueEntry: CubismMotionQueueEntry,
-    userTimeSeconds: number
+    userTimeSeconds: number,
   ): number {
     if (motionQueueEntry == null) {
-      CubismDebug.print(LogLevel.LogLevel_Error, 'motionQueueEntry is null.');
+      CubismDebug.print(LogLevel.LogLevel_Error, "motionQueueEntry is null.");
     }
 
     let fadeWeight: number = this._weight; // 現在の値と掛け合わせる割合
@@ -144,7 +144,7 @@ export abstract class ACubismMotion {
         ? 1.0
         : CubismMath.getEasingSine(
             (userTimeSeconds - motionQueueEntry.getFadeInStartTime()) /
-              this._fadeInSeconds
+              this._fadeInSeconds,
           );
 
     const fadeOut: number =
@@ -152,7 +152,7 @@ export abstract class ACubismMotion {
         ? 1.0
         : CubismMath.getEasingSine(
             (motionQueueEntry.getEndTime() - userTimeSeconds) /
-              this._fadeOutSeconds
+              this._fadeOutSeconds,
           );
 
     fadeWeight = fadeWeight * fadeIn * fadeOut;
@@ -255,7 +255,7 @@ export abstract class ACubismMotion {
    */
   public getFiredEvent(
     beforeCheckTimeSeconds: number,
-    motionTimeSeconds: number
+    motionTimeSeconds: number,
   ): csmVector<csmString> {
     return this._firedEventValues;
   }
@@ -273,7 +273,7 @@ export abstract class ACubismMotion {
     model: CubismModel,
     userTimeSeconds: number,
     weight: number,
-    motionQueueEntry: CubismMotionQueueEntry
+    motionQueueEntry: CubismMotionQueueEntry,
   ): void;
 
   /**
@@ -288,7 +288,7 @@ export abstract class ACubismMotion {
    * @param onFinishedMotionHandler モーション再生終了コールバック関数
    */
   public setFinishedMotionHandler = (
-    onFinishedMotionHandler: FinishedMotionCallback
+    onFinishedMotionHandler: FinishedMotionCallback,
   ) => (this._onFinishedMotion = onFinishedMotionHandler);
 
   /**
@@ -352,9 +352,9 @@ export abstract class ACubismMotion {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './acubismmotion';
-import { CubismIdHandle } from '../id/cubismid';
-import { LogLevel } from '../live2dcubismframework';
+import * as $ from "./acubismmotion";
+import { CubismIdHandle } from "../id/cubismid";
+import { LogLevel } from "../live2dcubismframework";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const ACubismMotion = $.ACubismMotion;

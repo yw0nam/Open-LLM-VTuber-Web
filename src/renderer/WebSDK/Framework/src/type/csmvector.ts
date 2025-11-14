@@ -60,7 +60,7 @@ export class csmVector<T> {
   public pushBack(value: T): void {
     if (this._size >= this._capacity) {
       this.prepareCapacity(
-        this._capacity == 0 ? csmVector.DefaultSize : this._capacity * 2
+        this._capacity == 0 ? csmVector.DefaultSize : this._capacity * 2,
       );
     }
 
@@ -115,7 +115,7 @@ export class csmVector<T> {
   public updateSize(
     newSize: number,
     value: any = null,
-    callPlacementNew = true
+    callPlacementNew = true,
   ): void {
     const curSize: number = this._size;
 
@@ -124,7 +124,7 @@ export class csmVector<T> {
 
       if (callPlacementNew) {
         for (let i: number = this._size; i < newSize; i++) {
-          if (typeof value == 'function') {
+          if (typeof value == "function") {
             // new
             this._ptr[i] = JSON.parse(JSON.stringify(new value()));
           } // プリミティブ型なので値渡し
@@ -155,7 +155,7 @@ export class csmVector<T> {
   public insert(
     position: iterator<T>,
     begin: iterator<T>,
-    end: iterator<T>
+    end: iterator<T>,
   ): void {
     let dstSi: number = position._index;
     const srcSi: number = begin._index;
@@ -342,7 +342,7 @@ export class iterator<T> {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './csmvector';
+import * as $ from "./csmvector";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const csmVector = $.csmVector;

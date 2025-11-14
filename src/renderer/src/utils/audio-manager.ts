@@ -19,12 +19,12 @@ class AudioManager {
    */
   stopCurrentAudioAndLipSync() {
     if (this.currentAudio) {
-      console.log('[AudioManager] Stopping current audio and lip sync');
+      console.log("[AudioManager] Stopping current audio and lip sync");
       const audio = this.currentAudio;
-      
+
       // Stop audio playback
       audio.pause();
-      audio.src = '';
+      audio.src = "";
       audio.load();
 
       // Stop Live2D lip sync
@@ -33,27 +33,36 @@ class AudioManager {
         try {
           // Release PCM data to stop lip sync calculation in update()
           model._wavFileHandler.releasePcmData();
-          console.log('[AudioManager] Called _wavFileHandler.releasePcmData()');
+          console.log("[AudioManager] Called _wavFileHandler.releasePcmData()");
 
           // Additional reset of state variables as fallback
           model._wavFileHandler._lastRms = 0.0;
           model._wavFileHandler._sampleOffset = 0;
           model._wavFileHandler._userTimeSeconds = 0.0;
-          console.log('[AudioManager] Also reset _lastRms, _sampleOffset, _userTimeSeconds as fallback');
+          console.log(
+            "[AudioManager] Also reset _lastRms, _sampleOffset, _userTimeSeconds as fallback",
+          );
         } catch (e) {
-          console.error('[AudioManager] Error stopping/resetting wavFileHandler:', e);
+          console.error(
+            "[AudioManager] Error stopping/resetting wavFileHandler:",
+            e,
+          );
         }
       } else if (model) {
-        console.warn('[AudioManager] Current model does not have _wavFileHandler to stop/reset.');
+        console.warn(
+          "[AudioManager] Current model does not have _wavFileHandler to stop/reset.",
+        );
       } else {
-        console.log('[AudioManager] No associated model found to stop lip sync.');
+        console.log(
+          "[AudioManager] No associated model found to stop lip sync.",
+        );
       }
 
       // Clear references
       this.currentAudio = null;
       this.currentModel = null;
     } else {
-      console.log('[AudioManager] No current audio playing to stop.');
+      console.log("[AudioManager] No current audio playing to stop.");
     }
   }
 

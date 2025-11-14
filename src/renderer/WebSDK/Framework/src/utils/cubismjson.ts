@@ -5,15 +5,15 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { strtod } from '../live2dcubismframework';
-import { csmMap, iterator as csmMap_iterator } from '../type/csmmap';
-import { csmString } from '../type/csmstring';
-import { csmVector, iterator as csmVector_iterator } from '../type/csmvector';
-import { CubismLogInfo } from './cubismdebug';
+import { strtod } from "../live2dcubismframework";
+import { csmMap, iterator as csmMap_iterator } from "../type/csmmap";
+import { csmString } from "../type/csmstring";
+import { csmVector, iterator as csmVector_iterator } from "../type/csmvector";
+import { CubismLogInfo } from "./cubismdebug";
 
 // StaticInitializeNotForClientCall()で初期化する
-const CSM_JSON_ERROR_TYPE_MISMATCH = 'Error: type mismatch';
-const CSM_JSON_ERROR_INDEX_OF_BOUNDS = 'Error: index out of bounds';
+const CSM_JSON_ERROR_TYPE_MISMATCH = "Error: type mismatch";
+const CSM_JSON_ERROR_INDEX_OF_BOUNDS = "Error: index out of bounds";
 
 /**
  * パースしたJSONエレメントの要素の基底クラス。
@@ -90,7 +90,7 @@ export abstract class Value {
    */
   public getValueByIndex(index: number): Value {
     return Value.errorValue.setErrorNotForClientCall(
-      CSM_JSON_ERROR_TYPE_MISMATCH
+      CSM_JSON_ERROR_TYPE_MISMATCH,
     );
   }
 
@@ -99,7 +99,7 @@ export abstract class Value {
    */
   public getValueByString(s: string | csmString): Value {
     return Value.nullValue.setErrorNotForClientCall(
-      CSM_JSON_ERROR_TYPE_MISMATCH
+      CSM_JSON_ERROR_TYPE_MISMATCH,
     );
   }
 
@@ -192,7 +192,7 @@ export abstract class Value {
   public static staticInitializeNotForClientCall(): void {
     JsonBoolean.trueValue = new JsonBoolean(true);
     JsonBoolean.falseValue = new JsonBoolean(false);
-    Value.errorValue = new JsonError('ERROR', true);
+    Value.errorValue = new JsonError("ERROR", true);
     Value.nullValue = new JsonNullvalue();
     Value.dummyKeys = new csmVector<string>();
   }
@@ -253,7 +253,7 @@ export class CubismJson {
     const succeeded: boolean = json.parseBytes(
       buffer,
       size,
-      json._parseCallback
+      json._parseCallback,
     );
 
     if (!succeeded) {
@@ -288,10 +288,10 @@ export class CubismJson {
    */
   public static arrayBufferToString(buffer: ArrayBuffer): string {
     const uint8Array: Uint8Array = new Uint8Array(buffer);
-    let str = '';
+    let str = "";
 
     for (let i = 0, len: number = uint8Array.length; i < len; ++i) {
-      str += '%' + this.pad(uint8Array[i].toString(16));
+      str += "%" + this.pad(uint8Array[i].toString(16));
     }
 
     str = decodeURIComponent(str);
@@ -302,7 +302,7 @@ export class CubismJson {
    * エンコード、パディング
    */
   private static pad(n: string): string {
-    return n.length < 2 ? '0' + n : n;
+    return n.length < 2 ? "0" + n : n;
   }
 
   /**
@@ -315,7 +315,7 @@ export class CubismJson {
   public parseBytes(
     buffer: ArrayBuffer,
     size: number,
-    parseCallback?: parseJsonObject
+    parseCallback?: parseJsonObject,
   ): boolean {
     const endPos: number[] = new Array<number>(1); // 参照渡しにするため配列
     const decodeBuffer: string = CubismJson.arrayBufferToString(buffer);
@@ -328,11 +328,11 @@ export class CubismJson {
     }
 
     if (this._error) {
-      let strbuf = '\0';
-      strbuf = 'Json parse error : @line ' + (this._lineCount + 1) + '\n';
+      let strbuf = "\0";
+      strbuf = "Json parse error : @line " + (this._lineCount + 1) + "\n";
       this._root = new JsonString(strbuf);
 
-      CubismLogInfo('{0}', this._root.getRawString());
+      CubismLogInfo("{0}", this._root.getRawString());
       return false;
     } else if (this._root == null) {
       this._root = new JsonError(new csmString(this._error), false); // rootは解放されるのでエラーオブジェクトを別途作成する
@@ -352,7 +352,7 @@ export class CubismJson {
    * ルート要素の次の要素がファイルの終端だったらtrueを返す
    */
   public checkEndOfFile(): boolean {
-    return this._root.getArray()[1].equals('EOF');
+    return this._root.getArray()[1].equals("EOF");
   }
 
   /**
@@ -369,7 +369,7 @@ export class CubismJson {
     buffer: string,
     length: number,
     begin: number,
-    outEndPos: number[]
+    outEndPos: number[],
   ) {
     if (this._error) return null;
 
@@ -380,18 +380,18 @@ export class CubismJson {
     for (; i < length; i++) {
       const c: string = buffer[i];
       switch (c) {
-        case '-':
-        case '.':
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9': {
+        case "-":
+        case ".":
+        case "0":
+        case "1":
+        case "2":
+        case "3":
+        case "4":
+        case "5":
+        case "6":
+        case "7":
+        case "8":
+        case "9": {
           const afterString: string[] = new Array(1); // 参照渡しにするため
           f = strtod(buffer.slice(i), afterString);
           outEndPos[0] = buffer.indexOf(afterString[0]);
@@ -399,31 +399,31 @@ export class CubismJson {
         }
         case '"':
           return new JsonString(
-            this.parseString(buffer, length, i + 1, outEndPos)
+            this.parseString(buffer, length, i + 1, outEndPos),
           ); // \"の次の文字から
-        case '[':
+        case "[":
           o = this.parseArray(buffer, length, i + 1, outEndPos);
           return o;
-        case '{':
+        case "{":
           o = this.parseObject(buffer, length, i + 1, outEndPos);
           return o;
-        case 'n': // null以外にない
+        case "n": // null以外にない
           if (i + 3 < length) {
             o = new JsonNullvalue(); // 解放できるようにする
             outEndPos[0] = i + 4;
           } else {
-            this._error = 'parse null';
+            this._error = "parse null";
           }
           return o;
-        case 't': // true以外にない
+        case "t": // true以外にない
           if (i + 3 < length) {
             o = JsonBoolean.trueValue;
             outEndPos[0] = i + 4;
           } else {
-            this._error = 'parse true';
+            this._error = "parse true";
           }
           return o;
-        case 'f': // false以外にない
+        case "f": // false以外にない
           if (i + 4 < length) {
             o = JsonBoolean.falseValue;
             outEndPos[0] = i + 5;
@@ -431,25 +431,25 @@ export class CubismJson {
             this._error = "illegal ',' position";
           }
           return o;
-        case ',': // Array separator
+        case ",": // Array separator
           this._error = "illegal ',' position";
           return null;
-        case ']': // 不正な｝だがスキップする。配列の最後に不要な , があると思われる
+        case "]": // 不正な｝だがスキップする。配列の最後に不要な , があると思われる
           outEndPos[0] = i; // 同じ文字を再処理
           return null;
-        case '\n':
+        case "\n":
           this._lineCount++;
         // falls through
-        case ' ':
-        case '\t':
-        case '\r':
+        case " ":
+        case "\t":
+        case "\r":
         default:
           // スキップ
           break;
       }
     }
 
-    this._error = 'illegal end of value';
+    this._error = "illegal end of value";
     return null;
   }
 
@@ -466,20 +466,20 @@ export class CubismJson {
     string: string,
     length: number,
     begin: number,
-    outEndPos: number[]
+    outEndPos: number[],
   ): string {
     if (this._error) {
       return null;
     }
 
     if (!string) {
-      this._error = 'string is null';
+      this._error = "string is null";
       return null;
     }
 
     let i = begin;
     let c: string, c2: string;
-    const ret: csmString = new csmString('');
+    const ret: csmString = new csmString("");
     let bufStart: number = begin; // sbufに登録されていない文字の開始位置
 
     for (; i < length; i++) {
@@ -493,7 +493,7 @@ export class CubismJson {
           return ret.s;
         }
         // falls through
-        case '//': {
+        case "//": {
           // エスケープの場合
           i++; // ２文字をセットで扱う
 
@@ -506,38 +506,38 @@ export class CubismJson {
             c2 = string[i];
 
             switch (c2) {
-              case '\\':
-                ret.expansion(1, '\\');
+              case "\\":
+                ret.expansion(1, "\\");
                 break;
               case '"':
                 ret.expansion(1, '"');
                 break;
-              case '/':
-                ret.expansion(1, '/');
+              case "/":
+                ret.expansion(1, "/");
                 break;
-              case 'b':
-                ret.expansion(1, '\b');
+              case "b":
+                ret.expansion(1, "\b");
                 break;
-              case 'f':
-                ret.expansion(1, '\f');
+              case "f":
+                ret.expansion(1, "\f");
                 break;
-              case 'n':
-                ret.expansion(1, '\n');
+              case "n":
+                ret.expansion(1, "\n");
                 break;
-              case 'r':
-                ret.expansion(1, '\r');
+              case "r":
+                ret.expansion(1, "\r");
                 break;
-              case 't':
-                ret.expansion(1, '\t');
+              case "t":
+                ret.expansion(1, "\t");
                 break;
-              case 'u':
-                this._error = 'parse string/unicord escape not supported';
+              case "u":
+                this._error = "parse string/unicord escape not supported";
                 break;
               default:
                 break;
             }
           } else {
-            this._error = 'parse string/escape error';
+            this._error = "parse string/escape error";
           }
         }
         // falls through
@@ -547,7 +547,7 @@ export class CubismJson {
       }
     }
 
-    this._error = 'parse string/illegal end';
+    this._error = "parse string/illegal end";
     return null;
   }
 
@@ -564,23 +564,23 @@ export class CubismJson {
     buffer: string,
     length: number,
     begin: number,
-    outEndPos: number[]
+    outEndPos: number[],
   ): Value {
     if (this._error) {
       return null;
     }
 
     if (!buffer) {
-      this._error = 'buffer is null';
+      this._error = "buffer is null";
       return null;
     }
 
     const ret: JsonMap = new JsonMap();
 
     // Key: Value
-    let key = '';
+    let key = "";
     let i: number = begin;
-    let c = '';
+    let c = "";
     const localRetEndPos2: number[] = Array(1);
     let ok = false;
 
@@ -599,13 +599,13 @@ export class CubismJson {
             i = localRetEndPos2[0];
             ok = true;
             break FOR_LOOP; //-- loopから出る
-          case '}': // 閉じカッコ
+          case "}": // 閉じカッコ
             outEndPos[0] = i + 1;
             return ret; // 空
-          case ':':
+          case ":":
             this._error = "illegal ':' position";
             break;
-          case '\n':
+          case "\n":
             this._lineCount++;
           // falls through
           default:
@@ -613,7 +613,7 @@ export class CubismJson {
         }
       }
       if (!ok) {
-        this._error = 'key not found';
+        this._error = "key not found";
         return null;
       }
 
@@ -624,15 +624,15 @@ export class CubismJson {
         c = buffer[i];
 
         switch (c) {
-          case ':':
+          case ":":
             ok = true;
             i++;
             break FOR_LOOP2;
-          case '}':
+          case "}":
             this._error = "illegal '}' position";
             break;
           // falls through
-          case '\n':
+          case "\n":
             this._lineCount++;
           // case ' ': case '\t' : case '\r':
           // falls through
@@ -661,12 +661,12 @@ export class CubismJson {
         c = buffer[i];
 
         switch (c) {
-          case ',':
+          case ",":
             break FOR_LOOP3;
-          case '}':
+          case "}":
             outEndPos[0] = i + 1;
             return ret; // 正常終了
-          case '\n':
+          case "\n":
             this._lineCount++;
           // falls through
           default:
@@ -675,7 +675,7 @@ export class CubismJson {
       }
     }
 
-    this._error = 'illegal end of perseObject';
+    this._error = "illegal end of perseObject";
     return null;
   }
 
@@ -691,14 +691,14 @@ export class CubismJson {
     buffer: string,
     length: number,
     begin: number,
-    outEndPos: number[]
+    outEndPos: number[],
   ): Value {
     if (this._error) {
       return null;
     }
 
     if (!buffer) {
-      this._error = 'buffer is null';
+      this._error = "buffer is null";
       return null;
     }
 
@@ -729,14 +729,14 @@ export class CubismJson {
         c = buffer[i];
 
         switch (c) {
-          case ',':
+          case ",":
             // breakflag = true;
             // break; // 次のKEY, VAlUEへ
             break FOR_LOOP;
-          case ']':
+          case "]":
             outEndPos[0] = i + 1;
             return ret; // 終了
-          case '\n':
+          case "\n":
             ++this._lineCount;
           //case ' ': case '\t': case '\r':
           // falls through
@@ -747,7 +747,7 @@ export class CubismJson {
     }
 
     ret = void 0;
-    this._error = 'illegal end of parseObject';
+    this._error = "illegal end of parseObject";
     return null;
   }
 
@@ -786,7 +786,7 @@ export class JsonFloat extends Value {
    * 要素を文字列で返す(csmString型)
    */
   public getString(defaultValue: string, indent: string): string {
-    const strbuf = '\0';
+    const strbuf = "\0";
     this._value = parseFloat(strbuf);
     this._stringBuffer = strbuf;
 
@@ -815,7 +815,7 @@ export class JsonFloat extends Value {
   public equals(value: number): boolean;
   public equals(value: boolean): boolean;
   public equals(value: any): boolean {
-    if ('number' === typeof value) {
+    if ("number" === typeof value) {
       // int
       if (Math.round(value)) {
         return false;
@@ -853,7 +853,7 @@ export class JsonBoolean extends Value {
    * 要素を文字列で返す(csmString型)
    */
   public getString(defaultValue: string, indent: string): string {
-    this._stringBuffer = this._boolValue ? 'true' : 'false';
+    this._stringBuffer = this._boolValue ? "true" : "false";
 
     return this._stringBuffer;
   }
@@ -866,7 +866,7 @@ export class JsonBoolean extends Value {
   public equals(value: number): boolean;
   public equals(value: boolean): boolean;
   public equals(value: any): boolean {
-    if ('boolean' === typeof value) {
+    if ("boolean" === typeof value) {
       return value == this._boolValue;
     }
     return false;
@@ -906,7 +906,7 @@ export class JsonString extends Value {
   public constructor(s: any) {
     super();
 
-    if ('string' === typeof s) {
+    if ("string" === typeof s) {
       this._stringBuffer = s;
     }
 
@@ -937,7 +937,7 @@ export class JsonString extends Value {
   public equals(value: number): boolean;
   public equals(value: boolean): boolean;
   public equals(value: any): boolean {
-    if ('string' === typeof value) {
+    if ("string" === typeof value) {
       return this._stringBuffer == value;
     }
 
@@ -972,7 +972,7 @@ export class JsonError extends JsonString {
    * 引数付きコンストラクタ
    */
   public constructor(s: csmString | string, isStatic: boolean) {
-    if ('string' === typeof s) {
+    if ("string" === typeof s) {
       super(s);
     } else {
       super(s);
@@ -1029,7 +1029,7 @@ export class JsonNullvalue extends Value {
   public constructor() {
     super();
 
-    this._stringBuffer = 'NullValue';
+    this._stringBuffer = "NullValue";
   }
 }
 
@@ -1076,7 +1076,7 @@ export class JsonArray extends Value {
   public getValueByIndex(index: number): Value {
     if (index < 0 || this._array.getSize() <= index) {
       return Value.errorValue.setErrorNotForClientCall(
-        CSM_JSON_ERROR_INDEX_OF_BOUNDS
+        CSM_JSON_ERROR_INDEX_OF_BOUNDS,
       );
     }
 
@@ -1094,7 +1094,7 @@ export class JsonArray extends Value {
    */
   public getValueByString(s: string | csmString): Value {
     return Value.errorValue.setErrorNotForClientCall(
-      CSM_JSON_ERROR_TYPE_MISMATCH
+      CSM_JSON_ERROR_TYPE_MISMATCH,
     );
   }
 
@@ -1102,7 +1102,7 @@ export class JsonArray extends Value {
    * 要素を文字列で返す(csmString型)
    */
   public getString(defaultValue: string, indent: string): string {
-    const stringBuffer: string = indent + '[\n';
+    const stringBuffer: string = indent + "[\n";
 
     for (
       let ite: csmVector_iterator<Value> = this._array.begin();
@@ -1110,10 +1110,10 @@ export class JsonArray extends Value {
       ite.increment()
     ) {
       const v: Value = ite.ptr();
-      this._stringBuffer += indent + '' + v.getString(indent + ' ') + '\n';
+      this._stringBuffer += indent + "" + v.getString(indent + " ") + "\n";
     }
 
-    this._stringBuffer = stringBuffer + indent + ']\n';
+    this._stringBuffer = stringBuffer + indent + "]\n";
 
     return this._stringBuffer;
   }
@@ -1213,7 +1213,7 @@ export class JsonMap extends Value {
    */
   public getValueByIndex(index: number): Value {
     return Value.errorValue.setErrorNotForClientCall(
-      CSM_JSON_ERROR_TYPE_MISMATCH
+      CSM_JSON_ERROR_TYPE_MISMATCH,
     );
   }
 
@@ -1221,7 +1221,7 @@ export class JsonMap extends Value {
    * 要素を文字列で返す(csmString型)
    */
   public getString(defaultValue: string, indent: string) {
-    this._stringBuffer = indent + '{\n';
+    this._stringBuffer = indent + "{\n";
 
     const ite: csmMap_iterator<string, Value> = this._map.begin();
     while (ite.notEqual(this._map.end())) {
@@ -1229,11 +1229,11 @@ export class JsonMap extends Value {
       const v: Value = ite.ptr().second;
 
       this._stringBuffer +=
-        indent + ' ' + key + ' : ' + v.getString(indent + '   ') + ' \n';
+        indent + " " + key + " : " + v.getString(indent + "   ") + " \n";
       ite.preIncrement();
     }
 
-    this._stringBuffer += indent + '}\n';
+    this._stringBuffer += indent + "}\n";
 
     return this._stringBuffer;
   }
@@ -1282,8 +1282,8 @@ export class JsonMap extends Value {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismjson';
-import { CubismJsonExtension } from './cubismjsonextension';
+import * as $ from "./cubismjson";
+import { CubismJsonExtension } from "./cubismjsonextension";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismJson = $.CubismJson;

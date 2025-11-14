@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
-import { useWebSocket } from '@/context/websocket-context';
-import { useMediaCapture } from './use-media-capture';
+import { useCallback } from "react";
+import { useWebSocket } from "@/context/websocket-context";
+import { useMediaCapture } from "./use-media-capture";
 
 export function useTriggerSpeak() {
   const { sendMessage } = useWebSocket();

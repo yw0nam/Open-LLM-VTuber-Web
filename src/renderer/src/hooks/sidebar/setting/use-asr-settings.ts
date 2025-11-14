@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { useVAD, VADSettings } from '@/context/vad-context';
+import React, { useRef, useState, useEffect } from "react";
+import { useVAD, VADSettings } from "@/context/vad-context";
 
 export const useASRSettings = () => {
   const {
@@ -18,9 +18,12 @@ export const useASRSettings = () => {
   const originalAutoStopMicRef = useRef(autoStopMic);
   const originalAutoStartMicOnRef = useRef(autoStartMicOn);
   const originalAutoStartMicOnConvEndRef = useRef(autoStartMicOnConvEnd);
-  const [localVoiceInterruption, setLocalVoiceInterruption] = useState(autoStopMic);
+  const [localVoiceInterruption, setLocalVoiceInterruption] =
+    useState(autoStopMic);
   const [localAutoStartMic, setLocalAutoStartMic] = useState(autoStartMicOn);
-  const [localAutoStartMicOnConvEnd, setLocalAutoStartMicOnConvEnd] = useState(autoStartMicOnConvEnd);
+  const [localAutoStartMicOnConvEnd, setLocalAutoStartMicOnConvEnd] = useState(
+    autoStartMicOnConvEnd,
+  );
   const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
 
   useEffect(() => {
@@ -29,14 +32,20 @@ export const useASRSettings = () => {
     setLocalAutoStartMicOnConvEnd(autoStartMicOnConvEnd);
   }, [autoStopMic, autoStartMicOn, autoStartMicOnConvEnd]);
 
-  const handleInputChange = (key: keyof VADSettings, value: number | string): void => {
-    if (value === '' || value === '-') {
+  const handleInputChange = (
+    key: keyof VADSettings,
+    value: number | string,
+  ): void => {
+    if (value === "" || value === "-") {
       localSettingsRef.current = { ...localSettingsRef.current, [key]: value };
     } else {
       const parsed = Number(value);
       // eslint-disable-next-line no-restricted-globals
       if (!isNaN(parsed)) {
-        localSettingsRef.current = { ...localSettingsRef.current, [key]: parsed };
+        localSettingsRef.current = {
+          ...localSettingsRef.current,
+          [key]: parsed,
+        };
       }
     }
     forceUpdate();

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import type { CollectionItem } from '@chakra-ui/react';
-import { Select as ChakraSelect, Portal } from '@chakra-ui/react';
-import * as React from 'react';
-import { CloseButton } from './close-button';
+import type { CollectionItem } from "@chakra-ui/react";
+import { Select as ChakraSelect, Portal } from "@chakra-ui/react";
+import * as React from "react";
+import { CloseButton } from "./close-button";
 
 interface SelectTriggerProps extends ChakraSelect.ControlProps {
-  clearable?: boolean
+  clearable?: boolean;
 }
 
 export const SelectTrigger = React.forwardRef<
@@ -41,8 +41,8 @@ const SelectClearTrigger = React.forwardRef<
 ));
 
 interface SelectContentProps extends ChakraSelect.ContentProps {
-  portalled?: boolean
-  portalRef?: React.RefObject<HTMLElement>
+  portalled?: boolean;
+  portalRef?: React.RefObject<HTMLElement>;
 }
 
 export const SelectContent = React.forwardRef<
@@ -73,8 +73,8 @@ export const SelectItem = React.forwardRef<
 });
 
 interface SelectValueTextProps
-  extends Omit<ChakraSelect.ValueTextProps, 'children'> {
-  children?(items: CollectionItem[]): React.ReactNode
+  extends Omit<ChakraSelect.ValueTextProps, "children"> {
+  children?(items: CollectionItem[]): React.ReactNode;
 }
 
 export const SelectValueText = React.forwardRef<
@@ -89,7 +89,8 @@ export const SelectValueText = React.forwardRef<
           const items = select.selectedItems;
           if (items.length === 0) return props.placeholder;
           if (children) return children(items);
-          if (items.length === 1) return select.collection.stringifyItem(items[0]);
+          if (items.length === 1)
+            return select.collection.stringifyItem(items[0]);
           return `${items.length} selected`;
         }}
       </ChakraSelect.Context>
@@ -118,7 +119,7 @@ export const SelectRoot = React.forwardRef<
 )) as ChakraSelect.RootComponent;
 
 interface SelectItemGroupProps extends ChakraSelect.ItemGroupProps {
-  label: React.ReactNode
+  label: React.ReactNode;
 }
 
 export const SelectItemGroup = React.forwardRef<

@@ -5,8 +5,8 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { csmMap, iterator } from '../type/csmmap';
-import { CubismMatrix44 } from './cubismmatrix44';
+import { csmMap, iterator } from "../type/csmmap";
+import { CubismMatrix44 } from "./cubismmatrix44";
 
 /**
  * モデル座標設定用の4x4行列
@@ -159,16 +159,16 @@ export class CubismModelMatrix extends CubismMatrix44 {
    * @param layout レイアウト情報
    */
   public setupFromLayout(layout: csmMap<string, number>): void {
-    const keyWidth = 'width';
-    const keyHeight = 'height';
-    const keyX = 'x';
-    const keyY = 'y';
-    const keyCenterX = 'center_x';
-    const keyCenterY = 'center_y';
-    const keyTop = 'top';
-    const keyBottom = 'bottom';
-    const keyLeft = 'left';
-    const keyRight = 'right';
+    const keyWidth = "width";
+    const keyHeight = "height";
+    const keyX = "x";
+    const keyY = "y";
+    const keyCenterX = "center_x";
+    const keyCenterY = "center_y";
+    const keyTop = "top";
+    const keyBottom = "bottom";
+    const keyLeft = "left";
+    const keyRight = "right";
 
     for (
       const ite: iterator<string, number> = layout.begin();
@@ -218,7 +218,7 @@ export class CubismModelMatrix extends CubismMatrix44 {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmodelmatrix';
+import * as $ from "./cubismmodelmatrix";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismModelMatrix = $.CubismModelMatrix;

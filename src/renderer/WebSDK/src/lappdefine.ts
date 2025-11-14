@@ -5,14 +5,14 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { LogLevel } from '@framework/live2dcubismframework';
+import { LogLevel } from "@framework/live2dcubismframework";
 
 /**
  * Sample Appで使用する定数
  */
 
 // Canvas width and height pixel values, or dynamic screen size ('auto').
-export const CanvasSize: { width: number; height: number } | 'auto' = 'auto';
+export const CanvasSize: { width: number; height: number } | "auto" = "auto";
 
 // 画面
 export const ViewScale = 1.0;
@@ -38,8 +38,18 @@ export let ModelDir: string[] = [];
 export let ModelFileNames: string[] = []; // New array to store model file names
 
 // Function to update model configuration with both directory and file name
-export function updateModelConfig(resourcePath: string, modelDirectory: string, modelFileName: string, kScale?: number) {
-  console.log('Updating model config:', { resourcePath, modelDirectory, modelFileName, kScale });
+export function updateModelConfig(
+  resourcePath: string,
+  modelDirectory: string,
+  modelFileName: string,
+  kScale?: number,
+) {
+  console.log("Updating model config:", {
+    resourcePath,
+    modelDirectory,
+    modelFileName,
+    kScale,
+  });
   ResourcesPath = resourcePath;
   ModelDir = [modelDirectory];
   ModelFileNames = [modelFileName]; // Store the actual model file name
@@ -54,13 +64,13 @@ export function updateModelConfig(resourcePath: string, modelDirectory: string, 
 export let ModelDirSize = ModelDir.length;
 
 // モデルの後ろにある背景の画像ファイル
-export const BackImageName = 'back_class_normal.png';
+export const BackImageName = "back_class_normal.png";
 
 // 歯車
-export const GearImageName = 'icon_gear.png';
+export const GearImageName = "icon_gear.png";
 
 // 終了ボタン
-export const PowerImageName = 'CloseNormal.png';
+export const PowerImageName = "CloseNormal.png";
 
 // モデル定義---------------------------------------------
 // モデルを配置したディレクトリ名の配列
@@ -68,13 +78,13 @@ export const PowerImageName = 'CloseNormal.png';
 
 // 外部定義ファイル（json）と合わせる
 // 外部定义文件（json）与之匹配
-export const MotionGroupIdle = 'Idle'; // アイドリング  // 空闲
-export const MotionGroupTapBody = 'TapBody'; // 体をタップしたとき  // 点击身体时
+export const MotionGroupIdle = "Idle"; // アイドリング  // 空闲
+export const MotionGroupTapBody = "TapBody"; // 体をタップしたとき  // 点击身体时
 
 // 外部定義ファイル（json）と合わせる
 // 外部定义文件（json）与之匹配
-export const HitAreaNameHead = 'Head';
-export const HitAreaNameBody = 'Body';
+export const HitAreaNameHead = "Head";
+export const HitAreaNameBody = "Body";
 
 // モーションの優先度定数
 // 动作优先级常数

@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { ModelInfo, useLive2DConfig } from '@/context/live2d-config-context';
+import { useState, useEffect } from "react";
+import { ModelInfo, useLive2DConfig } from "@/context/live2d-config-context";
 
 export const useLive2dSettings = () => {
   const Live2DConfigContext = useLive2DConfig();
 
   const initialModelInfo: ModelInfo = {
-    url: '',
+    url: "",
     kScale: 0.5,
     initialXshift: 0,
     initialYshift: 0,
@@ -22,7 +22,10 @@ export const useLive2dSettings = () => {
 
   useEffect(() => {
     if (Live2DConfigContext?.modelInfo) {
-      if (JSON.stringify(Live2DConfigContext.modelInfo) !== JSON.stringify(originalModelInfo)) {
+      if (
+        JSON.stringify(Live2DConfigContext.modelInfo) !==
+        JSON.stringify(originalModelInfo)
+      ) {
         setOriginalModelInfo(Live2DConfigContext.modelInfo);
         setModelInfoState(Live2DConfigContext.modelInfo);
       }
@@ -35,7 +38,10 @@ export const useLive2dSettings = () => {
     }
   }, [modelInfo.pointerInteractive, modelInfo.scrollToResize]);
 
-  const handleInputChange = (key: keyof ModelInfo, value: ModelInfo[keyof ModelInfo]): void => {
+  const handleInputChange = (
+    key: keyof ModelInfo,
+    value: ModelInfo[keyof ModelInfo],
+  ): void => {
     setModelInfoState((prev) => ({ ...prev, [key]: value }));
   };
 

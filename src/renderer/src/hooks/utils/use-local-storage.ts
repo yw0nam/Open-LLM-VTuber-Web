@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,
   options?: {
-    filter?: (value: T) => T
+    filter?: (value: T) => T;
   },
 ) {
   const [storedValue, setStoredValue] = useState<T>(() => {
@@ -20,8 +20,11 @@ export function useLocalStorage<T>(
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      const filteredValue = options?.filter ? options.filter(valueToStore) : valueToStore;
+      const valueToStore =
+        value instanceof Function ? value(storedValue) : value;
+      const filteredValue = options?.filter
+        ? options.filter(valueToStore)
+        : valueToStore;
       setStoredValue(valueToStore);
       window.localStorage.setItem(key, JSON.stringify(filteredValue));
     } catch (error) {

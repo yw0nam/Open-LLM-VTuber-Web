@@ -5,7 +5,7 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { canvas, gl } from './lappglmanager';
+import { canvas, gl } from "./lappglmanager";
 
 /**
  * スプライトを実装するクラス
@@ -26,7 +26,7 @@ export class LAppSprite {
     y: number,
     width: number,
     height: number,
-    textureId: WebGLTexture
+    textureId: WebGLTexture,
   ) {
     this._rect = new Rect();
     this._rect.left = x - width * 0.5;
@@ -89,14 +89,14 @@ export class LAppSprite {
     // 初回描画時
     if (this._firstDraw) {
       // 何番目のattribute変数か取得
-      this._positionLocation = gl.getAttribLocation(programId, 'position');
+      this._positionLocation = gl.getAttribLocation(programId, "position");
       gl.enableVertexAttribArray(this._positionLocation);
 
-      this._uvLocation = gl.getAttribLocation(programId, 'uv');
+      this._uvLocation = gl.getAttribLocation(programId, "uv");
       gl.enableVertexAttribArray(this._uvLocation);
 
       // 何番目のuniform変数か取得
-      this._textureLocation = gl.getUniformLocation(programId, 'texture');
+      this._textureLocation = gl.getUniformLocation(programId, "texture");
 
       // uniform属性の登録
       gl.uniform1i(this._textureLocation, 0);
@@ -104,7 +104,7 @@ export class LAppSprite {
       // uvバッファ、座標初期化
       {
         this._uvArray = new Float32Array([
-          1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0
+          1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
         ]);
 
         // uvバッファを作成
@@ -125,7 +125,7 @@ export class LAppSprite {
           (this._rect.left - maxWidth * 0.5) / (maxWidth * 0.5),
           (this._rect.down - maxHeight * 0.5) / (maxHeight * 0.5),
           (this._rect.right - maxWidth * 0.5) / (maxWidth * 0.5),
-          (this._rect.down - maxHeight * 0.5) / (maxHeight * 0.5)
+          (this._rect.down - maxHeight * 0.5) / (maxHeight * 0.5),
         ]);
 
         // 頂点バッファを作成
@@ -168,7 +168,7 @@ export class LAppSprite {
       gl.TRIANGLES,
       this._indexArray.length,
       gl.UNSIGNED_SHORT,
-      0
+      0,
     );
   }
 

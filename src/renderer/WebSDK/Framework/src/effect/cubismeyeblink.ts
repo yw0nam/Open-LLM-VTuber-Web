@@ -5,10 +5,10 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { ICubismModelSetting } from '../icubismmodelsetting';
-import { CubismIdHandle } from '../id/cubismid';
-import { CubismModel } from '../model/cubismmodel';
-import { csmVector } from '../type/csmvector';
+import { ICubismModelSetting } from "../icubismmodelsetting";
+import { CubismIdHandle } from "../id/cubismid";
+import { CubismModel } from "../model/cubismmodel";
+import { csmVector } from "../type/csmvector";
 
 /**
  * 自動まばたき機能
@@ -23,7 +23,7 @@ export class CubismEyeBlink {
    * @note 引数がNULLの場合、パラメータIDが設定されていない空のインスタンスを作成する。
    */
   public static create(
-    modelSetting: ICubismModelSetting = null
+    modelSetting: ICubismModelSetting = null,
   ): CubismEyeBlink {
     return new CubismEyeBlink(modelSetting);
   }
@@ -55,7 +55,7 @@ export class CubismEyeBlink {
   public setBlinkingSetting(
     closing: number,
     closed: number,
-    opening: number
+    opening: number,
   ): void {
     this._closingSeconds = closing;
     this._closedSeconds = closed;
@@ -220,11 +220,11 @@ export enum EyeState {
   EyeState_Interval, // まばたきしていない状態
   EyeState_Closing, // まぶたが閉じていく途中の状態
   EyeState_Closed, // まぶたが閉じている状態
-  EyeState_Opening // まぶたが開いていく途中の状態
+  EyeState_Opening, // まぶたが開いていく途中の状態
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismeyeblink';
+import * as $ from "./cubismeyeblink";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismEyeBlink = $.CubismEyeBlink;

@@ -5,12 +5,12 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismModel } from '../model/cubismmodel';
-import { ACubismMotion } from './acubismmotion';
+import { CubismModel } from "../model/cubismmodel";
+import { ACubismMotion } from "./acubismmotion";
 import {
   CubismMotionQueueEntryHandle,
-  CubismMotionQueueManager
-} from './cubismmotionqueuemanager';
+  CubismMotionQueueManager,
+} from "./cubismmotionqueuemanager";
 
 /**
  * モーションの管理
@@ -62,7 +62,7 @@ export class CubismMotionManager extends CubismMotionQueueManager {
   public startMotionPriority(
     motion: ACubismMotion,
     autoDelete: boolean,
-    priority: number
+    priority: number,
   ): CubismMotionQueueEntryHandle {
     if (priority == this._reservePriority) {
       this._reservePriority = 0; // 予約を解除
@@ -118,7 +118,7 @@ export class CubismMotionManager extends CubismMotionQueueManager {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmotionmanager';
+import * as $ from "./cubismmotionmanager";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismMotionManager = $.CubismMotionManager;

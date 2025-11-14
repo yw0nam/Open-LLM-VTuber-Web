@@ -148,7 +148,10 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
           if (!Number.isNaN(quality) && quality >= 0.1 && quality <= 1.0) {
             handleSettingChange("imageCompressionQuality", quality);
           } else if (value === "") {
-            handleSettingChange("imageCompressionQuality", settings.imageCompressionQuality);
+            handleSettingChange(
+              "imageCompressionQuality",
+              settings.imageCompressionQuality,
+            );
           }
         }}
         help={t("settings.general.imageCompressionQualityHelp")}

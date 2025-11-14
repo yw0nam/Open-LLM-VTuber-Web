@@ -1,16 +1,22 @@
 /* eslint-disable no-use-before-define */
 import {
-  createContext, useContext, useRef, useCallback, useEffect, useReducer, useMemo,
-} from 'react';
-import { useTranslation } from 'react-i18next';
-import { MicVAD } from '@ricky0123/vad-web';
-import { useInterrupt } from '@/components/canvas/live2d';
-import { audioTaskQueue } from '@/utils/task-queue';
-import { useSendAudio } from '@/hooks/utils/use-send-audio';
-import { SubtitleContext } from './subtitle-context';
-import { AiStateContext, AiState } from './ai-state-context';
-import { useLocalStorage } from '@/hooks/utils/use-local-storage';
-import { toaster } from '@/components/ui/toaster';
+  createContext,
+  useContext,
+  useRef,
+  useCallback,
+  useEffect,
+  useReducer,
+  useMemo,
+} from "react";
+import { useTranslation } from "react-i18next";
+import { MicVAD } from "@ricky0123/vad-web";
+import { useInterrupt } from "@/components/canvas/live2d";
+import { audioTaskQueue } from "@/utils/task-queue";
+import { useSendAudio } from "@/hooks/utils/use-send-audio";
+import { SubtitleContext } from "./subtitle-context";
+import { AiStateContext, AiState } from "./ai-state-context";
+import { useLocalStorage } from "@/hooks/utils/use-local-storage";
+import { toaster } from "@/components/ui/toaster";
 
 /**
  * VAD settings configuration interface
@@ -108,28 +114,29 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
   // Refs for VAD instance and state
   const vadRef = useRef<MicVAD | null>(null);
   const previousTriggeredProbabilityRef = useRef(0);
-  const previousAiStateRef = useRef<AiState>('idle');
+  const previousAiStateRef = useRef<AiState>("idle");
 
   // Persistent state management
-  const [micOn, setMicOn] = useLocalStorage('micOn', DEFAULT_VAD_STATE.micOn);
+  const [micOn, setMicOn] = useLocalStorage("micOn", DEFAULT_VAD_STATE.micOn);
   const autoStopMicRef = useRef(true);
   const [autoStopMic, setAutoStopMicState] = useLocalStorage(
-    'autoStopMic',
+    "autoStopMic",
     DEFAULT_VAD_STATE.autoStopMic,
   );
   const [settings, setSettings] = useLocalStorage<VADSettings>(
-    'vadSettings',
+    "vadSettings",
     DEFAULT_VAD_SETTINGS,
   );
   const [autoStartMicOn, setAutoStartMicOnState] = useLocalStorage(
-    'autoStartMicOn',
+    "autoStartMicOn",
     DEFAULT_VAD_STATE.autoStartMicOn,
   );
   const autoStartMicRef = useRef(false);
-  const [autoStartMicOnConvEnd, setAutoStartMicOnConvEndState] = useLocalStorage(
-    'autoStartMicOnConvEnd',
-    DEFAULT_VAD_STATE.autoStartMicOnConvEnd,
-  );
+  const [autoStartMicOnConvEnd, setAutoStartMicOnConvEndState] =
+    useLocalStorage(
+      "autoStartMicOnConvEnd",
+      DEFAULT_VAD_STATE.autoStartMicOnConvEnd,
+    );
   const autoStartMicOnConvEndRef = useRef(false);
 
   // Force update mechanism for ref updates
@@ -195,7 +202,7 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
    * Handle speech start event (initial detection)
    */
   const handleSpeechStart = useCallback(() => {
-    console.log('Speech started - saving current state');
+    console.log("Speech started - saving current state");
     // Save current AI state but DON'T change to listening yet
     previousAiStateRef.current = aiStateRef.current;
     isProcessingRef.current = true;
@@ -206,14 +213,14 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
    * Handle real speech start event (confirmed speech)
    */
   const handleSpeechRealStart = useCallback(() => {
-    console.log('Real speech confirmed - checking if need to interrupt');
+    console.log("Real speech confirmed - checking if need to interrupt");
     // Check if we need to interrupt based on the PREVIOUS state (before speech started)
-    if (previousAiStateRef.current === 'thinking-speaking') {
-      console.log('Interrupting AI speech due to user speaking');
+    if (previousAiStateRef.current === "thinking-speaking") {
+      console.log("Interrupting AI speech due to user speaking");
       interruptRef.current();
     }
     // Now change to listening state
-    setAiStateRef.current('listening');
+    setAiStateRef.current("listening");
   }, []);
 
   /**
@@ -230,13 +237,13 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
    */
   const handleSpeechEnd = useCallback((audio: Float32Array) => {
     if (!isProcessingRef.current) return;
-    console.log('Speech ended');
+    console.log("Speech ended");
     audioTaskQueue.clearQueue();
 
     if (autoStopMicRef.current) {
       stopMic();
     } else {
-      console.log('Auto stop mic is OFF, keeping mic active');
+      console.log("Auto stop mic is OFF, keeping mic active");
     }
 
     setPreviousTriggeredProbability(0);
@@ -250,13 +257,13 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
    */
   const handleVADMisfire = useCallback(() => {
     if (!isProcessingRef.current) return;
-    console.log('VAD misfire detected');
+    console.log("VAD misfire detected");
     setPreviousTriggeredProbability(0);
     isProcessingRef.current = false;
 
     // Restore previous AI state and show helpful misfire message
     setAiStateRef.current(previousAiStateRef.current);
-    setSubtitleTextRef.current(t('error.vadMisfire'));
+    setSubtitleTextRef.current(t("error.vadMisfire"));
   }, [t]);
 
   /**
@@ -282,8 +289,8 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
       positiveSpeechThreshold: settings.positiveSpeechThreshold / 100,
       negativeSpeechThreshold: settings.negativeSpeechThreshold / 100,
       redemptionFrames: settings.redemptionFrames,
-      baseAssetPath: './libs/',
-      onnxWASMBasePath: './libs/',
+      baseAssetPath: "./libs/",
+      onnxWASMBasePath: "./libs/",
       onSpeechStart: handleSpeechStart,
       onSpeechRealStart: handleSpeechRealStart,
       onFrameProcessed: handleFrameProcessed,
@@ -301,18 +308,18 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
   const startMic = useCallback(async () => {
     try {
       if (!vadRef.current) {
-        console.log('Initializing VAD');
+        console.log("Initializing VAD");
         await initVAD();
       } else {
-        console.log('Starting VAD');
+        console.log("Starting VAD");
         vadRef.current.start();
       }
       setMicOn(true);
     } catch (error) {
-      console.error('Failed to start VAD:', error);
+      console.error("Failed to start VAD:", error);
       toaster.create({
-        title: `${t('error.failedStartVAD')}: ${error}`,
-        type: 'error',
+        title: `${t("error.failedStartVAD")}: ${error}`,
+        type: "error",
         duration: 2000,
       });
     }
@@ -322,15 +329,15 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
    * Stop microphone and VAD processing
    */
   const stopMic = useCallback(() => {
-    console.log('Stopping VAD');
+    console.log("Stopping VAD");
     if (vadRef.current) {
       vadRef.current.pause();
       vadRef.current.destroy();
       vadRef.current = null;
-      console.log('VAD stopped and destroyed successfully');
+      console.log("VAD stopped and destroyed successfully");
       setPreviousTriggeredProbability(0);
     } else {
-      console.log('VAD instance not found');
+      console.log("VAD instance not found");
     }
     setMicOn(false);
     isProcessingRef.current = false;
@@ -375,19 +382,11 @@ export function VADProvider({ children }: { children: React.ReactNode }) {
       autoStartMicOnConvEnd: autoStartMicOnConvEndRef.current,
       setAutoStartMicOnConvEnd,
     }),
-    [
-      micOn,
-      startMic,
-      stopMic,
-      settings,
-      updateSettings,
-    ],
+    [micOn, startMic, stopMic, settings, updateSettings],
   );
 
   return (
-    <VADContext.Provider value={contextValue}>
-      {children}
-    </VADContext.Provider>
+    <VADContext.Provider value={contextValue}>{children}</VADContext.Provider>
   );
 }
 
@@ -399,7 +398,7 @@ export function useVAD() {
   const context = useContext(VADContext);
 
   if (!context) {
-    throw new Error('useVAD must be used within a VADProvider');
+    throw new Error("useVAD must be used within a VADProvider");
   }
 
   return context;

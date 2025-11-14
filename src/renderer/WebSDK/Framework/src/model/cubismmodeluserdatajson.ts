@@ -5,17 +5,17 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismIdHandle } from '../id/cubismid';
-import { CubismFramework } from '../live2dcubismframework';
-import { CubismJson } from '../utils/cubismjson';
+import { CubismIdHandle } from "../id/cubismid";
+import { CubismFramework } from "../live2dcubismframework";
+import { CubismJson } from "../utils/cubismjson";
 
-const Meta = 'Meta';
-const UserDataCount = 'UserDataCount';
-const TotalUserDataSize = 'TotalUserDataSize';
-const UserData = 'UserData';
-const Target = 'Target';
-const Id = 'Id';
-const Value = 'Value';
+const Meta = "Meta";
+const UserDataCount = "UserDataCount";
+const TotalUserDataSize = "TotalUserDataSize";
+const UserData = "UserData";
+const Target = "Target";
+const Id = "Id";
+const Value = "Value";
 
 export class CubismModelUserDataJson {
   /**
@@ -86,7 +86,7 @@ export class CubismModelUserDataJson {
         .getValueByString(UserData)
         .getValueByIndex(i)
         .getValueByString(Id)
-        .getRawString()
+        .getRawString(),
     );
   }
 
@@ -109,7 +109,7 @@ export class CubismModelUserDataJson {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmodeluserdatajson';
+import * as $ from "./cubismmodeluserdatajson";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismModelUserDataJson = $.CubismModelUserDataJson;

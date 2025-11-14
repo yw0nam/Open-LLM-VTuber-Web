@@ -1,10 +1,10 @@
-import { ChangeEvent, KeyboardEvent } from 'react';
-import { useChatHistory } from '@/context/chat-history-context';
-import { useVAD } from '@/context/vad-context';
-import { useMicToggle } from '@/hooks/utils/use-mic-toggle';
-import { useTextInput } from '@/hooks/footer/use-text-input';
-import { useAiState, AiStateEnum } from '@/context/ai-state-context';
-import { useInterrupt } from '@/hooks/utils/use-interrupt';
+import { ChangeEvent, KeyboardEvent } from "react";
+import { useChatHistory } from "@/context/chat-history-context";
+import { useVAD } from "@/context/vad-context";
+import { useMicToggle } from "@/hooks/utils/use-mic-toggle";
+import { useTextInput } from "@/hooks/footer/use-text-input";
+import { useAiState, AiStateEnum } from "@/context/ai-state-context";
+import { useInterrupt } from "@/hooks/utils/use-interrupt";
 
 export function useInputSubtitle() {
   const {
@@ -14,7 +14,6 @@ export function useInputSubtitle() {
     handleCompositionStart,
     handleCompositionEnd,
     handleSend,
-
   } = useTextInput();
 
   const { messages } = useChatHistory();
@@ -24,11 +23,11 @@ export function useInputSubtitle() {
   const { interrupt } = useInterrupt();
 
   const lastAIMessage = messages
-    .filter((msg) => msg.role === 'ai')
+    .filter((msg) => msg.role === "ai")
     .slice(-1)
     .map((msg) => msg.content)[0];
 
-  const hasAIMessages = messages.some((msg) => msg.role === 'ai');
+  const hasAIMessages = messages.some((msg) => msg.role === "ai");
 
   const handleInterrupt = () => {
     interrupt();
@@ -38,7 +37,9 @@ export function useInputSubtitle() {
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    handleChange({ target: { value: e.target.value } } as ChangeEvent<HTMLInputElement>);
+    handleChange({
+      target: { value: e.target.value },
+    } as ChangeEvent<HTMLInputElement>);
     setAiState(AiStateEnum.WAITING);
   };
 

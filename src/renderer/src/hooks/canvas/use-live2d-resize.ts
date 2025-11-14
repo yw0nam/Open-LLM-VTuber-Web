@@ -1,11 +1,11 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable no-underscore-dangle */
-import { useEffect, useCallback, RefObject, useRef } from 'react';
-import { ModelInfo } from '@/context/live2d-config-context';
-import { LAppDelegate } from '../../../WebSDK/src/lappdelegate';
-import { LAppLive2DManager } from '../../../WebSDK/src/lapplive2dmanager';
-import { useMode } from '@/context/mode-context';
+import { useEffect, useCallback, RefObject, useRef } from "react";
+import { ModelInfo } from "@/context/live2d-config-context";
+import { LAppDelegate } from "../../../WebSDK/src/lappdelegate";
+import { LAppLive2DManager } from "../../../WebSDK/src/lapplive2dmanager";
+import { useMode } from "@/context/mode-context";
 
 // Constants for model scaling behavior
 const MIN_SCALE = 0.1;
@@ -35,7 +35,7 @@ export const applyScale = (scale: number) => {
     // @ts-ignore
     model._modelMatrix.scale(scale, scale);
   } catch (error) {
-    console.debug('Model not ready for scaling yet');
+    console.debug("Model not ready for scaling yet");
   }
 };
 
@@ -49,7 +49,7 @@ export const useLive2DResize = ({
   showSidebar,
 }: UseLive2DResizeProps) => {
   const { mode } = useMode();
-  const isPet = mode === 'pet';
+  const isPet = mode === "pet";
   const animationFrameIdRef = useRef<number | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isResizingRef = useRef<boolean>(false);
@@ -63,7 +63,10 @@ export const useLive2DResize = ({
   const hasAppliedInitialScale = useRef<boolean>(false);
 
   // Previous container dimensions for change detection
-  const lastContainerDimensionsRef = useRef<{width: number, height: number}>({ width: 0, height: 0 });
+  const lastContainerDimensionsRef = useRef<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
 
   // Previous sidebar state
   const prevSidebarStateRef = useRef<boolean | undefined>(showSidebar);
@@ -113,26 +116,29 @@ export const useLive2DResize = ({
    * Handles mouse wheel events for scaling
    * Initiates smooth scaling animation
    */
-  const handleWheel = useCallback((e: WheelEvent) => {
-    e.preventDefault();
-    if (!modelInfo?.scrollToResize) return;
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      e.preventDefault();
+      if (!modelInfo?.scrollToResize) return;
 
-    const direction = e.deltaY > 0 ? -1 : 1;
-    const increment = WHEEL_SCALE_STEP * direction;
+      const direction = e.deltaY > 0 ? -1 : 1;
+      const increment = WHEEL_SCALE_STEP * direction;
 
-    const currentActualScale = lastScaleRef.current;
-    const newTargetScale = Math.max(
-      MIN_SCALE,
-      Math.min(MAX_SCALE, currentActualScale + increment),
-    );
+      const currentActualScale = lastScaleRef.current;
+      const newTargetScale = Math.max(
+        MIN_SCALE,
+        Math.min(MAX_SCALE, currentActualScale + increment),
+      );
 
-    targetScaleRef.current = newTargetScale;
+      targetScaleRef.current = newTargetScale;
 
-    if (!isAnimatingRef.current) {
-      isAnimatingRef.current = true;
-      animationFrameRef.current = requestAnimationFrame(animateEase);
-    }
-  }, [modelInfo?.scrollToResize, animateEase]);
+      if (!isAnimatingRef.current) {
+        isAnimatingRef.current = true;
+        animationFrameRef.current = requestAnimationFrame(animateEase);
+      }
+    },
+    [modelInfo?.scrollToResize, animateEase],
+  );
 
   /**
    * Pre-process container resize
@@ -172,7 +178,9 @@ export const useLive2DResize = ({
 
       const lastDimensions = lastContainerDimensionsRef.current;
       const sidebarChanged = prevSidebarStateRef.current !== showSidebar;
-      const dimensionsChanged = Math.abs(lastDimensions.width - width) > 1 || Math.abs(lastDimensions.height - height) > 1;
+      const dimensionsChanged =
+        Math.abs(lastDimensions.width - width) > 1 ||
+        Math.abs(lastDimensions.height - height) > 1;
       const hasChanged = dimensionsChanged || sidebarChanged;
 
       if (!hasChanged && hasAppliedInitialScale.current) {
@@ -184,10 +192,12 @@ export const useLive2DResize = ({
       prevSidebarStateRef.current = showSidebar;
 
       if (!containerBounds && !isPet) {
-        console.warn('[Resize] Container bounds not available in window mode.');
+        console.warn("[Resize] Container bounds not available in window mode.");
       }
       if (width === 0 || height === 0) {
-        console.warn('[Resize] Width or Height is zero, skipping canvas/delegate update.');
+        console.warn(
+          "[Resize] Width or Height is zero, skipping canvas/delegate update.",
+        );
         isResizingRef.current = false;
         return;
       }
@@ -202,14 +212,23 @@ export const useLive2DResize = ({
       if (delegate) {
         delegate.onResize();
       } else {
-        console.warn('[Resize] LAppDelegate instance not found.');
+        console.warn("[Resize] LAppDelegate instance not found.");
       }
 
       isResizingRef.current = false;
     } catch (error) {
       isResizingRef.current = false;
     }
-  }, [isPet, containerRef, modelInfo?.kScale, modelInfo?.initialXshift, modelInfo?.initialYshift, showSidebar, beforeResize, canvasRef]);
+  }, [
+    isPet,
+    containerRef,
+    modelInfo?.kScale,
+    modelInfo?.initialXshift,
+    modelInfo?.initialYshift,
+    showSidebar,
+    beforeResize,
+    canvasRef,
+  ]);
 
   // Immediately respond to sidebar state changes
   useEffect(() => {
@@ -228,26 +247,28 @@ export const useLive2DResize = ({
   useEffect(() => {
     const canvasElement = canvasRef.current;
     if (canvasElement) {
-      canvasElement.addEventListener('wheel', handleWheel, { passive: false });
+      canvasElement.addEventListener("wheel", handleWheel, { passive: false });
       return () => {
-        canvasElement.removeEventListener('wheel', handleWheel);
+        canvasElement.removeEventListener("wheel", handleWheel);
       };
     }
     return undefined;
   }, [handleWheel, canvasRef]);
 
   // Clean up animations on unmount
-  useEffect(() => () => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = undefined;
-    }
-    if (animationFrameIdRef.current !== null) {
-      cancelAnimationFrame(animationFrameIdRef.current);
-      animationFrameIdRef.current = null;
-    }
-  }, []);
-
+  useEffect(
+    () => () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+      }
+      if (animationFrameIdRef.current !== null) {
+        cancelAnimationFrame(animationFrameIdRef.current);
+        animationFrameIdRef.current = null;
+      }
+    },
+    [],
+  );
 
   // Monitor container size changes using ResizeObserver
   useEffect(() => {
@@ -256,7 +277,8 @@ export const useLive2DResize = ({
       return undefined;
     }
 
-    if (animationFrameIdRef.current !== null) cancelAnimationFrame(animationFrameIdRef.current);
+    if (animationFrameIdRef.current !== null)
+      cancelAnimationFrame(animationFrameIdRef.current);
     animationFrameIdRef.current = requestAnimationFrame(() => {
       handleResize();
       animationFrameIdRef.current = null;
@@ -264,7 +286,8 @@ export const useLive2DResize = ({
 
     const observer = new ResizeObserver(() => {
       if (!isResizingRef.current) {
-        if (animationFrameIdRef.current !== null) cancelAnimationFrame(animationFrameIdRef.current);
+        if (animationFrameIdRef.current !== null)
+          cancelAnimationFrame(animationFrameIdRef.current);
         animationFrameIdRef.current = requestAnimationFrame(() => {
           handleResize();
           animationFrameIdRef.current = null;
@@ -287,7 +310,8 @@ export const useLive2DResize = ({
   useEffect(() => {
     const handleWindowResize = () => {
       if (!isResizingRef.current) {
-        if (animationFrameIdRef.current !== null) cancelAnimationFrame(animationFrameIdRef.current);
+        if (animationFrameIdRef.current !== null)
+          cancelAnimationFrame(animationFrameIdRef.current);
         animationFrameIdRef.current = requestAnimationFrame(() => {
           handleResize();
           animationFrameIdRef.current = null;
@@ -295,10 +319,10 @@ export const useLive2DResize = ({
       }
     };
 
-    window.addEventListener('resize', handleWindowResize);
+    window.addEventListener("resize", handleWindowResize);
 
     return () => {
-      window.removeEventListener('resize', handleWindowResize);
+      window.removeEventListener("resize", handleWindowResize);
       if (animationFrameIdRef.current !== null) {
         cancelAnimationFrame(animationFrameIdRef.current);
         animationFrameIdRef.current = null;
@@ -318,7 +342,9 @@ export const setModelScale = (
   kScale: string | number | undefined,
 ) => {
   if (!model || kScale === undefined) return;
-  console.warn("setModelScale is potentially deprecated; scaling is primarily handled by view matrix now.");
+  console.warn(
+    "setModelScale is potentially deprecated; scaling is primarily handled by view matrix now.",
+  );
 };
 
 /**
@@ -332,7 +358,7 @@ export const resetModelPosition = (
   initialXshift: number | undefined, // Shift in logical pixels
   initialYshift: number | undefined, // Shift in logical pixels
 ) => {
-  if (!model || typeof model.setPosition !== 'function') return;
+  if (!model || typeof model.setPosition !== "function") return;
 
   const dpr = window.devicePixelRatio || 1;
   const canvasWidth = width * dpr; // Calculate canvas pixel dimensions

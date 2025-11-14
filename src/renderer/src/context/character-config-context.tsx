@@ -1,6 +1,11 @@
 import {
-  createContext, useContext, useState, useMemo, useEffect, useCallback,
-} from 'react';
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+} from "react";
 
 /**
  * Character configuration file interface
@@ -29,8 +34,8 @@ interface CharacterConfigState {
  * Default values and constants
  */
 const DEFAULT_CONFIG = {
-  confName: '',
-  confUid: '',
+  confName: "",
+  confUid: "",
   configFiles: [] as ConfigFile[],
 };
 
@@ -44,13 +49,20 @@ export const ConfigContext = createContext<CharacterConfigState | null>(null);
  * @param {Object} props - Provider props
  * @param {React.ReactNode} props.children - Child components
  */
-export function CharacterConfigProvider({ children }: { children: React.ReactNode }) {
+export function CharacterConfigProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [confName, setConfName] = useState<string>(DEFAULT_CONFIG.confName);
   const [confUid, setConfUid] = useState<string>(DEFAULT_CONFIG.confUid);
-  const [configFiles, setConfigFiles] = useState<ConfigFile[]>(DEFAULT_CONFIG.configFiles);
+  const [configFiles, setConfigFiles] = useState<ConfigFile[]>(
+    DEFAULT_CONFIG.configFiles,
+  );
 
   const getFilenameByName = useCallback(
-    (name: string) => configFiles.find((config) => config.name === name)?.filename,
+    (name: string) =>
+      configFiles.find((config) => config.name === name)?.filename,
     [configFiles],
   );
 
@@ -87,7 +99,7 @@ export function useConfig() {
   const context = useContext(ConfigContext);
 
   if (!context) {
-    throw new Error('useConfig must be used within a CharacterConfigProvider');
+    throw new Error("useConfig must be used within a CharacterConfigProvider");
   }
 
   return context;

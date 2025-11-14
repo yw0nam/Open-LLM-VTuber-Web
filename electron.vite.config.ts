@@ -1,8 +1,8 @@
-import { resolve } from 'path';
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
-import react from '@vitejs/plugin-react';
-import { viteStaticCopy } from 'vite-plugin-static-copy'
-import { normalizePath } from 'vite';
+import { resolve } from "path";
+import { defineConfig, externalizeDepsPlugin } from "electron-vite";
+import react from "@vitejs/plugin-react";
+import { viteStaticCopy } from "vite-plugin-static-copy";
+import { normalizePath } from "vite";
 
 export default defineConfig({
   main: {
@@ -14,7 +14,7 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
-        '@': resolve('src/renderer/src'),
+        "@": resolve("src/renderer/src"),
         "@framework": resolve("src/renderer/WebSDK/Framework/src"),
         "@cubismsdksamples": resolve("src/renderer/WebSDK/src"),
         "@motionsyncframework": resolve(
@@ -28,25 +28,47 @@ export default defineConfig({
       viteStaticCopy({
         targets: [
           {
-            src: normalizePath(resolve(__dirname, 'node_modules/@ricky0123/vad-web/dist/vad.worklet.bundle.min.js')),
-            dest: './libs/',
+            src: normalizePath(
+              resolve(
+                __dirname,
+                "node_modules/@ricky0123/vad-web/dist/vad.worklet.bundle.min.js",
+              ),
+            ),
+            dest: "./libs/",
           },
           {
-            src: normalizePath(resolve(__dirname, 'node_modules/@ricky0123/vad-web/dist/silero_vad_v5.onnx')),
-            dest: './libs/',
+            src: normalizePath(
+              resolve(
+                __dirname,
+                "node_modules/@ricky0123/vad-web/dist/silero_vad_v5.onnx",
+              ),
+            ),
+            dest: "./libs/",
           },
           {
-            src: normalizePath(resolve(__dirname, 'node_modules/@ricky0123/vad-web/dist/silero_vad_legacy.onnx')),
-            dest: './libs/',
+            src: normalizePath(
+              resolve(
+                __dirname,
+                "node_modules/@ricky0123/vad-web/dist/silero_vad_legacy.onnx",
+              ),
+            ),
+            dest: "./libs/",
           },
           {
-            src: normalizePath(resolve(__dirname, 'node_modules/onnxruntime-web/dist/*.wasm')),
-            dest: './libs/',
+            src: normalizePath(
+              resolve(__dirname, "node_modules/onnxruntime-web/dist/*.wasm"),
+            ),
+            dest: "./libs/",
           },
           {
-            src: normalizePath(resolve(__dirname, 'src/renderer/WebSDK/Core/live2dcubismcore.js')),
-            dest: './libs/'
-          }
+            src: normalizePath(
+              resolve(
+                __dirname,
+                "src/renderer/WebSDK/Core/live2dcubismcore.js",
+              ),
+            ),
+            dest: "./libs/",
+          },
         ],
       }),
       react(),
@@ -54,7 +76,7 @@ export default defineConfig({
     build: {
       rollupOptions: {
         onwarn(warning, warn) {
-          if (warning.message.includes('onnxruntime')) {
+          if (warning.message.includes("onnxruntime")) {
             return;
           }
           warn(warning);

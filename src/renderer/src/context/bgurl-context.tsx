@@ -1,8 +1,12 @@
 import {
-  createContext, useMemo, useContext, useState, useCallback,
-} from 'react';
-import { useLocalStorage } from '@/hooks/utils/use-local-storage';
-import { useWebSocket } from './websocket-context';
+  createContext,
+  useMemo,
+  useContext,
+  useState,
+  useCallback,
+} from "react";
+import { useLocalStorage } from "@/hooks/utils/use-local-storage";
+import { useWebSocket } from "./websocket-context";
 
 /**
  * Background file interface
@@ -46,7 +50,7 @@ export function BgUrlProvider({ children }: { children: React.ReactNode }) {
 
   // Local storage for persistent background URL
   const [backgroundUrl, setBackgroundUrl] = useLocalStorage<string>(
-    'backgroundUrl',
+    "backgroundUrl",
     DEFAULT_BACKGROUND,
   );
 
@@ -74,21 +78,34 @@ export function BgUrlProvider({ children }: { children: React.ReactNode }) {
     [backgroundUrl, DEFAULT_BACKGROUND],
   );
 
-  const [useCameraBackground, setUseCameraBackground] = useState<boolean>(false);
+  const [useCameraBackground, setUseCameraBackground] =
+    useState<boolean>(false);
 
   // Memoized context value
-  const contextValue = useMemo(() => ({
-    backgroundUrl,
-    setBackgroundUrl,
-    backgroundFiles,
-    setBackgroundFiles,
-    resetBackground,
-    addBackgroundFile,
-    removeBackgroundFile,
-    isDefaultBackground,
-    useCameraBackground,
-    setUseCameraBackground,
-  }), [backgroundUrl, setBackgroundUrl, backgroundFiles, resetBackground, addBackgroundFile, removeBackgroundFile, isDefaultBackground, useCameraBackground]);
+  const contextValue = useMemo(
+    () => ({
+      backgroundUrl,
+      setBackgroundUrl,
+      backgroundFiles,
+      setBackgroundFiles,
+      resetBackground,
+      addBackgroundFile,
+      removeBackgroundFile,
+      isDefaultBackground,
+      useCameraBackground,
+      setUseCameraBackground,
+    }),
+    [
+      backgroundUrl,
+      setBackgroundUrl,
+      backgroundFiles,
+      resetBackground,
+      addBackgroundFile,
+      removeBackgroundFile,
+      isDefaultBackground,
+      useCameraBackground,
+    ],
+  );
 
   return (
     <BgUrlContext.Provider value={contextValue}>
@@ -105,7 +122,7 @@ export function useBgUrl() {
   const context = useContext(BgUrlContext);
 
   if (!context) {
-    throw new Error('useBgUrl must be used within a BgUrlProvider');
+    throw new Error("useBgUrl must be used within a BgUrlProvider");
   }
 
   return context;

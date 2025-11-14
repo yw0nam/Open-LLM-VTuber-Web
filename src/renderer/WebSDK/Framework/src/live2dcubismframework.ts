@@ -5,14 +5,14 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismIdManager } from './id/cubismidmanager';
-import { CubismRenderer } from './rendering/cubismrenderer';
+import { CubismIdManager } from "./id/cubismidmanager";
+import { CubismRenderer } from "./rendering/cubismrenderer";
 import {
   CSM_ASSERT,
   CubismLogInfo,
-  CubismLogWarning
-} from './utils/cubismdebug';
-import { Value } from './utils/cubismjson';
+  CubismLogWarning,
+} from "./utils/cubismdebug";
+import { Value } from "./utils/cubismjson";
 
 export function strtod(s: string, endPtr: string[]): number {
   let index = 0;
@@ -20,7 +20,7 @@ export function strtod(s: string, endPtr: string[]): number {
     const testC: string = s.slice(i - 1, i);
 
     // 指数・マイナスの可能性があるのでスキップする
-    if (testC == 'e' || testC == '-' || testC == 'E') {
+    if (testC == "e" || testC == "-" || testC == "E") {
       continue;
     } // 文字列の範囲を広げていく
 
@@ -56,7 +56,7 @@ let s_cubismIdManager: CubismIdManager = null;
  */
 export const Constant = Object.freeze<Record<string, number>>({
   vertexOffset: 0, // メッシュ頂点のオフセット値
-  vertexStep: 2 // メッシュ頂点のステップ値
+  vertexStep: 2, // メッシュ頂点のステップ値
 });
 
 export function csmDelete<T>(address: T): void {
@@ -83,7 +83,7 @@ export class CubismFramework {
    */
   public static startUp(option: Option = null): boolean {
     if (s_isStarted) {
-      CubismLogInfo('CubismFramework.startUp() is already done.');
+      CubismLogInfo("CubismFramework.startUp() is already done.");
       return s_isStarted;
     }
 
@@ -105,14 +105,14 @@ export class CubismFramework {
 
       CubismLogInfo(
         `Live2D Cubism Core version: {0}.{1}.{2} ({3})`,
-        ('00' + major).slice(-2),
-        ('00' + minor).slice(-2),
-        ('0000' + patch).slice(-4),
-        versionNumber
+        ("00" + major).slice(-2),
+        ("00" + minor).slice(-2),
+        ("0000" + patch).slice(-4),
+        versionNumber,
       );
     }
 
-    CubismLogInfo('CubismFramework.startUp() is complete.');
+    CubismLogInfo("CubismFramework.startUp() is complete.");
 
     return s_isStarted;
   }
@@ -140,7 +140,7 @@ export class CubismFramework {
   public static initialize(memorySize = 0): void {
     CSM_ASSERT(s_isStarted);
     if (!s_isStarted) {
-      CubismLogWarning('CubismFramework is not started.');
+      CubismLogWarning("CubismFramework is not started.");
       return;
     }
 
@@ -149,7 +149,7 @@ export class CubismFramework {
     // 再度Initialize()するには先にDispose()を実行する必要がある。
     if (s_isInitialized) {
       CubismLogWarning(
-        'CubismFramework.initialize() skipped, already initialized.'
+        "CubismFramework.initialize() skipped, already initialized.",
       );
       return;
     }
@@ -167,7 +167,7 @@ export class CubismFramework {
 
     s_isInitialized = true;
 
-    CubismLogInfo('CubismFramework.initialize() is complete.');
+    CubismLogInfo("CubismFramework.initialize() is complete.");
   }
 
   /**
@@ -178,7 +178,7 @@ export class CubismFramework {
   public static dispose(): void {
     CSM_ASSERT(s_isStarted);
     if (!s_isStarted) {
-      CubismLogWarning('CubismFramework is not started.');
+      CubismLogWarning("CubismFramework is not started.");
       return;
     }
 
@@ -186,7 +186,7 @@ export class CubismFramework {
     // dispose()するには先にinitialize()を実行する必要がある。
     if (!s_isInitialized) {
       // false...リソース未確保の場合
-      CubismLogWarning('CubismFramework.dispose() skipped, not initialized.');
+      CubismLogWarning("CubismFramework.dispose() skipped, not initialized.");
       return;
     }
 
@@ -200,7 +200,7 @@ export class CubismFramework {
 
     s_isInitialized = false;
 
-    CubismLogInfo('CubismFramework.dispose() is complete.');
+    CubismLogInfo("CubismFramework.dispose() is complete.");
   }
 
   /**
@@ -274,11 +274,11 @@ export enum LogLevel {
   LogLevel_Info, // Infoログ
   LogLevel_Warning, // 警告ログ
   LogLevel_Error, // エラーログ
-  LogLevel_Off // ログ出力無効
+  LogLevel_Off, // ログ出力無効
 }
 
 // Namespace definition for compatibility.
-import * as $ from './live2dcubismframework';
+import * as $ from "./live2dcubismframework";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const Constant = $.Constant;

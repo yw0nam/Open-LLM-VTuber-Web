@@ -13,7 +13,7 @@ export function useIpcHandlers() {
   const { switchCharacter } = useSwitchCharacter();
   const { setForceIgnoreMouse } = useForceIgnoreMouse();
   const { mode } = useMode();
-  const isPet = mode === 'pet';
+  const isPet = mode === "pet";
 
   const micToggleHandler = useCallback(() => {
     handleMicToggle();
@@ -62,7 +62,9 @@ export function useIpcHandlers() {
     window.electron.ipcRenderer.removeAllListeners("toggle-scroll-to-resize");
     window.electron.ipcRenderer.removeAllListeners("switch-character");
     window.electron.ipcRenderer.removeAllListeners("toggle-force-ignore-mouse");
-    window.electron.ipcRenderer.removeAllListeners("force-ignore-mouse-changed");
+    window.electron.ipcRenderer.removeAllListeners(
+      "force-ignore-mouse-changed",
+    );
 
     window.electron.ipcRenderer.on("mic-toggle", micToggleHandler);
     window.electron.ipcRenderer.on("interrupt", interruptHandler);
@@ -87,8 +89,12 @@ export function useIpcHandlers() {
         "toggle-scroll-to-resize",
       );
       window.electron?.ipcRenderer.removeAllListeners("switch-character");
-      window.electron?.ipcRenderer.removeAllListeners("toggle-force-ignore-mouse");
-      window.electron?.ipcRenderer.removeAllListeners("force-ignore-mouse-changed");
+      window.electron?.ipcRenderer.removeAllListeners(
+        "toggle-force-ignore-mouse",
+      );
+      window.electron?.ipcRenderer.removeAllListeners(
+        "force-ignore-mouse-changed",
+      );
     };
   }, [
     micToggleHandler,
