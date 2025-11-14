@@ -1,6 +1,5 @@
 # Implement Rule
 
-
 ## REST API Service
 
 You can find more details about REST API in [REST API Guide](../../../../../backend/docs/api/REST_API_GUIDE.md).

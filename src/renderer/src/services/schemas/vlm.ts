@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod";
 
 // ============================================================================
 // VLM Analyze Request Schema
@@ -8,17 +8,17 @@ import { z } from 'zod'
 // using FormData in the API service. This schema represents the data structure.
 export const VLMAnalyzeRequestSchema = z.object({
   image: z.instanceof(File).or(z.instanceof(Blob)),
-  prompt: z.string().optional()
-})
+  prompt: z.string().optional(),
+});
 
-export type VLMAnalyzeRequest = z.infer<typeof VLMAnalyzeRequestSchema>
+export type VLMAnalyzeRequest = z.infer<typeof VLMAnalyzeRequestSchema>;
 
 // ============================================================================
 // VLM Analyze Response Schema
 // ============================================================================
 
 export const VLMAnalyzeResponseSchema = z.object({
-  analysis: z.string()
-})
+  analysis: z.string(),
+});
 
-export type VLMAnalyzeResponse = z.infer<typeof VLMAnalyzeResponseSchema>
+export type VLMAnalyzeResponse = z.infer<typeof VLMAnalyzeResponseSchema>;
