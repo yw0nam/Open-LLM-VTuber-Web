@@ -12,7 +12,7 @@ export function useTextInput() {
   const wsContext = useWebSocket();
   const { aiState } = useAiState();
   const { interrupt } = useInterrupt();
-  const { appendHumanMessage } = useChatHistory();
+  const { addUserMessageToUI } = useChatHistory();
   const { stopMic, autoStopMic } = useVAD();
   const { captureAllMedia } = useMediaCapture();
 
@@ -28,7 +28,10 @@ export function useTextInput() {
 
     const images = await captureAllMedia();
 
-    appendHumanMessage(inputText.trim());
+    // Optimistically add user message to UI
+    addUserMessageToUI(inputText.trim());
+    
+    // Send message via WebSocket (backend handles persistence)
     wsContext.sendMessage({
       type: "text-input",
       text: inputText.trim(),

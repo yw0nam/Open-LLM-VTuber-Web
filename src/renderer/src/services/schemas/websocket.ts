@@ -107,8 +107,8 @@ export type WSStreamTokenMessage = z.infer<typeof WSStreamTokenMessageSchema>;
 // Stream End Message
 export const WSStreamEndMessageSchema = z.object({
   type: z.literal("stream_end"),
-  turn_id: z.string().uuid(),
-  conversation_id: z.string().uuid(),
+  turn_id: z.string(),
+  conversation_id: z.string(),
   content: z.string(),
 });
 

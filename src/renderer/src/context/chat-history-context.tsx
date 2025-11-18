@@ -1,47 +1,59 @@
+// src/renderer/src/context/chat-history-context.tsx
+
 /* eslint-disable no-else-return */
-import {
+import React, {
   createContext,
   useContext,
   useState,
   useMemo,
   useCallback,
+  useEffect,
 } from "react";
-import { Message } from "@/services/websocket-service/websocket-service";
-import { HistoryInfo } from "./websocket-context";
+import { 
+  Message, 
+  AssistantMessage, 
+  ToolMessage 
+} from "@/types/chat"; // types/chat.ts에서 Message 임포트
+import {
+  // stm.ts에서 API 함수들 임포트
+  listSessions,
+  getChatHistory,
+} from "@/services/api-service/stm";
+import {
+  // stm.ts의 스키마에서 응답 *타입* 임포트
+  type ListSessionsResponse,
+  type ChatHistory,
+} from "@/services/schemas/stm";
 
 /**
  * Chat history context state interface
- * @interface ChatHistoryState
  */
 interface ChatHistoryState {
-  messages: Message[]; // Use the unified Message type
-  historyList: HistoryInfo[];
-  currentHistoryUid: string | null;
-  appendHumanMessage: (content: string) => void;
-  appendAIMessage: (content: string, name?: string, avatar?: string) => void;
-  appendOrUpdateToolCallMessage: (toolMessageData: Partial<Message>) => void; // Accept partial data
-  setMessages: (messages: Message[]) => void; // Use the unified Message type
-  setHistoryList: (
-    value: HistoryInfo[] | ((prev: HistoryInfo[]) => HistoryInfo[]),
-  ) => void;
-  setCurrentHistoryUid: (uid: string | null) => void;
-  updateHistoryList: (uid: string, latestMessage: Message | null) => void; // Use the unified Message type
+  messages: Message[];
+  historyList: ListSessionsResponse; // stm.ts의 ListSessionsResponse 타입 사용
+  currentSessionId: string | null; // 'uid'에서 'session_id'로 명칭 변경
+  isLoading: boolean;
+
+  // 세션 선택 및 생성
+  selectSession: (sessionId: string | null) => void;
+  createNewSession: () => void;
+
+  // UI 메시지 업데이트 (optimistic updates)
+  addUserMessageToUI: (content: string) => Promise<void>;
+
+  // (기존) 실시간 스트리밍 UI 업데이트용 함수들
+  appendAIMessage: (content: string) => void;
+  appendToolCallRequest: (toolCalls: { name: string; arguments: object }[]) => void;
+  appendToolResult: (toolResultData: {
+    tool_call_id: string;
+    content: string;
+    name: string;
+  }) => void;
   fullResponse: string;
   setFullResponse: (text: string) => void;
-  appendResponse: (text: string) => void;
   clearResponse: () => void;
   setForceNewMessage: (value: boolean) => void;
 }
-
-/**
- * Default values and constants
- */
-const DEFAULT_HISTORY = {
-  messages: [] as Message[],
-  historyList: [] as HistoryInfo[],
-  currentHistoryUid: null as string | null,
-  fullResponse: "",
-};
 
 /**
  * Create the chat history context
@@ -49,75 +61,147 @@ const DEFAULT_HISTORY = {
 export const ChatHistoryContext = createContext<ChatHistoryState | null>(null);
 
 /**
+ * Provider Props Interface
+ */
+interface ChatHistoryProviderProps {
+  children: React.ReactNode;
+  userId: string;
+  agentId: string;
+}
+
+/**
  * Chat History Provider Component
- * @param {Object} props - Provider props
- * @param {React.ReactNode} props.children - Child components
  */
 export function ChatHistoryProvider({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  userId,
+  agentId,
+}: ChatHistoryProviderProps) {
   // State management
-  const [messages, setMessages] = useState<Message[]>(DEFAULT_HISTORY.messages);
-  const [historyList, setHistoryList] = useState<HistoryInfo[]>(
-    DEFAULT_HISTORY.historyList,
-  );
-  const [currentHistoryUid, setCurrentHistoryUid] = useState<string | null>(
-    DEFAULT_HISTORY.currentHistoryUid,
-  );
-  const [fullResponse, setFullResponse] = useState(
-    DEFAULT_HISTORY.fullResponse,
-  );
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [historyList, setHistoryList] = useState<ListSessionsResponse>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // (기존) 스트리밍 UI 상태
+  const [fullResponse, setFullResponse] = useState("");
   const [forceNewMessage, setForceNewMessage] = useState<boolean>(false);
 
+  // --- API 연동 로직 (useEffect) ---
+
   /**
-   * Append a human message to the chat history
-   * @param content - Message content
+   * (신규) 1. Provider 로드 시 (또는 user/agent 변경 시) 세션 목록 불러오기
    */
-  const appendHumanMessage = useCallback((content: string) => {
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content,
-      role: "human",
-      type: "text", // Explicitly set type for human messages
-      timestamp: new Date().toISOString(),
+  useEffect(() => {
+    if (!userId || !agentId) return;
+
+    const loadSessions = async () => {
+      setIsLoading(true);
+      try {
+        const sessions = await listSessions({
+          user_id: userId,
+          agent_id: agentId,
+        });
+        setHistoryList(sessions);
+      } catch (error) {
+        console.error("Failed to list sessions:", error);
+        setHistoryList([]); // 에러 시 초기화
+      } finally {
+        setIsLoading(false);
+      }
     };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    loadSessions();
+  }, [userId, agentId]);
+
+  /**
+   * (신규) 2. 현재 세션 ID(currentSessionId)가 변경되면 해당 세션의 메시지 불러오기
+   */
+  useEffect(() => {
+    if (!currentSessionId) {
+      setMessages([]); // 세션이 선택되지 않으면 메시지 비우기
+      return;
+    }
+
+    if (!userId || !agentId) return;
+
+    const loadMessages = async () => {
+      setIsLoading(true);
+      try {
+        const history: ChatHistory = await getChatHistory({
+          user_id: userId,
+          agent_id: agentId,
+          session_id: currentSessionId,
+          limit: 100, // (예시) 최근 100개
+        });
+
+        setMessages(history.messages);
+      } catch (error) {
+        console.error("Failed to get chat history:", error);
+        setMessages([]); // 에러 시 초기화
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadMessages();
+  }, [currentSessionId, userId, agentId]);
+
+  // --- 세션 관리 함수 ---
+  const selectSession = useCallback((sessionId: string | null) => {
+    setCurrentSessionId(sessionId);
+  }, []);
+  
+  //(신규) 새 채팅 세션 시작 (UI만 초기화)
+  const createNewSession = useCallback(() => {
+    setCurrentSessionId(null);
+    setMessages([]);
+    clearResponse();
   }, []);
 
+
+  // --- UI 메시지 업데이트 함수 ---
   /**
-   * Append or update an AI message in the chat history
-   * @param content - Message content
+   * Add user message to local UI state (optimistic update).
+   * Actual message sending is handled by WebSocket layer.
+   * Backend automatically saves to STM on stream_end.
    */
+  const addUserMessageToUI = useCallback(
+    async (content: string) => {
+      const newMessage: Message = {
+        id: crypto.randomUUID(), // 프론트엔드 렌더링용 고유 ID
+        content,
+        role: "user",
+        timestamp: new Date().toISOString(),
+      };
+
+      // (낙관적 업데이트) UI에 즉시 메시지 추가
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    },
+    []
+  );
+
+  // --- (기존) 스트리밍 UI 함수 (수정 없음) ---
+  // Update UI when got websocket event 'stream_token'
   const appendAIMessage = useCallback(
-    (content: string, name?: string, avatar?: string) => {
+    (content: string) => {
       setMessages((prevMessages) => {
         const lastMessage = prevMessages[prevMessages.length - 1];
-
-        // If forceNewMessage is true or last message is not an AI text message, create new message
         if (
           forceNewMessage ||
           !lastMessage ||
-          lastMessage.role !== "ai" ||
-          lastMessage.type !== "text"
+          lastMessage.role !== "assistant"
         ) {
-          setForceNewMessage(false); // Reset the flag
+          setForceNewMessage(false);
           return [
             ...prevMessages,
             {
               id: Date.now().toString(),
               content,
-              role: "ai",
-              type: "text", // Explicitly set type for AI text messages
+              role: "assistant",
               timestamp: new Date().toISOString(),
-              name,
-              avatar,
             },
           ];
         }
-
-        // Otherwise, merge with last AI text message
         return [
           ...prevMessages.slice(0, -1),
           {
@@ -132,140 +216,109 @@ export function ChatHistoryProvider({
   );
 
   /**
-   * Append or update a Tool Call message using its tool_id
-   * @param toolMessageData - The partial tool call message data from WebSocket
+   * Update UI when tool_call event is received from WebSocket.
+   * Adds or updates tool_calls in the last assistant message.
    */
-  const appendOrUpdateToolCallMessage = useCallback(
-    (toolMessageData: Partial<Message>) => {
-      // Ensure required fields for a tool call are present
+  const appendToolCallRequest = useCallback(
+    (toolCalls: { name: string; arguments: object }[]) => {
+      if (!toolCalls || toolCalls.length === 0) return;
+
+    setMessages((prevMessages) => {
+      const lastMessage = prevMessages[prevMessages.length - 1];
+
+      // 마지막 메시지가 'assistant'가 아니거나 이미 tool call이 있으면
+      // (이런 경우는 드물지만) 새 메시지로 추가합니다.
       if (
-        !toolMessageData.tool_id ||
-        !toolMessageData.tool_name ||
-        !toolMessageData.status ||
-        !toolMessageData.timestamp
+        !lastMessage ||
+        lastMessage.role !== "assistant" ||
+        lastMessage.tool_calls
       ) {
-        console.error(
-          "Incomplete tool message data received:",
-          toolMessageData,
-        );
-        return;
+        // 새 Assistant 메시지 생성 (내용은 비워두거나 기본값 설정)
+        const newAssistantMessage: AssistantMessage = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: "", // 또는 "Tool(s) called"
+          tool_calls: toolCalls,
+          timestamp: new Date().toISOString(),
+        };
+        return [...prevMessages, newAssistantMessage];
       }
 
-      setMessages((prevMessages) => {
-        const existingMessageIndex = prevMessages.findIndex(
-          (msg) =>
-            msg.type === "tool_call_status" &&
-            msg.tool_id === toolMessageData.tool_id!,
-        );
+      // 99%의 케이스: 마지막 'assistant' 메시지에 tool_calls 정보 업데이트
+      const updatedLastMessage: AssistantMessage = {
+        ...lastMessage,
+        tool_calls: toolCalls,
+        timestamp: new Date().toISOString(), // 타임스탬프 갱신
+      };
 
-        if (existingMessageIndex !== -1) {
-          // Update existing tool call message status and content
-          const updatedMessages = [...prevMessages];
-          const existingMsg = updatedMessages[existingMessageIndex];
-          updatedMessages[existingMessageIndex] = {
-            ...existingMsg,
-            status: toolMessageData.status, // Update status
-            name: toolMessageData.name || existingMsg.name,
-            content: toolMessageData.content || existingMsg.content, // Update content (result/error or keep input)
-            timestamp: toolMessageData.timestamp!, // Update timestamp
-          };
-          return updatedMessages;
-        } else {
-          // Append new tool call message
-          const newToolMessage: Message = {
-            id: toolMessageData.tool_id!, // Use tool_id as the main ID for uniqueness
-            role: "ai",
-            type: "tool_call_status",
-            name: toolMessageData.name || "",
-            tool_id: toolMessageData.tool_id,
-            tool_name: toolMessageData.tool_name,
-            status: toolMessageData.status,
-            content: toolMessageData.content || "", // Initial content (input)
-            timestamp: toolMessageData.timestamp!,
-            // name/avatar could potentially be added if needed
-          };
-          return [...prevMessages, newToolMessage];
-        }
-      });
-    },
-    [],
-  );
+      return [
+        ...prevMessages.slice(0, -1), // 마지막 메시지 제거
+        updatedLastMessage, // 수정된 메시지로 교체
+      ];
+    });
+  }, []);
 
   /**
-   * Update the history list with the latest message
-   * @param uid - History unique identifier
-   * @param latestMessage - Latest message to update with
+   * Update UI when tool_result event is received from WebSocket.
+   * Adds a new tool message to the conversation.
    */
-  const updateHistoryList = useCallback(
-    (uid: string, latestMessage: Message | null) => {
-      if (!uid) {
-        console.error("updateHistoryList: uid is null");
-      }
-      if (!currentHistoryUid) {
-        console.error("updateHistoryList: currentHistoryUid is null");
-      }
+  const appendToolResult = useCallback(
+    (toolResultData: {
+      tool_call_id: string;
+      content: string;
+      name: string;
+    }) => {
+    // 새 ToolMessage 생성
+    const newToolMessage: ToolMessage = {
+      id: crypto.randomUUID(), // 프론트엔드 렌더링용 고유 ID
+      role: "tool",
+      tool_call_id: toolResultData.tool_call_id,
+      name: toolResultData.name,
+      content: toolResultData.content,
+      timestamp: new Date().toISOString(),
+    };
 
-      setHistoryList((prevList) =>
-        prevList.map((history) => {
-          if (history.uid === uid) {
-            return {
-              ...history,
-              latest_message: latestMessage
-                ? {
-                    content: latestMessage.content,
-                    role: latestMessage.role,
-                    timestamp: latestMessage.timestamp,
-                  }
-                : null,
-              timestamp: latestMessage?.timestamp || history.timestamp,
-            };
-          }
-          return history;
-        }),
-      );
+      setMessages((prevMessages) => [...prevMessages, newToolMessage]);
     },
-    [currentHistoryUid],
+    []
   );
 
-  const appendResponse = useCallback((text: string) => {
-    setFullResponse((prev) => prev + (text || ""));
-  }, []);
-
   const clearResponse = useCallback(() => {
-    setFullResponse(DEFAULT_HISTORY.fullResponse);
+    setFullResponse("");
   }, []);
 
-  // Memoized context value
+  // --- Context Value (Memoized) ---
+
   const contextValue = useMemo(
     () => ({
       messages,
       historyList,
-      currentHistoryUid,
-      appendHumanMessage,
+      currentSessionId,
+      isLoading,
+      selectSession,
+      createNewSession,
+      addUserMessageToUI,
+      // 스트리밍 UI 업데이트 함수들
       appendAIMessage,
-      appendOrUpdateToolCallMessage, // Add to context value
-      setMessages,
-      setHistoryList,
-      setCurrentHistoryUid,
-      updateHistoryList,
+      appendToolCallRequest,
+      appendToolResult,
       fullResponse,
       setFullResponse,
-      appendResponse,
       clearResponse,
       setForceNewMessage,
     }),
     [
       messages,
       historyList,
-      currentHistoryUid,
-      appendHumanMessage,
+      currentSessionId,
+      isLoading,
+      selectSession,
+      createNewSession,
+      addUserMessageToUI,
       appendAIMessage,
-      appendOrUpdateToolCallMessage, // Add dependency
-      updateHistoryList,
+      appendToolCallRequest,
+      appendToolResult,
       fullResponse,
-      appendResponse,
-      clearResponse,
-      setForceNewMessage,
     ],
   );
 
@@ -278,7 +331,6 @@ export function ChatHistoryProvider({
 
 /**
  * Custom hook to use the chat history context
- * @throws {Error} If used outside of ChatHistoryProvider
  */
 export function useChatHistory() {
   const context = useContext(ChatHistoryContext);

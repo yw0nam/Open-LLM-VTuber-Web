@@ -1,4 +1,11 @@
+// src/renderer/src/services/schemas/stm.ts
 import { z } from "zod";
+import {
+  type Message,
+  type AssistantMessage,
+  type SystemMessage,
+  type ToolMessage,
+} from "@/types/chat";
 
 // ============================================================================
 // Session Metadata Schema
@@ -58,26 +65,26 @@ const BaseMessageSchema = z.object({
 });
 
 // User message
-const UserMessageSchema = BaseMessageSchema.extend({
+const BackendUserMessageSchema = BaseMessageSchema.extend({
   role: z.literal("user"),
   content: z.string(),
 });
 
 // System message
-const SystemMessageSchema = BaseMessageSchema.extend({
+const BackendSystemMessageSchema = BaseMessageSchema.extend({
   role: z.literal("system"),
   content: z.string(),
 });
 
 // Assistant message (with optional tool_calls)
-const AssistantMessageSchema = BaseMessageSchema.extend({
+const BackendAssistantMessageSchema = BaseMessageSchema.extend({
   role: z.literal("assistant"),
   content: z.string(),
   tool_calls: z.array(ToolCallSchema).optional(),
 });
 
 // Tool message
-const ToolMessageSchema = BaseMessageSchema.extend({
+const BackendToolMessageSchema = BaseMessageSchema.extend({
   role: z.literal("tool"),
   content: z.string(),
   name: z.string(),
@@ -85,24 +92,94 @@ const ToolMessageSchema = BaseMessageSchema.extend({
 });
 
 // Union of all message types
-export const ChatMessageSchema = z.discriminatedUnion("role", [
-  UserMessageSchema,
-  AssistantMessageSchema,
-  SystemMessageSchema,
-  ToolMessageSchema,
+export const BackendChatMessageSchema = z.discriminatedUnion("role", [
+  BackendUserMessageSchema,
+  BackendAssistantMessageSchema,
+  BackendSystemMessageSchema,
+  BackendToolMessageSchema,
 ]);
 
-export type ChatMessage = z.infer<typeof ChatMessageSchema>;
+export type BackendChatMessage = z.infer<typeof BackendChatMessageSchema>;
 
-// ============================================================================
-// Chat History Schema
-// ============================================================================
-
-export const ChatHistorySchema = z.object({
+// 1. Zod가 파싱할 *원본* 스키마
+const BaseChatHistorySchema = z.object({
   session_id: z.string().uuid(),
-  messages: z.array(ChatMessageSchema),
+  messages: z.array(BackendChatMessageSchema), // 백엔드 메시지 스키마 사용
 });
 
+// .transform()을 사용해 백엔드 타입을 프론트엔드 타입으로 변환
+export const ChatHistorySchema = BaseChatHistorySchema.transform(
+  (history): { session_id: string; messages: Message[] } => {
+    // 여기가 아까 그 "길고 장황한" 변환 로직입니다.
+    // 이제 이 로직은 stm.ts 파일 안에 '숨겨집니다'.
+    const frontendMessages: Message[] = history.messages.map(
+      (msgFromServer: BackendChatMessage): Message => {
+        // 공통 속성: id, timestamp, content 보장
+        const commonProps = {
+          id: crypto.randomUUID(), // 1. 프론트엔드용 ID 생성
+          timestamp: msgFromServer.timestamp || new Date().toISOString(), // 2. timestamp 기본값 보장
+          content: msgFromServer.content || "", // (혹시 content가 null일 경우 대비)
+        };
+
+        switch (msgFromServer.role) {
+          case "user":
+            return { ...commonProps, role: "user" };
+
+          case "assistant":
+            const newAssistantMessage: AssistantMessage = {
+              ...commonProps,
+              role: "assistant",
+            };
+
+            // 3. tool_calls.arguments를 string -> object로 변환
+            if (msgFromServer.tool_calls) {
+              newAssistantMessage.tool_calls = msgFromServer.tool_calls.map(
+                (tc) => {
+                  let parsedArgs: object = {};
+                  try {
+                    parsedArgs = JSON.parse(tc.function.arguments);
+                  } catch (e) {
+                    parsedArgs = { error: "Failed to parse arguments" };
+                  }
+                  return { name: tc.function.name, arguments: parsedArgs };
+                },
+              );
+            }
+            return newAssistantMessage;
+
+          case "tool":
+            return {
+              ...commonProps,
+              role: "tool",
+              tool_call_id: msgFromServer.tool_call_id,
+              name: msgFromServer.name,
+            } as ToolMessage;
+
+          case "system":
+            return { ...commonProps, role: "system" };
+
+          default:
+            // Zod의 discriminatedUnion이 이 케이스를 막아주지만,
+            // TypeScript의 타입 추론을 위해 명시적으로 처리
+            return {
+              ...commonProps,
+              role: "system",
+              content: "[Unknown Role]",
+            } as SystemMessage;
+        }
+      },
+    );
+
+    // 변환된 messages를 포함하는 새 객체를 반환
+    return {
+      session_id: history.session_id,
+      messages: frontendMessages, // 덮어쓰기
+    };
+  },
+);
+
+// 3. 'ChatHistory' 타입은 이제 .transform()이 적용된,
+// 'messages: Message[]' (프론트엔드 타입)를 가진 타입이 됩니다.
 export type ChatHistory = z.infer<typeof ChatHistorySchema>;
 
 // ============================================================================

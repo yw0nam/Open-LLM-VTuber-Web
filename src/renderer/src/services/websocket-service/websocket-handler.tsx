@@ -1,356 +1,138 @@
-/* eslint-disable no-sparse-arrays */
-/* eslint-disable react-hooks/exhaustive-deps */
-// eslint-disable-next-line object-curly-newline
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useTranslation } from "react-i18next";
+
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   wsService,
-  MessageEvent,
-} from "@/services/websocket-service/websocket-service";
-import {
-  WebSocketContext,
-  HistoryInfo,
-  defaultWsUrl,
-  defaultBaseUrl,
-} from "@/context/websocket-context";
-import { ModelInfo, useLive2DConfig } from "@/context/live2d-config-context";
-import { useSubtitle } from "@/context/subtitle-context";
+  WebSocketConnectionState,
+} from "./client";
+import { useChatHistory } from "@/context/chat-history-context";
 import { audioTaskQueue } from "@/utils/task-queue";
 import { useAudioTask } from "@/components/canvas/live2d";
-import { useBgUrl } from "@/context/bgurl-context";
-import { useConfig } from "@/context/character-config-context";
-import { useChatHistory } from "@/context/chat-history-context";
-import { toaster } from "@/components/ui/toaster";
-import { useVAD } from "@/context/vad-context";
-import { AiState, useAiState } from "@/context/ai-state-context";
-import { useLocalStorage } from "@/hooks/utils/use-local-storage";
-import { useInterrupt } from "@/hooks/utils/use-interrupt";
+import { WSServerMessage, WSTTSReadyChunkMessage } from "@/services/schemas/websocket";
 
-function WebSocketHandler({ children }: { children: React.ReactNode }) {
-  const { t } = useTranslation();
-  const [wsState, setWsState] = useState<string>("CLOSED");
-  const [wsUrl, setWsUrl] = useLocalStorage<string>("wsUrl", defaultWsUrl);
-  const [baseUrl, setBaseUrl] = useLocalStorage<string>(
-    "baseUrl",
-    defaultBaseUrl,
-  );
-  const { aiState, setAiState, backendSynthComplete, setBackendSynthComplete } =
-    useAiState();
-  const { setModelInfo } = useLive2DConfig();
-  const { setSubtitleText } = useSubtitle();
-  const {
-    clearResponse,
-    setForceNewMessage,
-    appendHumanMessage,
-    appendOrUpdateToolCallMessage,
+interface WebSocketHandlerContextProps {
+  sendMessage: (message: Record<string, unknown>) => void;
+  wsState: WebSocketConnectionState;
+}
+
+const WebSocketHandlerContext = createContext<WebSocketHandlerContextProps | null>(
+  null,
+);
+
+export function useWebSocketHandler() {
+  const context = useContext(WebSocketHandlerContext);
+  if (!context) {
+    throw new Error(
+      "useWebSocketHandler must be used within a WebSocketHandlerProvider",
+    );
+  }
+  return context;
+}
+
+export function WebSocketHandlerProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { 
+    appendAIMessage, 
+    appendToolCallRequest, 
+    appendToolResult 
   } = useChatHistory();
   const { addAudioTask } = useAudioTask();
-  const bgUrlContext = useBgUrl();
-  const { confUid, setConfName, setConfUid, setConfigFiles } = useConfig();
-  const [pendingModelInfo, setPendingModelInfo] = useState<
-    ModelInfo | undefined
-  >(undefined);
-  const { startMic, stopMic, autoStartMicOnConvEnd } = useVAD();
-  const autoStartMicOnConvEndRef = useRef(autoStartMicOnConvEnd);
-  const { interrupt } = useInterrupt();
+  const [wsState, setWsState] = useState<WebSocketConnectionState>("IDLE");
 
   useEffect(() => {
-    autoStartMicOnConvEndRef.current = autoStartMicOnConvEnd;
-  }, [autoStartMicOnConvEnd]);
+    const stateSubscription = wsService.onStateChange((state) => {
+      setWsState(state);
+    });
 
-  useEffect(() => {
-    if (pendingModelInfo && confUid) {
-      setModelInfo(pendingModelInfo);
-      setPendingModelInfo(undefined);
-    }
-  }, [pendingModelInfo, setModelInfo, confUid]);
-
-  const { setCurrentHistoryUid, setMessages, setHistoryList } =
-    useChatHistory();
-
-  const handleControlMessage = useCallback(
-    (controlText: string) => {
-      switch (controlText) {
-        case "start-mic":
-          console.log("Starting microphone...");
-          startMic();
-          break;
-        case "stop-mic":
-          console.log("Stopping microphone...");
-          stopMic();
-          break;
-        case "conversation-chain-start":
-          setAiState("thinking-speaking");
-          audioTaskQueue.clearQueue();
-          clearResponse();
-          break;
-        case "conversation-chain-end":
-          audioTaskQueue.addTask(
-            () =>
-              new Promise<void>((resolve) => {
-                setAiState((currentState: AiState) => {
-                  if (currentState === "thinking-speaking") {
-                    // Auto start mic if enabled
-                    if (autoStartMicOnConvEndRef.current) {
-                      startMic();
-                    }
-                    return "idle";
-                  }
-                  return currentState;
-                });
-                resolve();
-              }),
-          );
-          break;
-        default:
-          console.warn("Unknown control command:", controlText);
-      }
-    },
-    [setAiState, clearResponse, setForceNewMessage, startMic, stopMic],
-  );
-
-  const handleWebSocketMessage = useCallback(
-    (message: MessageEvent) => {
-      console.log("Received message from server:", message);
-      switch (message.type) {
-        case "control":
-          if (message.text) {
-            handleControlMessage(message.text);
-          }
-          break;
-        case "set-model-and-conf":
-          setAiState("loading");
-          if (message.conf_name) {
-            setConfName(message.conf_name);
-          }
-          if (message.conf_uid) {
-            setConfUid(message.conf_uid);
-            console.log("confUid", message.conf_uid);
-          }
-          setPendingModelInfo(message.model_info);
-          // setModelInfo(message.model_info);
-          // We don't know when the confRef in live2d-config-context will be updated, so we set a delay here for convenience
-          if (
-            message.model_info &&
-            !message.model_info.url.startsWith("http")
-          ) {
-            const modelUrl = baseUrl + message.model_info.url;
-            // eslint-disable-next-line no-param-reassign
-            message.model_info.url = modelUrl;
-          }
-
-          setAiState("idle");
-          break;
-        case "full-text":
-          if (message.text) {
-            setSubtitleText(message.text);
-          }
-          break;
-        case "config-files":
-          if (message.configs) {
-            setConfigFiles(message.configs);
-          }
-          break;
-        case "config-switched":
-          setAiState("idle");
-          setSubtitleText(t("notification.characterLoaded"));
-
-          toaster.create({
-            title: t("notification.characterSwitched"),
-            type: "success",
-            duration: 2000,
-          });
-
-          // setModelInfo(undefined);
-
-          wsService.sendMessage({ type: "fetch-history-list" });
-          wsService.sendMessage({ type: "create-new-history" });
-          break;
-        case "background-files":
-          if (message.files) {
-            bgUrlContext?.setBackgroundFiles(message.files);
-          }
-          break;
-        case "audio":
-          if (aiState === "interrupted" || aiState === "listening") {
-            console.log(
-              "Audio playback intercepted. Sentence:",
-              message.display_text?.text,
-            );
-          } else {
-            console.log("actions", message.actions);
-            addAudioTask({
-              audioBase64: message.audio || "",
-              volumes: message.volumes || [],
-              sliceLength: message.slice_length || 0,
-              displayText: message.display_text || null,
-              expressions: message.actions?.expressions || null,
-              forwarded: message.forwarded || false,
-            });
-          }
-          break;
-        case "history-data":
-          if (message.messages) {
-            setMessages(message.messages);
-          }
-          toaster.create({
-            title: t("notification.historyLoaded"),
-            type: "success",
-            duration: 2000,
-          });
-          break;
-        case "new-history-created":
-          setAiState("idle");
-          setSubtitleText(t("notification.newConversation"));
-          // No need to open mic here
-          if (message.history_uid) {
-            setCurrentHistoryUid(message.history_uid);
-            setMessages([]);
-            const newHistory: HistoryInfo = {
-              uid: message.history_uid,
-              latest_message: null,
-              timestamp: new Date().toISOString(),
-            };
-            setHistoryList((prev: HistoryInfo[]) => [newHistory, ...prev]);
-            toaster.create({
-              title: t("notification.newChatHistory"),
-              type: "success",
-              duration: 2000,
-            });
-          }
-          break;
-        case "history-deleted":
-          toaster.create({
-            title: message.success
-              ? t("notification.historyDeleteSuccess")
-              : t("notification.historyDeleteFail"),
-            type: message.success ? "success" : "error",
-            duration: 2000,
-          });
-          break;
-        case "history-list":
-          if (message.histories) {
-            setHistoryList(message.histories);
-            if (message.histories.length > 0) {
-              setCurrentHistoryUid(message.histories[0].uid);
+    const messageSubscription = wsService.onMessage(
+      (message: WSServerMessage) => {
+        switch (message.type) {
+          case "stream_start":
+            // New conversation turn started
+            console.log("Stream started:", message.turn_id);
+            break;
+          case "stream_token":
+            // Agent response chunk received
+            appendAIMessage(message.chunk);
+            break;
+          case "stream_end":
+            // Conversation turn completed
+            // Backend automatically saves to STM/LTM at this point
+            console.log("Stream ended:", message.turn_id);
+            break;
+          case "tts_ready_chunk":
+            // Text chunk ready for TTS synthesis
+            if (message.chunk) {
+              addAudioTask({
+                text: message.chunk,
+                expression: message.emotion,
+              });
             }
-          }
-          break;
-        case "user-input-transcription":
-          console.log("user-input-transcription: ", message.text);
-          if (message.text) {
-            appendHumanMessage(message.text);
-          }
-          break;
-        case "error":
-          toaster.create({
-            title: message.message,
-            type: "error",
-            duration: 2000,
-          });
-          break;
-        case "backend-synth-complete":
-          setBackendSynthComplete(true);
-          break;
-        case "conversation-chain-end":
-          if (!audioTaskQueue.hasTask()) {
-            setAiState((currentState: AiState) => {
-              if (currentState === "thinking-speaking") {
-                return "idle";
-              }
-              return currentState;
-            });
-          }
-          break;
-        case "force-new-message":
-          setForceNewMessage(true);
-          break;
-        case "interrupt-signal":
-          // Handle forwarded interrupt
-          interrupt(false); // do not send interrupt signal to server
-          break;
-        case "tool_call_status":
-          if (message.tool_id && message.tool_name && message.status) {
-            appendOrUpdateToolCallMessage({
-              id: message.tool_id,
-              type: "tool_call_status",
-              role: "ai",
-              tool_id: message.tool_id,
-              tool_name: message.tool_name,
-              name: message.name,
-              status: message.status as "running" | "completed" | "error",
-              content: message.content || "",
-              timestamp: message.timestamp || new Date().toISOString(),
-            });
-          } else {
-            console.warn(
-              "Received incomplete tool_call_status message:",
-              message,
-            );
-          }
-          break;
-        default:
-          console.warn("Unknown message type:", message.type);
-      }
-    },
-    [
-      aiState,
-      addAudioTask,
-      appendHumanMessage,
-      baseUrl,
-      bgUrlContext,
-      setAiState,
-      setConfName,
-      setConfUid,
-      setConfigFiles,
-      setCurrentHistoryUid,
-      setHistoryList,
-      setMessages,
-      setModelInfo,
-      setSubtitleText,
-      startMic,
-      stopMic,
-      backendSynthComplete,
-      setBackendSynthComplete,
-      clearResponse,
-      handleControlMessage,
-      appendOrUpdateToolCallMessage,
-      interrupt,
-      t,
-    ],
-  );
+            break;
+          case "tool_call":
+            // Note: Currently NOT sent by backend (logged server-side only)
+            // Implemented for future use when backend forwards these events
+            console.log("Tool call:", message.tool_name, message.args);
+            try {
+              const args = JSON.parse(message.args);
+              appendToolCallRequest([{ name: message.tool_name, arguments: args }]);
+            } catch (e) {
+              console.error("Failed to parse tool call args:", e);
+            }
+            break;
+          case "tool_result":
+            // Note: Currently NOT sent by backend (logged server-side only)
+            // Implemented for future use when backend forwards these events
+            console.log("Tool result:", message.result);
+            try {
+              const result = JSON.parse(message.result);
+              appendToolResult({
+                tool_call_id: result.tool_call_id || crypto.randomUUID(),
+                content: result.content || message.result,
+                name: result.name || "unknown",
+              });
+            } catch (e) {
+              console.error("Failed to parse tool result:", e);
+            }
+            break;
+          case "error":
+            console.error("WebSocket error:", message.error);
+            break;
+          default:
+            break;
+        }
+      },
+    );
 
-  useEffect(() => {
-    wsService.connect(wsUrl);
-  }, [wsUrl]);
-
-  useEffect(() => {
-    const stateSubscription = wsService.onStateChange(setWsState);
-    const messageSubscription = wsService.onMessage(handleWebSocketMessage);
     return () => {
       stateSubscription.unsubscribe();
       messageSubscription.unsubscribe();
     };
-  }, [wsUrl, handleWebSocketMessage]);
+  }, [appendAIMessage, appendToolCallRequest, appendToolResult, addAudioTask]);
 
-  const webSocketContextValue = useMemo(
+  const sendMessage = (message: Record<string, unknown>) => {
+    wsService.sendMessage(message);
+  };
+
+  const contextValue = useMemo(
     () => ({
-      sendMessage: wsService.sendMessage.bind(wsService),
+      sendMessage,
       wsState,
-      reconnect: () => wsService.connect(wsUrl),
-      wsUrl,
-      setWsUrl,
-      baseUrl,
-      setBaseUrl,
     }),
-    [wsState, wsUrl, baseUrl],
+    [wsState],
   );
 
   return (
-    <WebSocketContext.Provider value={webSocketContextValue}>
+    <WebSocketHandlerContext.Provider value={contextValue}>
       {children}
-    </WebSocketContext.Provider>
+    </WebSocketHandlerContext.Provider>
   );
 }
-
-export default WebSocketHandler;

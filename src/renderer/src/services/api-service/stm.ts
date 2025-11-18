@@ -1,4 +1,5 @@
 /**
+ * src/renderer/src/services/api-service/stm.ts
  * Short-Term Memory (STM) API Service
  * Handles chat history and session management
  */

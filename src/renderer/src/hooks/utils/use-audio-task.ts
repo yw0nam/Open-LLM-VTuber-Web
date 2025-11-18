@@ -10,18 +10,17 @@ import { audioTaskQueue } from "@/utils/task-queue";
 import { audioManager } from "@/utils/audio-manager";
 import { toaster } from "@/components/ui/toaster";
 import { useWebSocket } from "@/context/websocket-context";
-import { DisplayText } from "@/services/websocket-service/websocket-service";
 import { useLive2DExpression } from "@/hooks/canvas/use-live2d-expression";
 import * as LAppDefine from "../../../WebSDK/src/lappdefine";
 
 // Simple type alias for Live2D model
 type Live2DModel = any;
 
-interface AudioTaskOptions {
+export interface AudioTaskOptions {
   audioBase64: string;
   volumes: number[];
   sliceLength: number;
-  displayText?: DisplayText | null;
+  text?: string;
   expressions?: string[] | number[] | null;
   speaker_uid?: string;
   forwarded?: boolean;
@@ -82,19 +81,19 @@ export const useAudioTask = () => {
         return;
       }
 
-      const { audioBase64, displayText, expressions, forwarded } = options;
+      const { audioBase64, text, expressions, forwarded } = options;
 
       // Update display text
-      if (displayText) {
-        appendText(displayText.text);
-        appendAI(displayText.text, displayText.name, displayText.avatar);
+      if (text) {
+        appendText(text);
+        appendAI(text);
         if (audioBase64) {
-          updateSubtitle(displayText.text);
+          updateSubtitle(text);
         }
         if (!forwarded) {
           sendMessage({
             type: "audio-play-start",
-            display_text: displayText,
+            display_text: text,
             forwarded: true,
           });
         }
@@ -274,7 +273,7 @@ export const useAudioTask = () => {
       return;
     }
 
-    console.log(`Adding audio task ${options.displayText?.text} to queue`);
+    console.log(`Adding audio task ${options.text} to queue`);
     audioTaskQueue.addTask(() => handleAudioPlayback(options));
   };
 
