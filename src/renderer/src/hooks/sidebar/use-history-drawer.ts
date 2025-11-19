@@ -1,39 +1,32 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useChatHistory } from "@/context/chat-history-context";
-import { useWebSocket, HistoryInfo } from "@/context/websocket-context";
 import { toaster } from "@/components/ui/toaster";
+import { deleteSession } from "@/services/api-service/stm";
+import type { Session } from "@/services/schemas/stm";
 
 export const useHistoryDrawer = () => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [userId] = useState("default-user"); // TODO: Get from auth context
+  const [agentId] = useState("default-agent"); // TODO: Get from config
+  
   const {
     historyList,
-    currentHistoryUid,
-    setCurrentHistoryUid,
-    setHistoryList,
+    currentSessionId,
+    selectSession,
     messages,
-    updateHistoryList,
   } = useChatHistory();
-  const { sendMessage } = useWebSocket();
 
-  const fetchAndSetHistory = (uid: string) => {
-    if (!uid || uid === currentHistoryUid) return;
-
-    if (currentHistoryUid && messages.length > 0) {
-      const latestMessage = messages[messages.length - 1];
-      updateHistoryList(currentHistoryUid, latestMessage);
-    }
-
-    setCurrentHistoryUid(uid);
-    sendMessage({
-      type: "fetch-and-set-history",
-      history_uid: uid,
-    });
+  const fetchAndSetHistory = (sessionId: string) => {
+    if (!sessionId || sessionId === currentSessionId) return;
+    
+    // Simply select the session - the context will handle loading messages
+    selectSession(sessionId);
   };
 
-  const deleteHistory = (uid: string) => {
-    if (uid === currentHistoryUid) {
+  const deleteHistory = async (sessionId: string) => {
+    if (sessionId === currentSessionId) {
       toaster.create({
         title: t("error.cannotDeleteCurrentHistory"),
         type: "warning",
@@ -42,24 +35,44 @@ export const useHistoryDrawer = () => {
       return;
     }
 
-    sendMessage({
-      type: "delete-history",
-      history_uid: uid,
-    });
-    setHistoryList(historyList.filter((history) => history.uid !== uid));
+    try {
+      await deleteSession(sessionId, {
+        user_id: userId,
+        agent_id: agentId,
+      });
+      
+      toaster.create({
+        title: t("success.historyDeleted"),
+        type: "success",
+        duration: 2000,
+      });
+      
+      // Reload the session list
+      // The context should handle this automatically on next render
+    } catch (error) {
+      console.error("Failed to delete session:", error);
+      toaster.create({
+        title: t("error.failedToDeleteHistory"),
+        type: "error",
+        duration: 2000,
+      });
+    }
   };
 
-  const getLatestMessageContent = (history: HistoryInfo) => {
-    if (history.uid === currentHistoryUid && messages.length > 0) {
+  const getLatestMessageContent = (session: Session) => {
+    // If this is the current session, use the latest message from context
+    if (session.session_id === currentSessionId && messages.length > 0) {
       const latestMessage = messages[messages.length - 1];
       return {
         content: latestMessage.content,
         timestamp: latestMessage.timestamp,
       };
     }
+    
+    // Otherwise, return session metadata
     return {
-      content: history.latest_message?.content || "",
-      timestamp: history.timestamp,
+      content: session.metadata?.title || "",
+      timestamp: session.metadata?.created_at || null,
     };
   };
 
@@ -67,7 +80,7 @@ export const useHistoryDrawer = () => {
     open,
     setOpen,
     historyList,
-    currentHistoryUid,
+    currentSessionId,
     fetchAndSetHistory,
     deleteHistory,
     getLatestMessageContent,

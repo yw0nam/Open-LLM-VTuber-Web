@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/drawer";
 import { sidebarStyles } from "./sidebar-styles";
 import { useHistoryDrawer } from "@/hooks/sidebar/use-history-drawer";
-import { HistoryInfo } from "@/context/websocket-context";
+import type { Session } from "@/services/schemas/stm";
 
 // Type definitions
 interface HistoryDrawerProps {
@@ -83,7 +83,7 @@ function HistoryDrawer({ children }: HistoryDrawerProps): JSX.Element {
     open,
     setOpen,
     historyList,
-    currentHistoryUid,
+    currentSessionId,
     fetchAndSetHistory,
     deleteHistory,
     getLatestMessageContent,
@@ -109,17 +109,17 @@ function HistoryDrawer({ children }: HistoryDrawerProps): JSX.Element {
 
         <DrawerBody>
           <Box {...sidebarStyles.historyDrawer.listContainer}>
-            {historyList.map((history: HistoryInfo) => (
+            {historyList.map((session: Session) => (
               <HistoryItem
-                key={history.uid}
-                isSelected={currentHistoryUid === history.uid}
-                latestMessage={getLatestMessageContent(history)}
-                onSelect={() => fetchAndSetHistory(history.uid)}
+                key={session.session_id}
+                isSelected={currentSessionId === session.session_id}
+                latestMessage={getLatestMessageContent(session)}
+                onSelect={() => fetchAndSetHistory(session.session_id)}
                 onDelete={(e) => {
                   e.stopPropagation();
-                  deleteHistory(history.uid);
+                  deleteHistory(session.session_id);
                 }}
-                isDeleteDisabled={currentHistoryUid === history.uid}
+                isDeleteDisabled={currentSessionId === session.session_id}
               />
             ))}
           </Box>

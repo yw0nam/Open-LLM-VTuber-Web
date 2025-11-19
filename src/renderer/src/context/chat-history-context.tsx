@@ -49,9 +49,6 @@ interface ChatHistoryState {
     content: string;
     name: string;
   }) => void;
-  fullResponse: string;
-  setFullResponse: (text: string) => void;
-  clearResponse: () => void;
   setForceNewMessage: (value: boolean) => void;
 }
 
@@ -82,16 +79,12 @@ export function ChatHistoryProvider({
   const [historyList, setHistoryList] = useState<ListSessionsResponse>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  // (기존) 스트리밍 UI 상태
-  const [fullResponse, setFullResponse] = useState("");
   const [forceNewMessage, setForceNewMessage] = useState<boolean>(false);
 
   // --- API 연동 로직 (useEffect) ---
 
-  /**
-   * (신규) 1. Provider 로드 시 (또는 user/agent 변경 시) 세션 목록 불러오기
-   */
+  // Provider 로드 시 (또는 user/agent 변경 시) 세션 목록 불러오기
+  
   useEffect(() => {
     if (!userId || !agentId) return;
 
@@ -155,7 +148,6 @@ export function ChatHistoryProvider({
   const createNewSession = useCallback(() => {
     setCurrentSessionId(null);
     setMessages([]);
-    clearResponse();
   }, []);
 
 
@@ -180,7 +172,6 @@ export function ChatHistoryProvider({
     []
   );
 
-  // --- (기존) 스트리밍 UI 함수 (수정 없음) ---
   // Update UI when got websocket event 'stream_token'
   const appendAIMessage = useCallback(
     (content: string) => {
@@ -226,8 +217,7 @@ export function ChatHistoryProvider({
     setMessages((prevMessages) => {
       const lastMessage = prevMessages[prevMessages.length - 1];
 
-      // 마지막 메시지가 'assistant'가 아니거나 이미 tool call이 있으면
-      // (이런 경우는 드물지만) 새 메시지로 추가합니다.
+      // 마지막 메시지가 'assistant'가 아니거나 이미 tool call이 있으면 새 메시지로 추가합니다.
       if (
         !lastMessage ||
         lastMessage.role !== "assistant" ||
@@ -244,7 +234,7 @@ export function ChatHistoryProvider({
         return [...prevMessages, newAssistantMessage];
       }
 
-      // 99%의 케이스: 마지막 'assistant' 메시지에 tool_calls 정보 업데이트
+      // 마지막 'assistant' 메시지에 tool_calls 정보 업데이트
       const updatedLastMessage: AssistantMessage = {
         ...lastMessage,
         tool_calls: toolCalls,
@@ -283,10 +273,6 @@ export function ChatHistoryProvider({
     []
   );
 
-  const clearResponse = useCallback(() => {
-    setFullResponse("");
-  }, []);
-
   // --- Context Value (Memoized) ---
 
   const contextValue = useMemo(
@@ -302,9 +288,6 @@ export function ChatHistoryProvider({
       appendAIMessage,
       appendToolCallRequest,
       appendToolResult,
-      fullResponse,
-      setFullResponse,
-      clearResponse,
       setForceNewMessage,
     }),
     [
@@ -318,7 +301,6 @@ export function ChatHistoryProvider({
       appendAIMessage,
       appendToolCallRequest,
       appendToolResult,
-      fullResponse,
     ],
   );
 
