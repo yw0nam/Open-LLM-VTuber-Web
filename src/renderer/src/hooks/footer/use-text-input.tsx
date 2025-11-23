@@ -33,9 +33,12 @@ export function useTextInput() {
     
     // Send message via WebSocket (backend handles persistence)
     wsContext.sendMessage({
-      type: "text-input",
-      text: inputText.trim(),
+      type: "chat_message",
+      content: inputText.trim(),
+      agent_id: localStorage.getItem("agent_id") || "default-agent",
+      user_id: localStorage.getItem("user_id") || "default-user",
       images,
+      limit: 10,
     });
 
     if (autoStopMic) stopMic();

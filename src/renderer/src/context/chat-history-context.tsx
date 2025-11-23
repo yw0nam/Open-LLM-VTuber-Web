@@ -69,10 +69,11 @@ interface ChatHistoryProviderProps {
 /**
  * Chat History Provider Component
  */
+//TODO: Remove userId and agentId props and get from other context not from props
 export function ChatHistoryProvider({
   children,
-  userId,
-  agentId,
+  // userId,
+  // agentId,
 }: ChatHistoryProviderProps) {
   // State management
   const [messages, setMessages] = useState<Message[]>([]);

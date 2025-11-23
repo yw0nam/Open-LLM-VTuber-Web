@@ -1,4 +1,5 @@
 /* eslint-disable react/require-default-props */
+// src/renderer/src/components/sidebar/setting/common.tsx
 import { useState } from "react";
 import {
   Text,

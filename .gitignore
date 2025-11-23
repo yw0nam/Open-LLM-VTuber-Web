@@ -51,6 +51,8 @@ packages/react-devtools-extensions/firefox/*.pem
 packages/react-devtools-extensions/shared/build
 packages/react-devtools-extensions/.tempUserDataDir
 
+# Local system files
+datas
 # Temp files
 *~
 *.pyc

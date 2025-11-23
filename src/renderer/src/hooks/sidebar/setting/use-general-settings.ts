@@ -13,6 +13,10 @@ export const IMAGE_COMPRESSION_QUALITY_KEY = "appImageCompressionQuality";
 export const DEFAULT_IMAGE_COMPRESSION_QUALITY = 0.8;
 export const IMAGE_MAX_WIDTH_KEY = "appImageMaxWidth";
 export const DEFAULT_IMAGE_MAX_WIDTH = 0;
+export const USER_ID_KEY = "user_id";
+export const DEFAULT_USER_ID = "default-user";
+export const AGENT_ID_KEY = "agent_id";
+export const DEFAULT_AGENT_ID = "default-agent";
 
 interface GeneralSettings {
   language: string[];
@@ -26,6 +30,8 @@ interface GeneralSettings {
   showSubtitle: boolean;
   imageCompressionQuality: number;
   imageMaxWidth: number;
+  userId: string;
+  agentId: string;
 }
 
 interface UseGeneralSettingsProps {
@@ -106,6 +112,8 @@ export const useGeneralSettings = ({
     showSubtitle,
     imageCompressionQuality: loadInitialCompressionQuality(),
     imageMaxWidth: loadInitialImageMaxWidth(),
+    userId: localStorage.getItem(USER_ID_KEY) || DEFAULT_USER_ID,
+    agentId: localStorage.getItem(AGENT_ID_KEY) || DEFAULT_AGENT_ID,
   };
 
   const [settings, setSettings] = useState<GeneralSettings>(initialSettings);
@@ -143,6 +151,8 @@ export const useGeneralSettings = ({
       IMAGE_MAX_WIDTH_KEY,
       settings.imageMaxWidth.toString(),
     );
+    localStorage.setItem(USER_ID_KEY, settings.userId);
+    localStorage.setItem(AGENT_ID_KEY, settings.agentId);
   }, [
     settings,
     bgUrlContext,

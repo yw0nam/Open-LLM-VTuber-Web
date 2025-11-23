@@ -1,3 +1,4 @@
+// src/renderer/src/hooks/utils/use-local-storage.ts
 import { useState } from "react";
 
 export function useLocalStorage<T>(

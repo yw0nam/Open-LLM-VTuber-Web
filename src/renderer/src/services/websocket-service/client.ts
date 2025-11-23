@@ -26,10 +26,6 @@ export type WebSocketConnectionState =
   | "CLOSED"
   | "ERROR";
 
-export interface MessageEvent extends Record<string, unknown> {
-  type?: string;
-}
-
 type QueuedMessage = {
   payload: Record<string, unknown>;
   requireAuth: boolean;
@@ -79,7 +75,7 @@ class WebSocketService {
 
   private manualClose = false;
 
-  private messageSubject = new Subject<MessageEvent>();
+  private messageSubject = new Subject<WSServerMessage>();
 
   private stateSubject = new Subject<WebSocketConnectionState>();
 
@@ -184,7 +180,7 @@ class WebSocketService {
     this.sendMessage(parsed.data, { requireAuth: true });
   }
 
-  onMessage(callback: (message: MessageEvent) => void) {
+  onMessage(callback: (message: WSServerMessage) => void) {
     return this.messageSubject.subscribe(callback);
   }
 
@@ -218,12 +214,11 @@ class WebSocketService {
 
         if (!parsed.success) {
           console.warn("Received unknown WebSocket message", raw);
-          this.messageSubject.next(raw as MessageEvent);
           return;
         }
 
         this.handleServerMessage(parsed.data);
-        this.messageSubject.next(parsed.data as MessageEvent);
+        this.messageSubject.next(parsed.data);
       } catch (error) {
         console.error("Failed to parse WebSocket message:", error);
         toaster.create({

@@ -1,3 +1,19 @@
+/**
+ * @deprecated LEGACY FILE - DO NOT USE
+ * 
+ * This file is kept for reference only during the migration to the new
+ * WebSocket handler architecture. It contains the old implementation that
+ * has been replaced by:
+ * 
+ * - websocket-handler.tsx (React context & dependency injection)
+ * - handlers/ directory (Message handlers)
+ * 
+ * This file has multiple TypeScript errors because it references old APIs
+ * that no longer exist in the refactored codebase.
+ * 
+ * TODO: Remove this file after the migration is complete and verified.
+ */
+
 /* eslint-disable no-sparse-arrays */
 /* eslint-disable react-hooks/exhaustive-deps */
 // eslint-disable-next-line object-curly-newline

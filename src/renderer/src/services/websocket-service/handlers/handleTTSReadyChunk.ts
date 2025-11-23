@@ -29,9 +29,11 @@ export async function handleTTSReadyChunk(
         return;
     }
 
+    const referenceVoice = localStorage.getItem("tts_reference_voice");
     const synthesizePayload: TTSSynthesizeRequest = {
         text: chunk,
         output_format: "base64",
+        ...(referenceVoice && { reference_id: referenceVoice }),
     };
 
     try {
