@@ -19,6 +19,9 @@ import { useLocalStorage } from "@/hooks/utils/use-local-storage";
 import { useChatHistory } from "@/context/chat-history-context";
 import { useAudioTask } from "@/hooks/utils/use-audio-task";
 import { useAiState } from "@/context/ai-state-context";
+import { useConfig } from "@/context/character-config-context";
+import { useBgUrl } from "@/context/bgurl-context";
+import { useWebSocket } from "@/context/websocket-context";
 
 // Handlers & Schemas
 import { handleWebSocketMessage, WebSocketHandlerDeps } from "./handlers"; // Centralized handler
@@ -53,7 +56,10 @@ export function WebSocketHandlerProvider({
   // 1. Dependencies for Injection
   const chatHistory = useChatHistory();
   const { addAudioTask } = useAudioTask();
-  const { aiState } = useAiState(); // Ensure this context exposes the current AI state
+  const { aiState, setAiState } = useAiState(); // Ensure this context exposes the current AI state
+  const config = useConfig();
+  const bgUrl = useBgUrl();
+  const { baseUrl } = useWebSocket();
   const { t } = useTranslation();
 
   // 2. State Management
@@ -89,8 +95,12 @@ export function WebSocketHandlerProvider({
         // Construct dependency object for handlers
         const deps: WebSocketHandlerDeps = {
           aiState,
+          setAiState,
           addAudioTask,
           chatHistory, // Pass the entire object or pick specific methods as defined in interface
+          config,
+          bgUrl,
+          baseUrl,
           t,
           toaster,
         };
@@ -104,7 +114,7 @@ export function WebSocketHandlerProvider({
       stateSubscription.unsubscribe();
       messageSubscription.unsubscribe();
     };
-  }, [aiState, addAudioTask, chatHistory, t]);
+  }, [aiState, setAiState, addAudioTask, chatHistory, config, bgUrl, baseUrl, t]);
 
   const sendMessage = (message: Record<string, unknown>) => {
     wsService.sendMessage(message);

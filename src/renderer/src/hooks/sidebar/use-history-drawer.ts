@@ -8,8 +8,6 @@ import type { Session } from "@/services/schemas/stm";
 export const useHistoryDrawer = () => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [userId] = useState("default-user"); // TODO: Get from auth context
-  const [agentId] = useState("default-agent"); // TODO: Get from config
   
   const {
     historyList,
@@ -37,8 +35,8 @@ export const useHistoryDrawer = () => {
 
     try {
       await deleteSession(sessionId, {
-        user_id: userId,
-        agent_id: agentId,
+        user_id: localStorage.getItem("user_id") || "default-user",
+        agent_id: localStorage.getItem("agent_id") || "default-agent",
       });
       
       toaster.create({

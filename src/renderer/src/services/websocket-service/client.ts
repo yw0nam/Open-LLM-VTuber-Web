@@ -43,6 +43,14 @@ const getTranslation = () => {
 };
 
 class WebSocketService {
+  private initializeConnection() {
+    this.sendMessage({
+      type: 'fetch-backgrounds',
+    });
+    this.sendMessage({
+      type: 'fetch-configs',
+    });
+  }
   private static instance: WebSocketService;
 
   private ws: WebSocket | null = null;

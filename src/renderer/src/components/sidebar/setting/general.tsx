@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Stack, createListCollection } from "@chakra-ui/react";
 import { useBgUrl } from "@/context/bgurl-context";
@@ -73,12 +74,38 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
     onCancel,
   });
 
+  const [userId, setUserId] = useState(localStorage.getItem("user_id") || "default-user");
+  const [agentId, setAgentId] = useState(localStorage.getItem("agent_id") || "default-agent");
+
+  const handleUserIdChange = (val: string) => {
+    setUserId(val);
+    localStorage.setItem("user_id", val);
+  };
+
+  const handleAgentIdChange = (val: string) => {
+    setAgentId(val);
+    localStorage.setItem("agent_id", val);
+  };
+
   if (settings.language[0] !== i18n.language) {
     handleSettingChange("language", [i18n.language]);
   }
 
   return (
     <Stack {...settingStyles.common.container}>
+      <InputField
+        label="User ID"
+        value={userId}
+        onChange={handleUserIdChange}
+        placeholder="Enter User ID"
+      />
+      <InputField
+        label="Agent ID"
+        value={agentId}
+        onChange={handleAgentIdChange}
+        placeholder="Enter Agent ID"
+      />
+
       <SelectField
         label={t("settings.general.language")}
         value={settings.language}

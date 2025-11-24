@@ -62,18 +62,13 @@ export const ChatHistoryContext = createContext<ChatHistoryState | null>(null);
  */
 interface ChatHistoryProviderProps {
   children: React.ReactNode;
-  userId: string;
-  agentId: string;
 }
 
 /**
  * Chat History Provider Component
  */
-//TODO: Remove userId and agentId props and get from other context not from props
 export function ChatHistoryProvider({
   children,
-  // userId,
-  // agentId,
 }: ChatHistoryProviderProps) {
   // State management
   const [messages, setMessages] = useState<Message[]>([]);
@@ -81,6 +76,10 @@ export function ChatHistoryProvider({
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [forceNewMessage, setForceNewMessage] = useState<boolean>(false);
+
+  // Settings from localStorage
+  const [userId] = useState<string>(() => localStorage.getItem("user_id") || "default-user");
+  const [agentId] = useState<string>(() => localStorage.getItem("agent_id") || "default-agent");
 
   // --- API 연동 로직 (useEffect) ---
 
