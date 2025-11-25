@@ -4,6 +4,7 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
 } from "react";
 import { useLocalStorage } from "@/hooks/utils/use-local-storage";
 import { useWebSocket } from "./websocket-context";
@@ -12,8 +13,9 @@ import { useWebSocket } from "./websocket-context";
  * Background file interface
  * @interface BackgroundFile
  */
-interface BackgroundFile {
+export interface BackgroundFile {
   name: string;
+  path: string;
   url: string;
 }
 
@@ -56,6 +58,11 @@ export function BgUrlProvider({ children }: { children: React.ReactNode }) {
 
   // State for background files list
   const [backgroundFiles, setBackgroundFiles] = useState<BackgroundFile[]>([]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log("[BgUrlContext] Background files updated:", backgroundFiles);
+  }, [backgroundFiles]);
 
   // Reset background to default
   const resetBackground = useCallback(() => {

@@ -124,16 +124,19 @@ export function Live2DConfigProvider({
   // const [modelInfo, setModelInfoState] = useState<ModelInfo | undefined>(DEFAULT_CONFIG.modelInfo);
 
   const setModelInfo = (info: ModelInfo | undefined) => {
+    console.log("[Live2DConfigContext] setModelInfo called with:", info);
+    
     if (!info?.url) {
+      console.log("[Live2DConfigContext] Clearing model (no URL)");
       setModelInfoState(undefined);
       return;
     }
 
     // Always use the scale defined in the incoming info object (from config)
     const finalScale = Number(info.kScale || 0.5) * 2;
-    console.log("Setting model info with default scale:", finalScale);
+    console.log("[Live2DConfigContext] Setting model info with scale:", finalScale);
 
-    setModelInfoState({
+    const finalInfo = {
       ...info,
       kScale: finalScale,
       pointerInteractive:
@@ -144,7 +147,10 @@ export function Live2DConfigProvider({
         "scrollToResize" in info
           ? info.scrollToResize
           : (modelInfo?.scrollToResize ?? true),
-    });
+    };
+
+    console.log("[Live2DConfigContext] Final model info:", finalInfo);
+    setModelInfoState(finalInfo);
   };
 
   const contextValue = useMemo(

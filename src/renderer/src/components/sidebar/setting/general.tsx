@@ -1,5 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Stack, createListCollection } from "@chakra-ui/react";
 import { useBgUrl } from "@/context/bgurl-context";
@@ -16,7 +15,7 @@ interface GeneralProps {
 
 // Data collection definition
 const useCollections = () => {
-  const { backgroundFiles } = useBgUrl() || {};
+  const { backgroundFiles } = useBgUrl();
   const { configFiles } = useConfig();
 
   const languages = createListCollection({
@@ -27,11 +26,10 @@ const useCollections = () => {
   });
 
   const backgrounds = createListCollection({
-    items:
-      backgroundFiles?.map((filename) => ({
-        label: String(filename),
-        value: `/bg/${filename}`,
-      })) || [],
+    items: backgroundFiles.map((file) => ({
+      label: file.name,
+      value: file.path,
+    })),
   });
 
   const characterPresets = createListCollection({
@@ -74,27 +72,6 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
     onCancel,
   });
 
-  const [userId, setUserId] = useState(localStorage.getItem("user_id") || "default-user");
-  const [agentId, setAgentId] = useState(localStorage.getItem("agent_id") || "default-agent");
-  const [authToken, setAuthToken] = useState(localStorage.getItem("auth_token") || "");
-
-  const handleUserIdChange = (val: string) => {
-    setUserId(val);
-    localStorage.setItem("user_id", val);
-  };
-
-  const handleAgentIdChange = (val: string) => {
-    setAgentId(val);
-    localStorage.setItem("agent_id", val);
-  };
-
-  const handleAuthTokenChange = (val: string) => {
-    setAuthToken(val);
-    localStorage.setItem("auth_token", val);
-    // Update the WebSocket service with the new token
-    handleSettingChange("authToken", val);
-  };
-
   if (settings.language[0] !== i18n.language) {
     handleSettingChange("language", [i18n.language]);
   }
@@ -103,21 +80,21 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
     <Stack {...settingStyles.common.container}>
       <InputField
         label="User ID"
-        value={userId}
-        onChange={handleUserIdChange}
+        value={settings.userId}
+        onChange={(value) => handleSettingChange("userId", value)}
         placeholder="Enter User ID"
       />
       <InputField
         label="Agent ID"
-        value={agentId}
-        onChange={handleAgentIdChange}
+        value={settings.agentId}
+        onChange={(value) => handleSettingChange("agentId", value)}
         placeholder="Enter Agent ID"
       />
 
       <InputField
         label="Auth Token"
-        value={authToken}
-        onChange={handleAuthTokenChange}
+        value={settings.authToken}
+        onChange={(value) => handleSettingChange("authToken", value)}
         placeholder="Enter WebSocket Auth Token"
       />
 

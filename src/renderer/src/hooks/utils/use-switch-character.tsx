@@ -30,7 +30,7 @@ export function useSwitchCharacter() {
       setAiState("loading");
       setModelInfo(undefined);
       sendMessage({
-        type: "switch-config",
+        type: "switch_avatar_config",
         file: fileName,
       });
       console.log("Switch Character fileName: ", fileName);
@@ -43,6 +43,7 @@ export function useSwitchCharacter() {
       stopMic,
       setSubtitleText,
       setAiState,
+      setModelInfo,
     ],
   );
 

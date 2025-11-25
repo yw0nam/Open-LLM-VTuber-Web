@@ -22,6 +22,7 @@ import { useAiState } from "@/context/ai-state-context";
 import { useConfig } from "@/context/character-config-context";
 import { useBgUrl } from "@/context/bgurl-context";
 import { useWebSocket } from "@/context/websocket-context";
+import { useLive2DConfig } from "@/context/live2d-config-context";
 
 // Handlers & Schemas
 import { handleWebSocketMessage, WebSocketHandlerDeps } from "./handlers"; // Centralized handler
@@ -60,6 +61,7 @@ export function WebSocketHandlerProvider({
   const config = useConfig();
   const bgUrl = useBgUrl();
   const { baseUrl } = useWebSocket();
+  const live2d = useLive2DConfig();
   const { t } = useTranslation();
 
   // 2. State Management
@@ -100,6 +102,7 @@ export function WebSocketHandlerProvider({
           chatHistory, // Pass the entire object or pick specific methods as defined in interface
           config,
           bgUrl,
+          live2d,
           baseUrl,
           t,
           toaster,
@@ -114,7 +117,7 @@ export function WebSocketHandlerProvider({
       stateSubscription.unsubscribe();
       messageSubscription.unsubscribe();
     };
-  }, [aiState, setAiState, addAudioTask, chatHistory, config, bgUrl, baseUrl, t]);
+  }, [aiState, setAiState, addAudioTask, chatHistory, config, bgUrl, baseUrl, t, live2d]);
 
   const sendMessage = (message: Record<string, unknown>) => {
     wsService.sendMessage(message);

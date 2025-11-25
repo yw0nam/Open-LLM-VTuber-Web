@@ -18,7 +18,7 @@ export const USER_ID_KEY = "user_id";
 export const DEFAULT_USER_ID = "default-user";
 export const AGENT_ID_KEY = "agent_id";
 export const DEFAULT_AGENT_ID = "default-agent";
-export const AUTH_TOKEN_KEY = "auth_token";
+export const AUTH_TOKEN_KEY = "authToken";
 export const DEFAULT_AUTH_TOKEN = "";
 
 interface GeneralSettings {
@@ -158,11 +158,11 @@ export const useGeneralSettings = ({
     );
     localStorage.setItem(USER_ID_KEY, settings.userId);
     localStorage.setItem(AGENT_ID_KEY, settings.agentId);
-    localStorage.setItem(AUTH_TOKEN_KEY, settings.authToken);
-    
-    // Update WebSocket service with auth token
     if (settings.authToken) {
+      localStorage.setItem(AUTH_TOKEN_KEY, settings.authToken);
       wsService.setAuthToken(settings.authToken);
+    } else {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
     }
   }, [
     settings,

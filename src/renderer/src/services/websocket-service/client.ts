@@ -44,12 +44,19 @@ const getTranslation = () => {
 
 class WebSocketService {
   private initializeConnection() {
-    this.sendMessage({
-      type: 'fetch_backgrounds',
-    });
-    this.sendMessage({
-      type: 'fetch_avatar_configs',
-    });
+    console.log("[wsService] Initializing connection - sending fetch requests");
+    this.sendMessage(
+      {
+        type: 'fetch_backgrounds',
+      },
+      { requireAuth: false }
+    );
+    this.sendMessage(
+      {
+        type: 'fetch_avatar_configs',
+      },
+      { requireAuth: false }
+    );
   }
   private static instance: WebSocketService;
 
@@ -279,10 +286,12 @@ class WebSocketService {
   private handleServerMessage(message: WSServerMessage) {
     switch (message.type) {
       case "authorize_success":
+        console.log("[wsService] Authorization successful:", message.connection_id);
         this.isAuthorized = true;
         this.connectionId = message.connection_id;
         this.transitionState("READY");
         this.flushQueuedMessages();
+        this.initializeConnection();
         break;
       case "authorize_error":
         this.isAuthorized = false;

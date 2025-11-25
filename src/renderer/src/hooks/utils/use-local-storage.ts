@@ -11,10 +11,16 @@ export function useLocalStorage<T>(
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
       const item = window.localStorage.getItem(key);
-      const parsedValue = item ? JSON.parse(item) : initialValue;
-      return parsedValue;
+
+      if (item === null || item === "undefined") {
+        return initialValue;
+      }
+
+      return JSON.parse(item);
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
+      // Remove the corrupted value so we do not repeatedly parse it
+      window.localStorage.removeItem(key);
       return initialValue;
     }
   });
@@ -27,6 +33,12 @@ export function useLocalStorage<T>(
         ? options.filter(valueToStore)
         : valueToStore;
       setStoredValue(valueToStore);
+
+      if (filteredValue === undefined) {
+        window.localStorage.removeItem(key);
+        return;
+      }
+
       window.localStorage.setItem(key, JSON.stringify(filteredValue));
     } catch (error) {
       console.error(`Error setting localStorage key "${key}":`, error);

@@ -11,6 +11,7 @@ import { SubtitleProvider } from "./context/subtitle-context";
 import { BgUrlProvider } from "./context/bgurl-context";
 import { layoutStyles } from "./layout";
 import { WebSocketHandlerProvider } from "./services/websocket-service/websocket-handler";
+import { WebSocketProvider } from "./context/websocket-context";
 import { CameraProvider } from "./context/camera-context";
 import { ChatHistoryProvider } from "./context/chat-history-context";
 import { CharacterConfigProvider } from "./context/character-config-context";
@@ -176,12 +177,14 @@ function AppWithGlobalStyles(): JSX.Element {
                   <Live2DConfigProvider>
                     <SubtitleProvider>
                       <VADProvider>
-                        <BgUrlProvider>
-                          <WebSocketHandlerProvider>
-                            <Toaster />
-                            <AppContent />
-                          </WebSocketHandlerProvider>
-                        </BgUrlProvider>
+                        <WebSocketProvider>
+                          <BgUrlProvider>
+                            <WebSocketHandlerProvider>
+                              <Toaster />
+                              <AppContent />
+                            </WebSocketHandlerProvider>
+                          </BgUrlProvider>
+                        </WebSocketProvider>
                       </VADProvider>
                     </SubtitleProvider>
                   </Live2DConfigProvider>
