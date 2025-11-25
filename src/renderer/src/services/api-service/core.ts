@@ -9,13 +9,13 @@ import { z } from "zod";
 // Configuration
 // ============================================================================
 
-const DEFAULT_BASE_URL = "http://127.0.0.1:5500/api/v1";
+const DEFAULT_BASE_URL = "http://127.0.0.1:5500/v1";
 
 let baseURL = DEFAULT_BASE_URL;
 
 /**
  * Set the base URL for all API requests
- * @param url - The base URL (e.g., 'http://127.0.0.1:5500/api/v1')
+ * @param url - The base URL (e.g., 'http://127.0.0.1:5500/v1')
  */
 export function setBaseURL(url: string): void {
   baseURL = url;

@@ -1,7 +1,7 @@
 import type { WSServerMessage } from "@/services/schemas/websocket";
 import { WebSocketHandlerDeps, MessageHandler } from "./types";
 import { agentHandlers } from "./agent_messages";
-import { configHandlers } from "./fetch_configs";
+import { fetchHandlers } from "./fetch_handlers";
 
 // Re-export types for consumers
 export type { WebSocketHandlerDeps };
@@ -15,8 +15,8 @@ export const messageHandlers: Partial<{
 }> = {
   // Spread agent-related handlers
   ...agentHandlers,
-  // Spread config-related handlers
-  ...configHandlers,
+  // Spread fetch-related handlers (avatar configs and backgrounds)
+  ...fetchHandlers,
 
   /**
    * Handles server-side errors.

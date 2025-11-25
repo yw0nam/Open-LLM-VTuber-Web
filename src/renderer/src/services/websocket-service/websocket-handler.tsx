@@ -68,7 +68,7 @@ export function WebSocketHandlerProvider({
   // Persist WebSocket URL using local storage hook
   const [wsUrl, setWsUrl] = useLocalStorage<string>(
     "ws_url", 
-    "ws://localhost:8000/ws/chat"
+    "ws://127.0.0.1:5500/v1/chat/stream"
   );
 
   // 3. Connection Management

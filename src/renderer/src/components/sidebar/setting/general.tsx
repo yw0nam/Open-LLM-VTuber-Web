@@ -76,6 +76,7 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
 
   const [userId, setUserId] = useState(localStorage.getItem("user_id") || "default-user");
   const [agentId, setAgentId] = useState(localStorage.getItem("agent_id") || "default-agent");
+  const [authToken, setAuthToken] = useState(localStorage.getItem("auth_token") || "");
 
   const handleUserIdChange = (val: string) => {
     setUserId(val);
@@ -85,6 +86,13 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
   const handleAgentIdChange = (val: string) => {
     setAgentId(val);
     localStorage.setItem("agent_id", val);
+  };
+
+  const handleAuthTokenChange = (val: string) => {
+    setAuthToken(val);
+    localStorage.setItem("auth_token", val);
+    // Update the WebSocket service with the new token
+    handleSettingChange("authToken", val);
   };
 
   if (settings.language[0] !== i18n.language) {
@@ -104,6 +112,13 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
         value={agentId}
         onChange={handleAgentIdChange}
         placeholder="Enter Agent ID"
+      />
+
+      <InputField
+        label="Auth Token"
+        value={authToken}
+        onChange={handleAuthTokenChange}
+        placeholder="Enter WebSocket Auth Token"
       />
 
       <SelectField

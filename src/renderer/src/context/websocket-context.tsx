@@ -13,9 +13,11 @@ import {
   wsService,
   type WebSocketConnectionState,
 } from "@/services/websocket-service/client";
+import { useLocalStorage } from '@/hooks/utils/use-local-storage';
 
 const DEFAULT_WS_URL = "ws://127.0.0.1:5500/v1/chat/stream";
 const DEFAULT_BASE_URL = "http://127.0.0.1:5500/v1";
+const DEFAULT_AUTH_TOKEN = "test-token";
 
 interface WebSocketContextProps {
   sendMessage: (
@@ -54,10 +56,11 @@ export const defaultWsUrl = DEFAULT_WS_URL;
 export const defaultBaseUrl = DEFAULT_BASE_URL;
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
-  const [wsUrl, setWsUrl] = useState(DEFAULT_WS_URL);
-  const [baseUrl, setBaseUrl] = useState(DEFAULT_BASE_URL);
-
+  const [wsUrl, setWsUrl] = useLocalStorage('wsUrl', DEFAULT_WS_URL);
+  const [baseUrl, setBaseUrl] = useLocalStorage('baseUrl', DEFAULT_BASE_URL);
+  const [authToken, setAuthToken] = useLocalStorage('authToken', DEFAULT_AUTH_TOKEN);
   // wsService에서 현재 상태를 가져와 초기화합니다.
+
   const [wsState, setWsState] = useState<WebSocketConnectionState>(
     wsService.getCurrentState(),
   );
@@ -69,14 +72,19 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       setWsState(newState);
     });
 
-    // 2. Provider 마운트 시 연결을 시도합니다.
+    // 2. Load auth token from localStorage if available
+    if (authToken) {
+      wsService.setAuthToken(authToken);
+    }
+
+    // 3. Provider 마운트 시 연결을 시도합니다.
     // (이미 연결 중이거나 열려있지 않은 경우에만)
     const currentState = wsService.getCurrentState();
     if (currentState === "CLOSED" || currentState === "ERROR") {
-      wsService.connect(wsUrl);
+      wsService.connect(wsUrl, { token: authToken || undefined });
     }
 
-    // 3. Provider 언마운트 시 정리(cleanup)합니다.
+    // 4. Provider 언마운트 시 정리(cleanup)합니다.
     return () => {
       // RxJS 구독을 해제합니다. (메모리 누수 방지)
       stateSubscription.unsubscribe();
@@ -88,15 +96,13 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   // URL 변경 핸들러
   const handleSetWsUrl = useCallback((url: string) => {
     setWsUrl(url);
-    // setWsUrl이 호출되면 [wsUrl] 의존성을 가진 useEffect가
-    // 자동으로 cleanup을 실행하고 새 URL로 다시 연결합니다.
   }, []);
 
   // 재연결 함수 (useCallback으로 메모이제이션)
   const reconnect = useCallback(() => {
     // 현재 설정된 wsUrl로 다시 연결 시도
-    wsService.connect(wsUrl);
-  }, [wsUrl]);
+    wsService.connect(wsUrl, { token: authToken || undefined });
+  }, [wsUrl, authToken]);
 
   // [수정 2] useMemo로 value 객체 메모이제이션
   const value = useMemo(

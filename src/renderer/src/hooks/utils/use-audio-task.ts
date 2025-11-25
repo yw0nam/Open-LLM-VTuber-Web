@@ -34,7 +34,7 @@ export const useAudioTask = () => {
   const { aiState, backendSynthComplete, setBackendSynthComplete } =
     useAiState();
   const { setSubtitleText } = useSubtitle();
-  const { appendResponse, appendAIMessage } = useChatHistory();
+  const { appendAIMessage } = useChatHistory();
   const { sendMessage } = useWebSocket();
   const { setExpression } = useLive2DExpression();
 
@@ -42,7 +42,6 @@ export const useAudioTask = () => {
   const stateRef = useRef({
     aiState,
     setSubtitleText,
-    appendResponse,
     appendAIMessage,
   });
 
@@ -51,7 +50,6 @@ export const useAudioTask = () => {
   stateRef.current = {
     aiState,
     setSubtitleText,
-    appendResponse,
     appendAIMessage,
   };
 
@@ -70,7 +68,6 @@ export const useAudioTask = () => {
       const {
         aiState: currentAiState,
         setSubtitleText: updateSubtitle,
-        appendResponse: appendText,
         appendAIMessage: appendAI,
       } = stateRef.current;
 
@@ -85,18 +82,17 @@ export const useAudioTask = () => {
 
       // Update display text
       if (text) {
-        appendText(text);
         appendAI(text);
         if (audioBase64) {
           updateSubtitle(text);
         }
-        if (!forwarded) {
-          sendMessage({
-            type: "audio-play-start",
-            display_text: text,
-            forwarded: true,
-          });
-        }
+        // if (!forwarded) {
+        //   sendMessage({
+        //     type: "audio-play-start",
+        //     display_text: text,
+        //     forwarded: true,
+        //   });
+        // }
       }
 
       try {
@@ -279,7 +275,6 @@ export const useAudioTask = () => {
 
   return {
     addAudioTask,
-    appendResponse,
     stopCurrentAudioAndLipSync,
   };
 };

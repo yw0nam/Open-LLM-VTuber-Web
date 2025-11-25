@@ -7,6 +7,7 @@ import { useSubtitle } from "@/context/subtitle-context";
 import { useCamera } from "@/context/camera-context";
 import { useSwitchCharacter } from "@/hooks/utils/use-switch-character";
 import { useConfig } from "@/context/character-config-context";
+import { wsService } from "@/services/websocket-service/client";
 import i18n from "i18next";
 
 export const IMAGE_COMPRESSION_QUALITY_KEY = "appImageCompressionQuality";
@@ -17,6 +18,8 @@ export const USER_ID_KEY = "user_id";
 export const DEFAULT_USER_ID = "default-user";
 export const AGENT_ID_KEY = "agent_id";
 export const DEFAULT_AGENT_ID = "default-agent";
+export const AUTH_TOKEN_KEY = "auth_token";
+export const DEFAULT_AUTH_TOKEN = "";
 
 interface GeneralSettings {
   language: string[];
@@ -32,6 +35,7 @@ interface GeneralSettings {
   imageMaxWidth: number;
   userId: string;
   agentId: string;
+  authToken: string;
 }
 
 interface UseGeneralSettingsProps {
@@ -114,6 +118,7 @@ export const useGeneralSettings = ({
     imageMaxWidth: loadInitialImageMaxWidth(),
     userId: localStorage.getItem(USER_ID_KEY) || DEFAULT_USER_ID,
     agentId: localStorage.getItem(AGENT_ID_KEY) || DEFAULT_AGENT_ID,
+    authToken: localStorage.getItem(AUTH_TOKEN_KEY) || DEFAULT_AUTH_TOKEN,
   };
 
   const [settings, setSettings] = useState<GeneralSettings>(initialSettings);
@@ -132,8 +137,8 @@ export const useGeneralSettings = ({
       bgUrlContext.setBackgroundUrl(fullUrl);
     }
 
-    onWsUrlChange(settings.wsUrl);
-    onBaseUrlChange(settings.baseUrl);
+    // Note: wsUrl and baseUrl are NOT updated here
+    // They are only applied when handleSave is called
 
     // Apply language change if it differs from current language
     if (
@@ -153,12 +158,16 @@ export const useGeneralSettings = ({
     );
     localStorage.setItem(USER_ID_KEY, settings.userId);
     localStorage.setItem(AGENT_ID_KEY, settings.agentId);
+    localStorage.setItem(AUTH_TOKEN_KEY, settings.authToken);
+    
+    // Update WebSocket service with auth token
+    if (settings.authToken) {
+      wsService.setAuthToken(settings.authToken);
+    }
   }, [
     settings,
     bgUrlContext,
     baseUrl,
-    onWsUrlChange,
-    onBaseUrlChange,
     setShowSubtitle,
   ]);
 
@@ -200,20 +209,19 @@ export const useGeneralSettings = ({
   ): void => {
     setSettings((prev) => ({ ...prev, [key]: value }));
 
-    if (key === "wsUrl") {
-      onWsUrlChange(value as string);
-    }
-    if (key === "baseUrl") {
-      onBaseUrlChange(value as string);
-    }
     // Immediately change language when it's updated
     if (key === "language" && Array.isArray(value) && value.length > 0) {
       i18n.changeLanguage(value[0]);
     }
+    // Note: wsUrl and baseUrl are NOT saved immediately
+    // They are only applied when handleSave is called
   };
 
   const handleSave = (): void => {
     setOriginalSettings(settings);
+    // Save URL settings to context (which persists to localStorage)
+    onWsUrlChange(settings.wsUrl);
+    onBaseUrlChange(settings.baseUrl);
   };
 
   const handleCancel = (): void => {

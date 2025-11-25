@@ -45,10 +45,10 @@ const getTranslation = () => {
 class WebSocketService {
   private initializeConnection() {
     this.sendMessage({
-      type: 'fetch-backgrounds',
+      type: 'fetch_backgrounds',
     });
     this.sendMessage({
-      type: 'fetch-configs',
+      type: 'fetch_avatar_configs',
     });
   }
   private static instance: WebSocketService;

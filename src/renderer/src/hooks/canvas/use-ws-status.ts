@@ -12,7 +12,7 @@ export const useWSStatus = () => {
   const { wsState, reconnect } = useWebSocket();
 
   const handleClick = useCallback(() => {
-    if (wsState !== "OPEN" && wsState !== "CONNECTING") {
+    if (wsState !== "OPEN" && wsState !== "CONNECTING" && wsState !== "AUTHORIZING") {
       reconnect();
     }
   }, [wsState, reconnect]);
@@ -20,6 +20,7 @@ export const useWSStatus = () => {
   const statusInfo = useMemo((): WSStatusInfo => {
     switch (wsState) {
       case "OPEN":
+      case "READY":
         return {
           color: "green.500",
           textKey: "wsStatus.connected",
@@ -27,6 +28,7 @@ export const useWSStatus = () => {
           handleClick,
         };
       case "CONNECTING":
+      case "AUTHORIZING":
         return {
           color: "yellow.500",
           textKey: "wsStatus.connecting",
