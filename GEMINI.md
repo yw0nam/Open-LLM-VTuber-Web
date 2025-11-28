@@ -130,7 +130,7 @@ The app uses React Context for state management with multiple specialized contex
 ├── client.ts        # (1) 저수준 연결 (기존 wsService 역할)
 └── websocket-handlers.tsx # (3) React 관제탑 (Context .tsx)
 └── websocket-handlers-regacy.tsx # (3) 기존 WebSocketHandler (제거 예정, implement끝나기 전까지는 reference로 유지)
-├── handlers      # (2) 메시지 처리 로직 (순수 .ts)
+├── handlers      # (2) 메시지 처리 로직 (순수 .ts) 
 └─────handleTTSReadyChunk.ts  # TTS 준비 청크 처리 [ Done ]
 └─────index.ts                  # 핸들러 모음
 └─────...
@@ -142,3 +142,22 @@ The app uses React Context for state management with multiple specialized contex
 - src/renderer/src/components
 
 
+## WebSocket Service Architecture
+
+```
+User sends message
+    ↓
+FE: Optimistic UI update (addUserMessageToUI)
+    ↓
+FE: Send via WebSocket
+    ↓
+Backend: Retrieves LTM + STM → Feeds to agent
+    ↓
+Backend: Streams events (stream_token, tts_ready_chunk, etc.)
+    ↓
+FE: Updates UI in real-time
+    ↓
+Backend: On stream_end → Saves to STM + LTM automatically
+    ↓
+✅ No FE API calls needed for persistence!
+```
