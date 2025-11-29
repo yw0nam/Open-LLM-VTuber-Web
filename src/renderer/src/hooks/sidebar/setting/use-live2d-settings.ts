@@ -32,12 +32,6 @@ export const useLive2dSettings = () => {
     }
   }, [Live2DConfigContext?.modelInfo]);
 
-  useEffect(() => {
-    if (Live2DConfigContext && modelInfo) {
-      Live2DConfigContext.setModelInfo(modelInfo);
-    }
-  }, [modelInfo.pointerInteractive, modelInfo.scrollToResize]);
-
   const handleInputChange = (
     key: keyof ModelInfo,
     value: ModelInfo[keyof ModelInfo],
@@ -47,6 +41,7 @@ export const useLive2dSettings = () => {
 
   const handleSave = (): void => {
     if (Live2DConfigContext && modelInfo) {
+      Live2DConfigContext.setModelInfo(modelInfo);
       setOriginalModelInfo(modelInfo);
     }
   };

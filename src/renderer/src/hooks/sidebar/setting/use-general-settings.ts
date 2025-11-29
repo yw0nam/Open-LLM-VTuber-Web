@@ -124,11 +124,36 @@ export const useGeneralSettings = ({
   const [settings, setSettings] = useState<GeneralSettings>(initialSettings);
   const [originalSettings, setOriginalSettings] =
     useState<GeneralSettings>(initialSettings);
-  const originalConfName = confName;
+  const [originalConfNameState, setOriginalConfNameState] = useState(confName);
 
+  // Sync originalSettings when external confName changes (e.g., character switch from elsewhere)
   useEffect(() => {
+    if (confName) {
+      const filename = getFilenameByName(confName);
+      if (filename) {
+        const newSettings = {
+          ...settings,
+          selectedCharacterPreset: [filename],
+        };
+        setSettings(newSettings);
+        setOriginalSettings(newSettings);
+        setOriginalConfNameState(confName);
+      }
+    }
+  }, [confName]);
+
+  const handleSettingChange = useCallback((
+    key: keyof GeneralSettings,
+    value: GeneralSettings[keyof GeneralSettings],
+  ): void => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
+  const handleSave = useCallback((): void => {
+    // Apply subtitle setting
     setShowSubtitle(settings.showSubtitle);
 
+    // Apply background URL
     const newBgUrl = settings.customBgUrl || settings.selectedBgUrl[0];
     if (newBgUrl && bgUrlContext) {
       const fullUrl = newBgUrl.startsWith("http")
@@ -137,10 +162,7 @@ export const useGeneralSettings = ({
       bgUrlContext.setBackgroundUrl(fullUrl);
     }
 
-    // Note: wsUrl and baseUrl are NOT updated here
-    // They are only applied when handleSave is called
-
-    // Apply language change if it differs from current language
+    // Apply language change
     if (
       settings.language &&
       settings.language[0] &&
@@ -148,6 +170,8 @@ export const useGeneralSettings = ({
     ) {
       i18n.changeLanguage(settings.language[0]);
     }
+
+    // Save to localStorage
     localStorage.setItem(
       IMAGE_COMPRESSION_QUALITY_KEY,
       settings.imageCompressionQuality.toString(),
@@ -164,75 +188,37 @@ export const useGeneralSettings = ({
     } else {
       localStorage.removeItem(AUTH_TOKEN_KEY);
     }
-  }, [
-    settings,
-    bgUrlContext,
-    baseUrl,
-    setShowSubtitle,
-  ]);
 
-  useEffect(() => {
-    if (confName) {
-      const filename = getFilenameByName(confName);
-      if (filename) {
-        const newSettings = {
-          ...settings,
-          selectedCharacterPreset: [filename],
-        };
-        setSettings(newSettings);
-        setOriginalSettings(newSettings);
-      }
-    }
-  }, [confName]);
-
-  const handleSettingChange = useCallback((
-    key: keyof GeneralSettings,
-    value: GeneralSettings[keyof GeneralSettings],
-  ): void => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-
-    if (key === "language" && Array.isArray(value) && value.length > 0) {
-      i18n.changeLanguage(value[0]);
-    }
-  }, []);
-
-  const handleSave = useCallback((): void => {
-    setOriginalSettings(settings);
+    // Apply WebSocket and base URL changes
     onWsUrlChange(settings.wsUrl);
     onBaseUrlChange(settings.baseUrl);
-  }, [settings, onWsUrlChange, onBaseUrlChange]);
+
+    // Update original settings baseline
+    setOriginalSettings(settings);
+    setOriginalConfNameState(confName);
+  }, [settings, bgUrlContext, baseUrl, setShowSubtitle, onWsUrlChange, onBaseUrlChange, confName]);
 
   const handleCancel = useCallback((): void => {
     setSettings(originalSettings);
-    setShowSubtitle(originalSettings.showSubtitle);
 
-    if (bgUrlContext) {
-      bgUrlContext.setBackgroundUrl(originalSettings.backgroundUrl);
-      bgUrlContext.setUseCameraBackground(originalSettings.useCameraBackground);
+    // Revert language in i18n if it was changed during editing
+    if (
+      originalSettings.language &&
+      originalSettings.language[0] &&
+      originalSettings.language[0] !== i18n.language
+    ) {
+      i18n.changeLanguage(originalSettings.language[0]);
     }
 
-    onWsUrlChange(originalSettings.wsUrl);
-    onBaseUrlChange(originalSettings.baseUrl);
-
-    if (originalConfName) {
-      setConfName(originalConfName);
-    }
-
-    if (originalSettings.useCameraBackground) {
-      startBackgroundCamera();
-    } else {
-      stopBackgroundCamera();
+    // Revert character preset if it was changed during editing
+    if (originalConfNameState && originalConfNameState !== confName) {
+      setConfName(originalConfNameState);
     }
   }, [
     originalSettings,
-    setShowSubtitle,
-    bgUrlContext,
-    onWsUrlChange,
-    onBaseUrlChange,
-    originalConfName,
+    originalConfNameState,
+    confName,
     setConfName,
-    startBackgroundCamera,
-    stopBackgroundCamera,
   ]);
 
   useEffect(() => {
