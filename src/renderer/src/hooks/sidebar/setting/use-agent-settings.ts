@@ -57,8 +57,7 @@ export function useAgentSettings({
 
   const handleCancel = useCallback(() => {
     setTempSettings(originalSettings);
-    updateSettings(originalSettings);
-  }, [originalSettings, updateSettings]);
+  }, [originalSettings]);
 
   useEffect(() => {
     if (!onSave || !onCancel) return;

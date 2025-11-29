@@ -75,7 +75,7 @@ function SettingUI({ open, onClose }: SettingUIProps): JSX.Element {
           <ASR onSave={handleSaveCallback} onCancel={handleCancelCallback} />
         </Tabs.Content>
         <Tabs.Content value="tts" {...settingStyles.settingUI.tabs.content}>
-          <TTS />
+          <TTS onSave={handleSaveCallback} onCancel={handleCancelCallback} />
         </Tabs.Content>
         <Tabs.Content value="agent" {...settingStyles.settingUI.tabs.content}>
           <Agent onSave={handleSaveCallback} onCancel={handleCancelCallback} />

@@ -53,21 +53,21 @@ export const useASRSettings = () => {
 
   const handleVoiceInterruptionChange = (value: boolean) => {
     setLocalVoiceInterruption(value);
-    setAutoStopMic(value);
   };
 
   const handleAutoStartMicChange = (value: boolean) => {
     setLocalAutoStartMic(value);
-    setAutoStartMicOn(value);
   };
 
   const handleAutoStartMicOnConvEndChange = (value: boolean) => {
     setLocalAutoStartMicOnConvEnd(value);
-    setAutoStartMicOnConvEnd(value);
   };
 
   const handleSave = (): void => {
     updateSettings(localSettingsRef.current);
+    setAutoStopMic(localVoiceInterruption);
+    setAutoStartMicOn(localAutoStartMic);
+    setAutoStartMicOnConvEnd(localAutoStartMicOnConvEnd);
     originalSettingsRef.current = localSettingsRef.current;
     originalAutoStopMicRef.current = localVoiceInterruption;
     originalAutoStartMicOnRef.current = localAutoStartMic;
@@ -78,10 +78,7 @@ export const useASRSettings = () => {
     localSettingsRef.current = originalSettingsRef.current;
     setLocalVoiceInterruption(originalAutoStopMicRef.current);
     setLocalAutoStartMic(originalAutoStartMicOnRef.current);
-    setAutoStopMic(originalAutoStopMicRef.current);
-    setAutoStartMicOn(originalAutoStartMicOnRef.current);
     setLocalAutoStartMicOnConvEnd(originalAutoStartMicOnConvEndRef.current);
-    setAutoStartMicOnConvEnd(originalAutoStartMicOnConvEndRef.current);
     forceUpdate();
   };
 

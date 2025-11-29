@@ -23,11 +23,6 @@ export const useTTSSettings = ({
   const [settings, setSettings] = useState<TTSSettings>(initialSettings);
   const [originalSettings, setOriginalSettings] = useState<TTSSettings>(initialSettings);
 
-  // Persist reference voice to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem(REFERENCE_VOICE_KEY, settings.referenceVoice);
-  }, [settings.referenceVoice]);
-
   const handleSettingChange = useCallback((
     key: keyof TTSSettings,
     value: TTSSettings[keyof TTSSettings],
@@ -36,6 +31,7 @@ export const useTTSSettings = ({
   }, []);
 
   const handleSave = useCallback((): void => {
+    localStorage.setItem(REFERENCE_VOICE_KEY, settings.referenceVoice);
     setOriginalSettings(settings);
   }, [settings]);
 
