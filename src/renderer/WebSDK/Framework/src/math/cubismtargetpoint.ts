@@ -5,7 +5,7 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismMath } from './cubismmath';
+import { CubismMath } from "./cubismmath";
 
 const FrameRate = 30;
 const Epsilon = 0.01;
@@ -107,7 +107,7 @@ export class CubismTargetPoint {
         (CubismMath.sqrt(maxA * maxA + 16.0 * maxA * d - 8.0 * maxA * d) -
           maxA);
       const curV: number = CubismMath.sqrt(
-        this._faceVX * this._faceVX + this._faceVY * this._faceVY
+        this._faceVX * this._faceVX + this._faceVY * this._faceVY,
       );
 
       if (curV > maxV) {
@@ -161,7 +161,7 @@ export class CubismTargetPoint {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismtargetpoint';
+import * as $ from "./cubismtargetpoint";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismTargetPoint = $.CubismTargetPoint;

@@ -5,24 +5,24 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismIdHandle } from '../id/cubismid';
-import { CubismFramework } from '../live2dcubismframework';
-import { CubismModel } from '../model/cubismmodel';
-import { csmVector } from '../type/csmvector';
-import { CubismJson, Value } from '../utils/cubismjson';
-import { ACubismMotion } from './acubismmotion';
-import { CubismMotionQueueEntry } from './cubismmotionqueueentry';
+import { CubismIdHandle } from "../id/cubismid";
+import { CubismFramework } from "../live2dcubismframework";
+import { CubismModel } from "../model/cubismmodel";
+import { csmVector } from "../type/csmvector";
+import { CubismJson, Value } from "../utils/cubismjson";
+import { ACubismMotion } from "./acubismmotion";
+import { CubismMotionQueueEntry } from "./cubismmotionqueueentry";
 
 // exp3.jsonのキーとデフォルト
-const ExpressionKeyFadeIn = 'FadeInTime';
-const ExpressionKeyFadeOut = 'FadeOutTime';
-const ExpressionKeyParameters = 'Parameters';
-const ExpressionKeyId = 'Id';
-const ExpressionKeyValue = 'Value';
-const ExpressionKeyBlend = 'Blend';
-const BlendValueAdd = 'Add';
-const BlendValueMultiply = 'Multiply';
-const BlendValueOverwrite = 'Overwrite';
+const ExpressionKeyFadeIn = "FadeInTime";
+const ExpressionKeyFadeOut = "FadeOutTime";
+const ExpressionKeyParameters = "Parameters";
+const ExpressionKeyId = "Id";
+const ExpressionKeyValue = "Value";
+const ExpressionKeyBlend = "Blend";
+const BlendValueAdd = "Add";
+const BlendValueMultiply = "Multiply";
+const BlendValueOverwrite = "Overwrite";
 const DefaultFadeTime = 1.0;
 
 /**
@@ -42,7 +42,7 @@ export class CubismExpressionMotion extends ACubismMotion {
    */
   public static create(
     buffer: ArrayBuffer,
-    size: number
+    size: number,
   ): CubismExpressionMotion {
     const expression: CubismExpressionMotion = new CubismExpressionMotion();
     expression.parse(buffer, size);
@@ -60,7 +60,7 @@ export class CubismExpressionMotion extends ACubismMotion {
     model: CubismModel,
     userTimeSeconds: number,
     weight: number,
-    motionQueueEntry: CubismMotionQueueEntry
+    motionQueueEntry: CubismMotionQueueEntry,
   ): void {
     for (let i = 0; i < this._parameters.getSize(); ++i) {
       const parameter: ExpressionParameter = this._parameters.at(i);
@@ -70,7 +70,7 @@ export class CubismExpressionMotion extends ACubismMotion {
           model.addParameterValueById(
             parameter.parameterId,
             parameter.value,
-            weight
+            weight,
           );
           break;
         }
@@ -78,7 +78,7 @@ export class CubismExpressionMotion extends ACubismMotion {
           model.multiplyParameterValueById(
             parameter.parameterId,
             parameter.value,
-            weight
+            weight,
           );
           break;
         }
@@ -86,7 +86,7 @@ export class CubismExpressionMotion extends ACubismMotion {
           model.setParameterValueById(
             parameter.parameterId,
             parameter.value,
-            weight
+            weight,
           );
           break;
         }
@@ -115,7 +115,7 @@ export class CubismExpressionMotion extends ACubismMotion {
     motionQueueEntry: CubismMotionQueueEntry,
     expressionParameterValues: csmVector<ExpressionParameterValue>,
     expressionIndex: number,
-    fadeWeight: number
+    fadeWeight: number,
   ) {
     if (motionQueueEntry == null || expressionParameterValues == null) {
       return;
@@ -167,17 +167,17 @@ export class CubismExpressionMotion extends ACubismMotion {
           expressionParameterValue.additiveValue = this.calculateValue(
             expressionParameterValue.additiveValue,
             CubismExpressionMotion.DefaultAdditiveValue,
-            fadeWeight
+            fadeWeight,
           );
           expressionParameterValue.multiplyValue = this.calculateValue(
             expressionParameterValue.multiplyValue,
             CubismExpressionMotion.DefaultMultiplyValue,
-            fadeWeight
+            fadeWeight,
           );
           expressionParameterValue.overwriteValue = this.calculateValue(
             expressionParameterValue.overwriteValue,
             currentParameterValue,
-            fadeWeight
+            fadeWeight,
           );
         }
         continue;
@@ -262,10 +262,10 @@ export class CubismExpressionMotion extends ACubismMotion {
     const root: Value = json.getRoot();
 
     this.setFadeInTime(
-      root.getValueByString(ExpressionKeyFadeIn).toFloat(DefaultFadeTime)
+      root.getValueByString(ExpressionKeyFadeIn).toFloat(DefaultFadeTime),
     ); // フェードイン
     this.setFadeOutTime(
-      root.getValueByString(ExpressionKeyFadeOut).toFloat(DefaultFadeTime)
+      root.getValueByString(ExpressionKeyFadeOut).toFloat(DefaultFadeTime),
     ); // フェードアウト
 
     // 各パラメータについて
@@ -279,7 +279,7 @@ export class CubismExpressionMotion extends ACubismMotion {
         .getValueByString(ExpressionKeyParameters)
         .getValueByIndex(i);
       const parameterId: CubismIdHandle = CubismFramework.getIdManager().getId(
-        param.getValueByString(ExpressionKeyId).getRawString()
+        param.getValueByString(ExpressionKeyId).getRawString(),
       ); // パラメータID
 
       const value: number = param
@@ -335,7 +335,7 @@ export class CubismExpressionMotion extends ACubismMotion {
   public calculateValue(
     source: number,
     destination: number,
-    fadeWeight: number
+    fadeWeight: number,
   ): number {
     return source * (1.0 - fadeWeight) + destination * fadeWeight;
   }
@@ -365,7 +365,7 @@ export class CubismExpressionMotion extends ACubismMotion {
 export enum ExpressionBlendType {
   Additive = 0, // 加算
   Multiply = 1, // 乗算
-  Overwrite = 2 // 上書き
+  Overwrite = 2, // 上書き
 }
 
 /**
@@ -378,9 +378,9 @@ export class ExpressionParameter {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismexpressionmotion';
-import { ExpressionParameterValue } from './cubismexpressionmotionmanager';
-import { CubismDefaultParameterId } from '../cubismdefaultparameterid';
+import * as $ from "./cubismexpressionmotion";
+import { ExpressionParameterValue } from "./cubismexpressionmotionmanager";
+import { CubismDefaultParameterId } from "../cubismdefaultparameterid";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismExpressionMotion = $.CubismExpressionMotion;

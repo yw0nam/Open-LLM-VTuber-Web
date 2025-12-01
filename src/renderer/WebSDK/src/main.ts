@@ -18,7 +18,7 @@ import { LAppLive2DManager } from "./lapplive2dmanager";
 export function initializeLive2D(): void {
   console.log(
     "Initializing Live2D with resourcePath:",
-    LAppDefine.ResourcesPath
+    LAppDefine.ResourcesPath,
   );
   console.log("Model directories:", LAppDefine.ModelDir);
 
@@ -42,8 +42,8 @@ export function initializeLive2D(): void {
 
   // Make sure LAppAdapter is available globally
   if (!(window as any).getLAppAdapter) {
-    console.log('Setting up getLAppAdapter function');
-    const { LAppAdapter } = require('./lappadapter');
+    console.log("Setting up getLAppAdapter function");
+    const { LAppAdapter } = require("./lappadapter");
     (window as any).getLAppAdapter = () => LAppAdapter.getInstance();
   }
 
@@ -59,7 +59,9 @@ export function initializeLive2D(): void {
       const y = view?._deviceToScreen.transformY(e.y);
 
       // Check if mouse is over the Live2D model
-      (window as any).api.setIgnoreMouseEvent(!model?.anyhitTest(x, y) && !model?.isHitOnModel(x, y));
+      (window as any).api.setIgnoreMouseEvent(
+        !model?.anyhitTest(x, y) && !model?.isHitOnModel(x, y),
+      );
     });
 
     // Add pointerdown event listener
@@ -74,7 +76,11 @@ export function initializeLive2D(): void {
       // Test hit and log result
       const hitAreaName = model?.anyhitTest(x, y);
       const isHit = hitAreaName !== null || model?.isHitOnModel(x, y);
-      console.log("Model clicked:", isHit, hitAreaName ? `in area: ${hitAreaName}` : '');
+      console.log(
+        "Model clicked:",
+        isHit,
+        hitAreaName ? `in area: ${hitAreaName}` : "",
+      );
     });
   }
 }
@@ -100,7 +106,7 @@ window.addEventListener(
 window.addEventListener(
   "beforeunload",
   (): void => LAppDelegate.releaseInstance(),
-  { passive: true }
+  { passive: true },
 );
 
 /**
@@ -113,7 +119,7 @@ window.addEventListener(
       LAppDelegate.getInstance().onResize();
     }
   },
-  { passive: true }
+  { passive: true },
 );
 
 // Make the initialization function available globally

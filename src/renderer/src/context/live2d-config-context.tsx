@@ -1,8 +1,6 @@
-import {
-  createContext, useContext, useState, useMemo,
-} from 'react';
-import { useLocalStorage } from '@/hooks/utils/use-local-storage';
-import { useConfig } from '@/context/character-config-context';
+import { createContext, useContext, useState, useMemo } from "react";
+import { useLocalStorage } from "@/hooks/utils/use-local-storage";
+import { useConfig } from "@/context/character-config-context";
 
 /**
  * Model emotion mapping interface
@@ -97,14 +95,20 @@ const DEFAULT_CONFIG = {
 /**
  * Create the Live2D configuration context
  */
-export const Live2DConfigContext = createContext<Live2DConfigState | null>(null);
+export const Live2DConfigContext = createContext<Live2DConfigState | null>(
+  null,
+);
 
 /**
  * Live2D Configuration Provider Component
  * @param {Object} props - Provider props
  * @param {React.ReactNode} props.children - Child components
  */
-export function Live2DConfigProvider({ children }: { children: React.ReactNode }) {
+export function Live2DConfigProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { confUid } = useConfig();
 
   const [isLoading, setIsLoading] = useState(DEFAULT_CONFIG.isLoading);
@@ -120,16 +124,19 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
   // const [modelInfo, setModelInfoState] = useState<ModelInfo | undefined>(DEFAULT_CONFIG.modelInfo);
 
   const setModelInfo = (info: ModelInfo | undefined) => {
+    console.log("[Live2DConfigContext] setModelInfo called with:", info);
+    
     if (!info?.url) {
+      console.log("[Live2DConfigContext] Clearing model (no URL)");
       setModelInfoState(undefined);
       return;
     }
 
     // Always use the scale defined in the incoming info object (from config)
     const finalScale = Number(info.kScale || 0.5) * 2;
-    console.log("Setting model info with default scale:", finalScale);
+    console.log("[Live2DConfigContext] Setting model info with scale:", finalScale);
 
-    setModelInfoState({
+    const finalInfo = {
       ...info,
       kScale: finalScale,
       pointerInteractive:
@@ -140,7 +147,10 @@ export function Live2DConfigProvider({ children }: { children: React.ReactNode }
         "scrollToResize" in info
           ? info.scrollToResize
           : (modelInfo?.scrollToResize ?? true),
-    });
+    };
+
+    console.log("[Live2DConfigContext] Final model info:", finalInfo);
+    setModelInfoState(finalInfo);
   };
 
   const contextValue = useMemo(
@@ -168,7 +178,9 @@ export function useLive2DConfig() {
   const context = useContext(Live2DConfigContext);
 
   if (!context) {
-    throw new Error('useLive2DConfig must be used within a Live2DConfigProvider');
+    throw new Error(
+      "useLive2DConfig must be used within a Live2DConfigProvider",
+    );
   }
 
   return context;

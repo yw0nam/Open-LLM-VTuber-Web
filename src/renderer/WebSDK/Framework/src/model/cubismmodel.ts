@@ -5,15 +5,15 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismIdHandle } from '../id/cubismid';
-import { CubismFramework } from '../live2dcubismframework';
+import { CubismIdHandle } from "../id/cubismid";
+import { CubismFramework } from "../live2dcubismframework";
 import {
   CubismBlendMode,
-  CubismTextureColor
-} from '../rendering/cubismrenderer';
-import { csmMap } from '../type/csmmap';
-import { csmVector } from '../type/csmvector';
-import { CSM_ASSERT } from '../utils/cubismdebug';
+  CubismTextureColor,
+} from "../rendering/cubismrenderer";
+import { csmMap } from "../type/csmmap";
+import { csmVector } from "../type/csmvector";
+import { CSM_ASSERT } from "../utils/cubismdebug";
 
 /**
  * SDK側から与えられたDrawableの乗算色・スクリーン色上書きフラグと
@@ -22,7 +22,7 @@ import { CSM_ASSERT } from '../utils/cubismdebug';
 export class DrawableColorData {
   constructor(
     isOverwritten = false,
-    color: CubismTextureColor = new CubismTextureColor()
+    color: CubismTextureColor = new CubismTextureColor(),
   ) {
     this.isOverwritten = isOverwritten;
     this.color = color;
@@ -37,7 +37,7 @@ export class DrawableColorData {
 export class PartColorData {
   constructor(
     isOverwritten = false,
-    color: CubismTextureColor = new CubismTextureColor()
+    color: CubismTextureColor = new CubismTextureColor(),
   ) {
     this.isOverwritten = isOverwritten;
     this.color = color;
@@ -179,7 +179,7 @@ export class CubismModel {
    */
   public setMultiplyColorByTextureColor(
     index: number,
-    color: CubismTextureColor
+    color: CubismTextureColor,
   ) {
     this.setMultiplyColorByRGBA(index, color.r, color.g, color.b, color.a);
   }
@@ -197,7 +197,7 @@ export class CubismModel {
     r: number,
     g: number,
     b: number,
-    a = 1.0
+    a = 1.0,
   ) {
     this._userMultiplyColors.at(index).color.r = r;
     this._userMultiplyColors.at(index).color.g = g;
@@ -212,7 +212,7 @@ export class CubismModel {
    */
   public setScreenColorByTextureColor(
     index: number,
-    color: CubismTextureColor
+    color: CubismTextureColor,
   ) {
     this.setScreenColorByRGBA(index, color.r, color.g, color.b, color.a);
   }
@@ -230,7 +230,7 @@ export class CubismModel {
     r: number,
     g: number,
     b: number,
-    a = 1.0
+    a = 1.0,
   ) {
     this._userScreenColors.at(index).color.r = r;
     this._userScreenColors.at(index).color.g = g;
@@ -272,7 +272,7 @@ export class CubismModel {
     b: number,
     a: number,
     partColors: csmVector<PartColorData>,
-    drawableColors: csmVector<DrawableColorData>
+    drawableColors: csmVector<DrawableColorData>,
   ) {
     partColors.at(partIndex).color.r = r;
     partColors.at(partIndex).color.g = g;
@@ -301,14 +301,14 @@ export class CubismModel {
    */
   public setPartMultiplyColorByTextureColor(
     partIndex: number,
-    color: CubismTextureColor
+    color: CubismTextureColor,
   ) {
     this.setPartMultiplyColorByRGBA(
       partIndex,
       color.r,
       color.g,
       color.b,
-      color.a
+      color.a,
     );
   }
 
@@ -325,7 +325,7 @@ export class CubismModel {
     r: number,
     g: number,
     b: number,
-    a: number
+    a: number,
   ) {
     this.setPartColor(
       partIndex,
@@ -334,7 +334,7 @@ export class CubismModel {
       b,
       a,
       this._userPartMultiplyColors,
-      this._userMultiplyColors
+      this._userMultiplyColors,
     );
   }
 
@@ -345,14 +345,14 @@ export class CubismModel {
    */
   public setPartScreenColorByTextureColor(
     partIndex: number,
-    color: CubismTextureColor
+    color: CubismTextureColor,
   ) {
     this.setPartScreenColorByRGBA(
       partIndex,
       color.r,
       color.g,
       color.b,
-      color.a
+      color.a,
     );
   }
 
@@ -369,7 +369,7 @@ export class CubismModel {
     r: number,
     g: number,
     b: number,
-    a: number
+    a: number,
   ) {
     this.setPartColor(
       partIndex,
@@ -378,7 +378,7 @@ export class CubismModel {
       b,
       a,
       this._userPartScreenColors,
-      this._userScreenColors
+      this._userScreenColors,
     );
   }
 
@@ -424,7 +424,7 @@ export class CubismModel {
    *          false -> モデルに設定されている色情報を使用
    */
   public getOverwriteFlagForDrawableMultiplyColors(
-    drawableindex: number
+    drawableindex: number,
   ): boolean {
     return this._userMultiplyColors.at(drawableindex).isOverwritten;
   }
@@ -435,7 +435,7 @@ export class CubismModel {
    *          false -> モデルに設定されている色情報を使用
    */
   public getOverwriteFlagForDrawableScreenColors(
-    drawableindex: number
+    drawableindex: number,
   ): boolean {
     return this._userScreenColors.at(drawableindex).isOverwritten;
   }
@@ -447,7 +447,7 @@ export class CubismModel {
    */
   public setOverwriteFlagForDrawableMultiplyColors(
     drawableindex: number,
-    value: boolean
+    value: boolean,
   ) {
     this._userMultiplyColors.at(drawableindex).isOverwritten = value;
   }
@@ -459,7 +459,7 @@ export class CubismModel {
    */
   public setOverwriteFlagForDrawableScreenColors(
     drawableindex: number,
-    value: boolean
+    value: boolean,
   ) {
     this._userScreenColors.at(drawableindex).isOverwritten = value;
   }
@@ -496,7 +496,7 @@ export class CubismModel {
     partIndex: number,
     value: boolean,
     partColors: csmVector<PartColorData>,
-    drawableColors: csmVector<DrawableColorData>
+    drawableColors: csmVector<DrawableColorData>,
   ) {
     partColors.at(partIndex).isOverwritten = value;
 
@@ -525,14 +525,14 @@ export class CubismModel {
    */
   public setOverwriteColorForPartMultiplyColors(
     partIndex: number,
-    value: boolean
+    value: boolean,
   ) {
     this._userPartMultiplyColors.at(partIndex).isOverwritten = value;
     this.setOverwriteColorForPartColors(
       partIndex,
       value,
       this._userPartMultiplyColors,
-      this._userMultiplyColors
+      this._userMultiplyColors,
     );
   }
 
@@ -544,14 +544,14 @@ export class CubismModel {
    */
   public setOverwriteColorForPartScreenColors(
     partIndex: number,
-    value: boolean
+    value: boolean,
   ) {
     this._userPartScreenColors.at(partIndex).isOverwritten = value;
     this.setOverwriteColorForPartColors(
       partIndex,
       value,
       this._userPartScreenColors,
-      this._userScreenColors
+      this._userScreenColors,
     );
   }
 
@@ -571,7 +571,7 @@ export class CubismModel {
 
     const constantFlags = this._model.drawables.constantFlags;
     return !Live2DCubismCore.Utils.hasIsDoubleSidedBit(
-      constantFlags[drawableIndex]
+      constantFlags[drawableIndex],
     );
   }
 
@@ -601,7 +601,7 @@ export class CubismModel {
    * @param isOverwrittenCullings SDK上のカリング設定を使うならtrue、モデルのカリング設定を使うならfalse
    */
   public setOverwriteFlagForModelCullings(
-    isOverwrittenCullings: boolean
+    isOverwrittenCullings: boolean,
   ): void {
     this._isOverwrittenCullings = isOverwrittenCullings;
   }
@@ -623,7 +623,7 @@ export class CubismModel {
    */
   public setOverwriteFlagForDrawableCullings(
     drawableIndex: number,
-    isOverwrittenCullings: boolean
+    isOverwrittenCullings: boolean,
   ): void {
     this._userCullings.at(drawableIndex).isOverwritten = isOverwrittenCullings;
   }
@@ -814,7 +814,7 @@ export class CubismModel {
    *          csmParameterType_BlendShape -> ブレンドシェイプパラメータ
    */
   public getParameterType(
-    parameterIndex: number
+    parameterIndex: number,
   ): Live2DCubismCore.csmParameterType {
     return this._model.parameters.types[parameterIndex];
   }
@@ -854,7 +854,7 @@ export class CubismModel {
    */
   public getParameterId(parameterIndex: number): CubismIdHandle {
     return CubismFramework.getIdManager().getId(
-      this._model.parameters.ids[parameterIndex]
+      this._model.parameters.ids[parameterIndex],
     );
   }
 
@@ -870,7 +870,7 @@ export class CubismModel {
 
     // インデックスの範囲内検知
     CSM_ASSERT(
-      0 <= parameterIndex && parameterIndex < this.getParameterCount()
+      0 <= parameterIndex && parameterIndex < this.getParameterCount(),
     );
 
     return this._parameterValues[parameterIndex];
@@ -896,7 +896,7 @@ export class CubismModel {
   public setParameterValueByIndex(
     parameterIndex: number,
     value: number,
-    weight = 1.0
+    weight = 1.0,
   ): void {
     if (this._notExistParameterValues.isExist(parameterIndex)) {
       this._notExistParameterValues.setValue(
@@ -905,7 +905,7 @@ export class CubismModel {
           ? value
           : this._notExistParameterValues.getValue(parameterIndex) *
               (1 - weight) +
-              value * weight
+              value * weight,
       );
 
       return;
@@ -913,7 +913,7 @@ export class CubismModel {
 
     // インデックスの範囲内検知
     CSM_ASSERT(
-      0 <= parameterIndex && parameterIndex < this.getParameterCount()
+      0 <= parameterIndex && parameterIndex < this.getParameterCount(),
     );
 
     if (this._model.parameters.maximumValues[parameterIndex] < value) {
@@ -940,7 +940,7 @@ export class CubismModel {
   public setParameterValueById(
     parameterId: CubismIdHandle,
     value: number,
-    weight = 1.0
+    weight = 1.0,
   ): void {
     const index: number = this.getParameterIndex(parameterId);
     this.setParameterValueByIndex(index, value, weight);
@@ -955,11 +955,11 @@ export class CubismModel {
   public addParameterValueByIndex(
     parameterIndex: number,
     value: number,
-    weight = 1.0
+    weight = 1.0,
   ): void {
     this.setParameterValueByIndex(
       parameterIndex,
-      this.getParameterValueByIndex(parameterIndex) + value * weight
+      this.getParameterValueByIndex(parameterIndex) + value * weight,
     );
   }
 
@@ -972,7 +972,7 @@ export class CubismModel {
   public addParameterValueById(
     parameterId: any,
     value: number,
-    weight = 1.0
+    weight = 1.0,
   ): void {
     const index: number = this.getParameterIndex(parameterId);
     this.addParameterValueByIndex(index, value, weight);
@@ -987,7 +987,7 @@ export class CubismModel {
   public multiplyParameterValueById(
     parameterId: CubismIdHandle,
     value: number,
-    weight = 1.0
+    weight = 1.0,
   ): void {
     const index: number = this.getParameterIndex(parameterId);
     this.multiplyParameterValueByIndex(index, value, weight);
@@ -1002,12 +1002,12 @@ export class CubismModel {
   public multiplyParameterValueByIndex(
     parameterIndex: number,
     value: number,
-    weight = 1.0
+    weight = 1.0,
   ): void {
     this.setParameterValueByIndex(
       parameterIndex,
       this.getParameterValueByIndex(parameterIndex) *
-        (1.0 + (value - 1.0) * weight)
+        (1.0 + (value - 1.0) * weight),
     );
   }
 
@@ -1092,11 +1092,11 @@ export class CubismModel {
    * @retval  false   Drawableの頂点情報が直近のCubismModel.update関数で変化していない
    */
   public getDrawableDynamicFlagVertexPositionsDidChange(
-    drawableIndex: number
+    drawableIndex: number,
   ): boolean {
     const dynamicFlags: Uint8Array = this._model.drawables.dynamicFlags;
     return Live2DCubismCore.Utils.hasVertexPositionsDidChangeBit(
-      dynamicFlags[drawableIndex]
+      dynamicFlags[drawableIndex],
     );
   }
 
@@ -1221,11 +1221,11 @@ export class CubismModel {
     const constantFlags = this._model.drawables.constantFlags;
 
     return Live2DCubismCore.Utils.hasBlendAdditiveBit(
-      constantFlags[drawableIndex]
+      constantFlags[drawableIndex],
     )
       ? CubismBlendMode.CubismBlendMode_Additive
       : Live2DCubismCore.Utils.hasBlendMultiplicativeBit(
-            constantFlags[drawableIndex]
+            constantFlags[drawableIndex],
           )
         ? CubismBlendMode.CubismBlendMode_Multiplicative
         : CubismBlendMode.CubismBlendMode_Normal;
@@ -1244,7 +1244,7 @@ export class CubismModel {
     const constantFlags: Uint8Array = this._model.drawables.constantFlags;
 
     return Live2DCubismCore.Utils.hasIsInvertedMaskBit(
-      constantFlags[drawableIndex]
+      constantFlags[drawableIndex],
     );
   }
 
@@ -1304,11 +1304,11 @@ export class CubismModel {
    * @return false drawableの不透明度が直近のCubismModel.update関数で変化している
    */
   public getDrawableDynamicFlagVisibilityDidChange(
-    drawableIndex: number
+    drawableIndex: number,
   ): boolean {
     const dynamicFlags: Uint8Array = this._model.drawables.dynamicFlags;
     return Live2DCubismCore.Utils.hasVisibilityDidChangeBit(
-      dynamicFlags[drawableIndex]
+      dynamicFlags[drawableIndex],
     );
   }
 
@@ -1322,11 +1322,11 @@ export class CubismModel {
    * @return false Drawableの不透明度が直近のCubismModel.update関数で変化してない
    */
   public getDrawableDynamicFlagOpacityDidChange(
-    drawableIndex: number
+    drawableIndex: number,
   ): boolean {
     const dynamicFlags: Uint8Array = this._model.drawables.dynamicFlags;
     return Live2DCubismCore.Utils.hasOpacityDidChangeBit(
-      dynamicFlags[drawableIndex]
+      dynamicFlags[drawableIndex],
     );
   }
 
@@ -1340,11 +1340,11 @@ export class CubismModel {
    * @return false Drawableの描画の順序が直近のCubismModel.update関数で変化してない
    */
   public getDrawableDynamicFlagRenderOrderDidChange(
-    drawableIndex: number
+    drawableIndex: number,
   ): boolean {
     const dynamicFlags: Uint8Array = this._model.drawables.dynamicFlags;
     return Live2DCubismCore.Utils.hasRenderOrderDidChangeBit(
-      dynamicFlags[drawableIndex]
+      dynamicFlags[drawableIndex],
     );
   }
 
@@ -1358,11 +1358,11 @@ export class CubismModel {
    * @return false Drawableの乗算色・スクリーン色が直近のCubismModel.update関数で変化してない
    */
   public getDrawableDynamicFlagBlendColorDidChange(
-    drawableIndex: number
+    drawableIndex: number,
   ): boolean {
     const dynamicFlags: Uint8Array = this._model.drawables.dynamicFlags;
     return Live2DCubismCore.Utils.hasBlendColorDidChangeBit(
-      dynamicFlags[drawableIndex]
+      dynamicFlags[drawableIndex],
     );
   }
 
@@ -1400,7 +1400,7 @@ export class CubismModel {
       this._parameterIds.prepareCapacity(parameterCount);
       for (let i = 0; i < parameterCount; ++i) {
         this._parameterIds.pushBack(
-          CubismFramework.getIdManager().getId(parameterIds[i])
+          CubismFramework.getIdManager().getId(parameterIds[i]),
         );
       }
     }
@@ -1412,7 +1412,7 @@ export class CubismModel {
       this._partIds.prepareCapacity(partCount);
       for (let i = 0; i < partCount; ++i) {
         this._partIds.pushBack(
-          CubismFramework.getIdManager().getId(partIds[i])
+          CubismFramework.getIdManager().getId(partIds[i]),
         );
       }
 
@@ -1433,7 +1433,7 @@ export class CubismModel {
       this._userCullings.prepareCapacity(drawableCount);
       const userCulling: DrawableCullingData = new DrawableCullingData(
         false,
-        false
+        false,
       );
 
       // Part
@@ -1443,22 +1443,22 @@ export class CubismModel {
             1.0,
             1.0,
             1.0,
-            1.0
+            1.0,
           );
           const screenColor: CubismTextureColor = new CubismTextureColor(
             0.0,
             0.0,
             0.0,
-            1.0
+            1.0,
           );
 
           const userMultiplyColor: PartColorData = new PartColorData(
             false,
-            multiplyColor
+            multiplyColor,
           );
           const userScreenColor: PartColorData = new PartColorData(
             false,
-            screenColor
+            screenColor,
           );
 
           this._userPartMultiplyColors.pushBack(userMultiplyColor);
@@ -1475,26 +1475,26 @@ export class CubismModel {
             1.0,
             1.0,
             1.0,
-            1.0
+            1.0,
           );
           const screenColor: CubismTextureColor = new CubismTextureColor(
             0.0,
             0.0,
             0.0,
-            1.0
+            1.0,
           );
 
           const userMultiplyColor: DrawableColorData = new DrawableColorData(
             false,
-            multiplyColor
+            multiplyColor,
           );
           const userScreenColor: DrawableColorData = new DrawableColorData(
             false,
-            screenColor
+            screenColor,
           );
 
           this._drawableIds.pushBack(
-            CubismFramework.getIdManager().getId(drawableIds[i])
+            CubismFramework.getIdManager().getId(drawableIds[i]),
           );
 
           this._userMultiplyColors.pushBack(userMultiplyColor);
@@ -1586,7 +1586,7 @@ export class CubismModel {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmodel';
+import * as $ from "./cubismmodel";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismModel = $.CubismModel;

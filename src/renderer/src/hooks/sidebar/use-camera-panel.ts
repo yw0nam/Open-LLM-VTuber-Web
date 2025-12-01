@@ -1,14 +1,12 @@
 /* eslint-disable no-shadow */
-import { useRef, useState } from 'react';
-import { useCamera } from '@/context/camera-context';
+import { useRef, useState } from "react";
+import { useCamera } from "@/context/camera-context";
 
 export const useCameraPanel = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
   const [isHovering, setIsHovering] = useState(false);
-  const {
-    isStreaming, stream, startCamera, stopCamera,
-  } = useCamera();
+  const { isStreaming, stream, startCamera, stopCamera } = useCamera();
 
   const toggleCamera = async (): Promise<void> => {
     try {
@@ -17,9 +15,9 @@ export const useCameraPanel = () => {
       } else {
         await startCamera();
       }
-      setError('');
+      setError("");
     } catch (error) {
-      let errorMessage = 'Unable to access camera';
+      let errorMessage = "Unable to access camera";
       if (error instanceof Error) {
         errorMessage = error.message;
       }

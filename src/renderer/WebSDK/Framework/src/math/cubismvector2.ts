@@ -16,7 +16,7 @@ export class CubismVector2 {
    */
   public constructor(
     public x?: number,
-    public y?: number
+    public y?: number,
   ) {
     this.x = x == undefined ? 0.0 : x;
 
@@ -112,7 +112,7 @@ export class CubismVector2 {
    */
   public getDistanceWith(a: CubismVector2): number {
     return Math.sqrt(
-      (this.x - a.x) * (this.x - a.x) + (this.y - a.y) * (this.y - a.y)
+      (this.x - a.x) * (this.x - a.x) + (this.y - a.y) * (this.y - a.y),
     );
   }
 
@@ -164,7 +164,7 @@ export class CubismVector2 {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismvector2';
+import * as $ from "./cubismvector2";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismVector2 = $.CubismVector2;

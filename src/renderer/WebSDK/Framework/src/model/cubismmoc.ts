@@ -5,8 +5,8 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CSM_ASSERT, CubismLogError } from '../utils/cubismdebug';
-import { CubismModel } from './cubismmodel';
+import { CSM_ASSERT, CubismLogError } from "../utils/cubismdebug";
+import { CubismModel } from "./cubismmodel";
 
 /**
  * Mocデータの管理
@@ -19,7 +19,7 @@ export class CubismMoc {
    */
   public static create(
     mocBytes: ArrayBuffer,
-    shouldCheckMocConsistency: boolean
+    shouldCheckMocConsistency: boolean,
   ): CubismMoc {
     let cubismMoc: CubismMoc = null;
 
@@ -41,7 +41,7 @@ export class CubismMoc {
       cubismMoc = new CubismMoc(moc);
       cubismMoc._mocVersion = Live2DCubismCore.Version.csmGetMocVersion(
         moc,
-        mocBytes
+        mocBytes,
       );
     }
 
@@ -68,7 +68,7 @@ export class CubismMoc {
     let cubismModel: CubismModel = null;
 
     const model: Live2DCubismCore.Model = Live2DCubismCore.Model.fromMoc(
-      this._moc
+      this._moc,
     );
 
     if (model) {
@@ -140,7 +140,7 @@ export class CubismMoc {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmoc';
+import * as $ from "./cubismmoc";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismMoc = $.CubismMoc;

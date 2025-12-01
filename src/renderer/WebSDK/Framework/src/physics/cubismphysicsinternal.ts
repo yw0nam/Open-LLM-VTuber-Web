@@ -5,15 +5,15 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismIdHandle } from '../id/cubismid';
-import { CubismVector2 } from '../math/cubismvector2';
-import { csmVector } from '../type/csmvector';
+import { CubismIdHandle } from "../id/cubismid";
+import { CubismVector2 } from "../math/cubismvector2";
+import { csmVector } from "../type/csmvector";
 
 /**
  * 物理演算の適用先の種類
  */
 export enum CubismPhysicsTargetType {
-  CubismPhysicsTargetType_Parameter // パラメータに対して適用
+  CubismPhysicsTargetType_Parameter, // パラメータに対して適用
 }
 
 /**
@@ -22,7 +22,7 @@ export enum CubismPhysicsTargetType {
 export enum CubismPhysicsSource {
   CubismPhysicsSource_X, // X軸の位置から
   CubismPhysicsSource_Y, // Y軸の位置から
-  CubismPhysicsSource_Angle // 角度から
+  CubismPhysicsSource_Angle, // 角度から
 }
 
 /**
@@ -123,7 +123,7 @@ export interface normalizedPhysicsParameterValueGetter {
     normalizationPosition: CubismPhysicsNormalization,
     normalizationAngle: CubismPhysicsNormalization,
     isInverted: boolean,
-    weight: number
+    weight: number,
   ): void;
 }
 
@@ -141,7 +141,7 @@ export interface physicsValueGetter {
     particles: CubismPhysicsParticle[],
     particleIndex: number,
     isInverted: boolean,
-    parentGravity: CubismVector2
+    parentGravity: CubismVector2,
   ): number;
 }
 
@@ -222,7 +222,7 @@ export class CubismPhysicsRig {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismphysicsinternal';
+import * as $ from "./cubismphysicsinternal";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismPhysicsInput = $.CubismPhysicsInput;

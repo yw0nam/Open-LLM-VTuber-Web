@@ -18,10 +18,10 @@ export class CubismString {
       /\{(\d+)\}/g,
       (
         m,
-        k // m="{0}", k="0"
+        k, // m="{0}", k="0"
       ) => {
         return args[k];
-      }
+      },
     );
   }
 
@@ -35,9 +35,9 @@ export class CubismString {
   public static isStartWith(text: string, startWord: string): boolean {
     let textIndex = 0;
     let startWordIndex = 0;
-    while (startWord[startWordIndex] != '\0') {
+    while (startWord[startWordIndex] != "\0") {
       if (
-        text[textIndex] == '\0' ||
+        text[textIndex] == "\0" ||
         text[textIndex++] != startWord[startWordIndex++]
       ) {
         return false;
@@ -59,7 +59,7 @@ export class CubismString {
     string: string,
     length: number,
     position: number,
-    outEndPos: number[]
+    outEndPos: number[],
   ): number {
     let i: number = position;
     let minus = false; // マイナスフラグ
@@ -78,7 +78,7 @@ export class CubismString {
       const c = string[i];
       if (0 <= parseInt(c) && parseInt(c) <= 9) {
         v1 = v1 * 10 + (parseInt(c) - 0);
-      } else if (c == '.') {
+      } else if (c == ".") {
         period = true;
         i++;
         break;
@@ -121,7 +121,7 @@ export class CubismString {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismstring';
+import * as $ from "./cubismstring";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismString = $.CubismString;

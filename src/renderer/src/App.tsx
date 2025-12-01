@@ -10,7 +10,8 @@ import { Live2DConfigProvider } from "./context/live2d-config-context";
 import { SubtitleProvider } from "./context/subtitle-context";
 import { BgUrlProvider } from "./context/bgurl-context";
 import { layoutStyles } from "./layout";
-import WebSocketHandler from "./services/websocket-handler";
+import { WebSocketHandlerProvider } from "./services/websocket-service/websocket-handler";
+import { WebSocketProvider } from "./context/websocket-context";
 import { CameraProvider } from "./context/camera-context";
 import { ChatHistoryProvider } from "./context/chat-history-context";
 import { CharacterConfigProvider } from "./context/character-config-context";
@@ -21,8 +22,6 @@ import TitleBar from "./components/electron/title-bar";
 import { InputSubtitle } from "./components/electron/input-subtitle";
 import { ProactiveSpeakProvider } from "./context/proactive-speak-context";
 import { ScreenCaptureProvider } from "./context/screen-capture-context";
-import { GroupProvider } from "./context/group-context";
-import { BrowserProvider } from "./context/browser-context";
 // eslint-disable-next-line import/no-extraneous-dependencies, import/newline-after-import
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import Background from "./components/canvas/background";
@@ -47,15 +46,14 @@ function AppContent(): JSX.Element {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-    
-  document.documentElement.style.overflow = 'hidden';
-  document.body.style.overflow = 'hidden';
-  document.documentElement.style.height = '100%';
-  document.body.style.height = '100%';
-  document.documentElement.style.position = 'fixed';
-  document.body.style.position = 'fixed';
-  document.documentElement.style.width = '100%';
-  document.body.style.width = '100%';
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
+  document.documentElement.style.height = "100%";
+  document.body.style.height = "100%";
+  document.documentElement.style.position = "fixed";
+  document.body.style.position = "fixed";
+  document.documentElement.style.width = "100%";
+  document.body.style.width = "100%";
 
   // Define base style properties shared across modes/breakpoints
   const live2dBaseStyle = {
@@ -179,16 +177,14 @@ function AppWithGlobalStyles(): JSX.Element {
                   <Live2DConfigProvider>
                     <SubtitleProvider>
                       <VADProvider>
-                        <BgUrlProvider>
-                          <GroupProvider>
-                            <BrowserProvider>
-                              <WebSocketHandler>
-                                <Toaster />
-                                <AppContent />
-                              </WebSocketHandler>
-                            </BrowserProvider>
-                          </GroupProvider>
-                        </BgUrlProvider>
+                        <WebSocketProvider>
+                          <BgUrlProvider>
+                            <WebSocketHandlerProvider>
+                              <Toaster />
+                              <AppContent />
+                            </WebSocketHandlerProvider>
+                          </BgUrlProvider>
+                        </WebSocketProvider>
                       </VADProvider>
                     </SubtitleProvider>
                   </Live2DConfigProvider>

@@ -46,7 +46,7 @@ export class LAppTextureManager {
   public createTextureFromPngFile(
     fileName: string,
     usePremultiply: boolean,
-    callback: (textureInfo: TextureInfo) => void
+    callback: (textureInfo: TextureInfo) => void,
   ): void {
     // search loaded texture already
     for (
@@ -88,7 +88,7 @@ export class LAppTextureManager {
         gl.texParameteri(
           gl.TEXTURE_2D,
           gl.TEXTURE_MIN_FILTER,
-          gl.LINEAR_MIPMAP_LINEAR
+          gl.LINEAR_MIPMAP_LINEAR,
         );
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
@@ -104,7 +104,7 @@ export class LAppTextureManager {
           gl.RGBA,
           gl.RGBA,
           gl.UNSIGNED_BYTE,
-          img
+          img,
         );
 
         // ミップマップを生成
@@ -126,7 +126,7 @@ export class LAppTextureManager {
 
         callback(textureInfo);
       },
-      { passive: true }
+      { passive: true },
     );
     img.src = fileName;
   }

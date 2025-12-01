@@ -1,26 +1,21 @@
-import { useDisclosure } from '@chakra-ui/react';
-import { useWebSocket } from '@/context/websocket-context';
-import { useInterrupt } from '@/components/canvas/live2d';
-import { useChatHistory } from '@/context/chat-history-context';
-import { useMode, ModeType } from '@/context/mode-context';
+import { useDisclosure } from "@chakra-ui/react";
+import { useInterrupt } from "@/components/canvas/live2d";
+import { useChatHistory } from "@/context/chat-history-context";
+import { useMode } from "@/context/mode-context";
 
 export const useSidebar = () => {
   const disclosure = useDisclosure();
-  const { sendMessage } = useWebSocket();
   const { interrupt } = useInterrupt();
-  const { currentHistoryUid, messages, updateHistoryList } = useChatHistory();
+  const { createNewSession } = useChatHistory();
   const { setMode, mode, isElectron } = useMode();
 
   const createNewHistory = (): void => {
-    if (currentHistoryUid && messages.length > 0) {
-      const latestMessage = messages[messages.length - 1];
-      updateHistoryList(currentHistoryUid, latestMessage);
-    }
-
+    // Interrupt any ongoing conversation
     interrupt();
-    sendMessage({
-      type: 'create-new-history',
-    });
+    
+    // Create a new session (clears UI state)
+    // Backend will auto-create session when user sends first message
+    createNewSession();
   };
 
   return {

@@ -5,10 +5,10 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismMatrix44 } from '../math/cubismmatrix44';
-import { CubismModel } from '../model/cubismmodel';
-import { csmRect } from '../type/csmrectf';
-import { ICubismClippingManager } from './cubismclippingmanager';
+import { CubismMatrix44 } from "../math/cubismmatrix44";
+import { CubismModel } from "../model/cubismmodel";
+import { csmRect } from "../type/csmrectf";
+import { ICubismClippingManager } from "./cubismclippingmanager";
 
 /**
  * モデル描画を処理するレンダラ
@@ -83,7 +83,7 @@ export abstract class CubismRenderer {
     red: number,
     green: number,
     blue: number,
-    alpha: number
+    alpha: number,
   ): void {
     if (red < 0.0) {
       red = 0.0;
@@ -271,7 +271,7 @@ export abstract class CubismRenderer {
 export enum CubismBlendMode {
   CubismBlendMode_Normal = 0, // 通常
   CubismBlendMode_Additive = 1, // 加算
-  CubismBlendMode_Multiplicative = 2 // 乗算
+  CubismBlendMode_Multiplicative = 2, // 乗算
 }
 
 /**
@@ -364,7 +364,7 @@ export abstract class CubismClippingContext {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismrenderer';
+import * as $ from "./cubismrenderer";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismBlendMode = $.CubismBlendMode;

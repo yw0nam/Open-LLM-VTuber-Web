@@ -78,7 +78,7 @@ export class LAppView {
       LAppDefine.ViewLogicalMaxLeft,
       LAppDefine.ViewLogicalMaxRight,
       LAppDefine.ViewLogicalMaxBottom,
-      LAppDefine.ViewLogicalMaxTop
+      LAppDefine.ViewLogicalMaxTop,
     );
   }
 
@@ -187,7 +187,7 @@ export class LAppView {
   public onTouchesBegan(pointX: number, pointY: number): void {
     this._touchManager.touchesBegan(
       pointX * window.devicePixelRatio,
-      pointY * window.devicePixelRatio
+      pointY * window.devicePixelRatio,
     );
   }
 
@@ -203,7 +203,7 @@ export class LAppView {
 
     this._touchManager.touchesMoved(
       pointX * window.devicePixelRatio,
-      pointY * window.devicePixelRatio
+      pointY * window.devicePixelRatio,
     );
 
     const live2DManager: LAppLive2DManager = LAppLive2DManager.getInstance();
@@ -224,10 +224,10 @@ export class LAppView {
     {
       // シングルタップ
       const x: number = this._deviceToScreen.transformX(
-        this._touchManager.getX()
+        this._touchManager.getX(),
       ); // 論理座標変換した座標を取得。
       const y: number = this._deviceToScreen.transformY(
-        this._touchManager.getY()
+        this._touchManager.getY(),
       ); // 論理座標変化した座標を取得。
 
       if (LAppDefine.DebugTouchLogEnable) {

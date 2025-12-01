@@ -1,43 +1,53 @@
 /* eslint-disable import/order */
 /* eslint-disable no-use-before-define */
-import { useState, useEffect } from 'react';
-import { BgUrlContextState } from '@/context/bgurl-context';
-import { defaultBaseUrl, defaultWsUrl } from '@/context/websocket-context';
-import { useSubtitle } from '@/context/subtitle-context';
-import { useCamera } from '@/context/camera-context';
-import { useSwitchCharacter } from '@/hooks/utils/use-switch-character';
-import { useConfig } from '@/context/character-config-context';
-import i18n from 'i18next';
+import { useState, useEffect, useCallback } from "react";
+import { BgUrlContextState } from "@/context/bgurl-context";
+import { defaultBaseUrl, defaultWsUrl } from "@/context/websocket-context";
+import { useSubtitle } from "@/context/subtitle-context";
+import { useCamera } from "@/context/camera-context";
+import { useSwitchCharacter } from "@/hooks/utils/use-switch-character";
+import { useConfig } from "@/context/character-config-context";
+import { wsService } from "@/services/websocket-service/client";
+import i18n from "i18next";
 
-export const IMAGE_COMPRESSION_QUALITY_KEY = 'appImageCompressionQuality';
+export const IMAGE_COMPRESSION_QUALITY_KEY = "appImageCompressionQuality";
 export const DEFAULT_IMAGE_COMPRESSION_QUALITY = 0.8;
-export const IMAGE_MAX_WIDTH_KEY = 'appImageMaxWidth';
+export const IMAGE_MAX_WIDTH_KEY = "appImageMaxWidth";
 export const DEFAULT_IMAGE_MAX_WIDTH = 0;
+export const USER_ID_KEY = "user_id";
+export const DEFAULT_USER_ID = "default-user";
+export const AGENT_ID_KEY = "agent_id";
+export const DEFAULT_AGENT_ID = "default-agent";
+export const AUTH_TOKEN_KEY = "authToken";
+export const DEFAULT_AUTH_TOKEN = "";
 
 interface GeneralSettings {
-  language: string[]
-  customBgUrl: string
-  selectedBgUrl: string[]
-  backgroundUrl: string
-  selectedCharacterPreset: string[]
-  useCameraBackground: boolean
-  wsUrl: string
-  baseUrl: string
-  showSubtitle: boolean
+  language: string[];
+  customBgUrl: string;
+  selectedBgUrl: string[];
+  backgroundUrl: string;
+  selectedCharacterPreset: string[];
+  useCameraBackground: boolean;
+  wsUrl: string;
+  baseUrl: string;
+  showSubtitle: boolean;
   imageCompressionQuality: number;
   imageMaxWidth: number;
+  userId: string;
+  agentId: string;
+  authToken: string;
 }
 
 interface UseGeneralSettingsProps {
-  bgUrlContext: BgUrlContextState | null
-  confName: string | undefined
-  setConfName: (name: string) => void
-  baseUrl: string
-  wsUrl: string
-  onWsUrlChange: (url: string) => void
-  onBaseUrlChange: (url: string) => void
-  onSave?: (callback: () => void) => () => void
-  onCancel?: (callback: () => void) => () => void
+  bgUrlContext: BgUrlContextState | null;
+  confName: string | undefined;
+  setConfName: (name: string) => void;
+  baseUrl: string;
+  wsUrl: string;
+  onWsUrlChange: (url: string) => void;
+  onBaseUrlChange: (url: string) => void;
+  onSave?: (callback: () => void) => () => void;
+  onCancel?: (callback: () => void) => () => void;
 }
 
 const loadInitialCompressionQuality = (): number => {
@@ -82,8 +92,8 @@ export const useGeneralSettings = ({
   const getCurrentBgKey = (): string[] => {
     if (!bgUrlContext?.backgroundUrl) return [];
     const currentBgUrl = bgUrlContext.backgroundUrl;
-    const path = currentBgUrl.replace(baseUrl, '');
-    return path.startsWith('/bg/') ? [path] : [];
+    const path = currentBgUrl.replace(baseUrl, "");
+    return path.startsWith("/bg/") ? [path] : [];
   };
 
   const getCurrentCharacterFilename = (): string[] => {
@@ -93,12 +103,12 @@ export const useGeneralSettings = ({
   };
 
   const initialSettings: GeneralSettings = {
-    language: [i18n.language || 'en'],
-    customBgUrl: !bgUrlContext?.backgroundUrl?.includes('/bg/')
-      ? bgUrlContext?.backgroundUrl || ''
-      : '',
+    language: [i18n.language || "en"],
+    customBgUrl: !bgUrlContext?.backgroundUrl?.includes("/bg/")
+      ? bgUrlContext?.backgroundUrl || ""
+      : "",
     selectedBgUrl: getCurrentBgKey(),
-    backgroundUrl: bgUrlContext?.backgroundUrl || '',
+    backgroundUrl: bgUrlContext?.backgroundUrl || "",
     selectedCharacterPreset: getCurrentCharacterFilename(),
     useCameraBackground: bgUrlContext?.useCameraBackground || false,
     wsUrl: wsUrl || defaultWsUrl,
@@ -106,32 +116,17 @@ export const useGeneralSettings = ({
     showSubtitle,
     imageCompressionQuality: loadInitialCompressionQuality(),
     imageMaxWidth: loadInitialImageMaxWidth(),
+    userId: localStorage.getItem(USER_ID_KEY) || DEFAULT_USER_ID,
+    agentId: localStorage.getItem(AGENT_ID_KEY) || DEFAULT_AGENT_ID,
+    authToken: localStorage.getItem(AUTH_TOKEN_KEY) || DEFAULT_AUTH_TOKEN,
   };
 
   const [settings, setSettings] = useState<GeneralSettings>(initialSettings);
-  const [originalSettings, setOriginalSettings] = useState<GeneralSettings>(initialSettings);
-  const originalConfName = confName;
+  const [originalSettings, setOriginalSettings] =
+    useState<GeneralSettings>(initialSettings);
+  const [originalConfNameState, setOriginalConfNameState] = useState(confName);
 
-  useEffect(() => {
-    setShowSubtitle(settings.showSubtitle);
-
-    const newBgUrl = settings.customBgUrl || settings.selectedBgUrl[0];
-    if (newBgUrl && bgUrlContext) {
-      const fullUrl = newBgUrl.startsWith('http') ? newBgUrl : `${baseUrl}${newBgUrl}`;
-      bgUrlContext.setBackgroundUrl(fullUrl);
-    }
-
-    onWsUrlChange(settings.wsUrl);
-    onBaseUrlChange(settings.baseUrl);
-
-    // Apply language change if it differs from current language
-    if (settings.language && settings.language[0] && settings.language[0] !== i18n.language) {
-      i18n.changeLanguage(settings.language[0]);
-    }
-    localStorage.setItem(IMAGE_COMPRESSION_QUALITY_KEY, settings.imageCompressionQuality.toString());
-    localStorage.setItem(IMAGE_MAX_WIDTH_KEY, settings.imageMaxWidth.toString());
-  }, [settings, bgUrlContext, baseUrl, onWsUrlChange, onBaseUrlChange, setShowSubtitle]);
-
+  // Sync originalSettings when external confName changes (e.g., character switch from elsewhere)
   useEffect(() => {
     if (confName) {
       const filename = getFilenameByName(confName);
@@ -142,11 +137,90 @@ export const useGeneralSettings = ({
         };
         setSettings(newSettings);
         setOriginalSettings(newSettings);
+        setOriginalConfNameState(confName);
       }
     }
   }, [confName]);
 
-  // Add save/cancel effect
+  const handleSettingChange = useCallback((
+    key: keyof GeneralSettings,
+    value: GeneralSettings[keyof GeneralSettings],
+  ): void => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
+  const handleSave = useCallback((): void => {
+    // Apply subtitle setting
+    setShowSubtitle(settings.showSubtitle);
+
+    // Apply background URL
+    const newBgUrl = settings.customBgUrl || settings.selectedBgUrl[0];
+    if (newBgUrl && bgUrlContext) {
+      const fullUrl = newBgUrl.startsWith("http")
+        ? newBgUrl
+        : `${baseUrl}${newBgUrl}`;
+      bgUrlContext.setBackgroundUrl(fullUrl);
+    }
+
+    // Apply language change
+    if (
+      settings.language &&
+      settings.language[0] &&
+      settings.language[0] !== i18n.language
+    ) {
+      i18n.changeLanguage(settings.language[0]);
+    }
+
+    // Save to localStorage
+    localStorage.setItem(
+      IMAGE_COMPRESSION_QUALITY_KEY,
+      settings.imageCompressionQuality.toString(),
+    );
+    localStorage.setItem(
+      IMAGE_MAX_WIDTH_KEY,
+      settings.imageMaxWidth.toString(),
+    );
+    localStorage.setItem(USER_ID_KEY, settings.userId);
+    localStorage.setItem(AGENT_ID_KEY, settings.agentId);
+    if (settings.authToken) {
+      localStorage.setItem(AUTH_TOKEN_KEY, settings.authToken);
+      wsService.setAuthToken(settings.authToken);
+    } else {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+    }
+
+    // Apply WebSocket and base URL changes
+    onWsUrlChange(settings.wsUrl);
+    onBaseUrlChange(settings.baseUrl);
+
+    // Update original settings baseline
+    setOriginalSettings(settings);
+    setOriginalConfNameState(confName);
+  }, [settings, bgUrlContext, baseUrl, setShowSubtitle, onWsUrlChange, onBaseUrlChange, confName]);
+
+  const handleCancel = useCallback((): void => {
+    setSettings(originalSettings);
+
+    // Revert language in i18n if it was changed during editing
+    if (
+      originalSettings.language &&
+      originalSettings.language[0] &&
+      originalSettings.language[0] !== i18n.language
+    ) {
+      i18n.changeLanguage(originalSettings.language[0]);
+    }
+
+    // Revert character preset if it was changed during editing
+    if (originalConfNameState && originalConfNameState !== confName) {
+      setConfName(originalConfNameState);
+    }
+  }, [
+    originalSettings,
+    originalConfNameState,
+    confName,
+    setConfName,
+  ]);
+
   useEffect(() => {
     if (!onSave || !onCancel) return;
 
@@ -162,61 +236,16 @@ export const useGeneralSettings = ({
       cleanupSave?.();
       cleanupCancel?.();
     };
-  }, [onSave, onCancel]);
-
-  const handleSettingChange = (
-    key: keyof GeneralSettings,
-    value: GeneralSettings[keyof GeneralSettings],
-  ): void => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-
-    if (key === 'wsUrl') {
-      onWsUrlChange(value as string);
-    }
-    if (key === 'baseUrl') {
-      onBaseUrlChange(value as string);
-    }
-    // Immediately change language when it's updated
-    if (key === 'language' && Array.isArray(value) && value.length > 0) {
-      i18n.changeLanguage(value[0]);
-    }
-  };
-
-  const handleSave = (): void => {
-    setOriginalSettings(settings);
-  };
-
-  const handleCancel = (): void => {
-    setSettings(originalSettings);
-
-    // Restore all settings to original values
-    setShowSubtitle(originalSettings.showSubtitle);
-    if (bgUrlContext) {
-      bgUrlContext.setBackgroundUrl(originalSettings.backgroundUrl);
-      bgUrlContext.setUseCameraBackground(originalSettings.useCameraBackground);
-    }
-    onWsUrlChange(originalSettings.wsUrl);
-    onBaseUrlChange(originalSettings.baseUrl);
-
-    // Restore original character preset
-    if (originalConfName) {
-      setConfName(originalConfName);
-    }
-
-    // Handle camera state
-    if (originalSettings.useCameraBackground) {
-      startBackgroundCamera();
-    } else {
-      stopBackgroundCamera();
-    }
-  };
+  }, [onSave, onCancel, handleSave, handleCancel]);
 
   const handleCharacterPresetChange = (value: string[]): void => {
     const selectedFilename = value[0];
-    const selectedConfig = configFiles.find((config) => config.filename === selectedFilename);
-    const currentFilename = confName ? getFilenameByName(confName) : '';
+    const selectedConfig = configFiles.find(
+      (config) => config.filename === selectedFilename,
+    );
+    const currentFilename = confName ? getFilenameByName(confName) : "";
 
-    handleSettingChange('selectedCharacterPreset', value);
+    handleSettingChange("selectedCharacterPreset", value);
 
     if (currentFilename === selectedFilename) {
       return;
@@ -233,16 +262,16 @@ export const useGeneralSettings = ({
     if (checked) {
       try {
         await startBackgroundCamera();
-        handleSettingChange('useCameraBackground', true);
+        handleSettingChange("useCameraBackground", true);
         setUseCameraBackground(true);
       } catch (error) {
-        console.error('Failed to start camera:', error);
-        handleSettingChange('useCameraBackground', false);
+        console.error("Failed to start camera:", error);
+        handleSettingChange("useCameraBackground", false);
         setUseCameraBackground(false);
       }
     } else {
       stopBackgroundCamera();
-      handleSettingChange('useCameraBackground', false);
+      handleSettingChange("useCameraBackground", false);
       setUseCameraBackground(false);
     }
   };

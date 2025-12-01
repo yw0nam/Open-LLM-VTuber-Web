@@ -1,25 +1,18 @@
-import { 
-  Box, 
-  Stack, 
-  Text, 
-  Heading, 
-  HStack,
-  Icon,
-} from '@chakra-ui/react';
-import { useTranslation } from 'react-i18next';
-import { FaGithub, FaBook } from 'react-icons/fa';
-import { settingStyles } from './setting-styles';
-import { Button } from '@/components/ui/button';
+import { Box, Stack, Text, Heading, HStack, Icon } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import { FaGithub, FaBook } from "react-icons/fa";
+import { settingStyles } from "./setting-styles";
+import { Button } from "@/components/ui/button";
 
 function About(): JSX.Element {
   const { t } = useTranslation();
-  
+
   const openExternalLink = (url: string) => {
     // Handle external link opening via electron
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
-  
-  const appVersion = '1.2.1';
+
+  const appVersion = "1.2.1";
   // const appAuthor = 'Open LLM VTuber Team';
 
   return (
@@ -47,7 +40,7 @@ function About(): JSX.Element {
             size="sm"
             onClick={() =>
               openExternalLink(
-                "https://github.com/Open-LLM-VTuber/Open-LLM-VTuber-Web"
+                "https://github.com/Open-LLM-VTuber/Open-LLM-VTuber-Web",
               )
             }
           >
@@ -63,7 +56,15 @@ function About(): JSX.Element {
       </Box>
       <Box borderTop="1px solid" borderColor="whiteAlpha.200" pt={2} mt={1} />
       <Box mt={1}>
-        <Button size="xs" colorPalette="blue" onClick={() => openExternalLink("https://github.com/Open-LLM-VTuber/Open-LLM-VTuber-Web/blob/main/LICENSE")}>
+        <Button
+          size="xs"
+          colorPalette="blue"
+          onClick={() =>
+            openExternalLink(
+              "https://github.com/Open-LLM-VTuber/Open-LLM-VTuber-Web/blob/main/LICENSE",
+            )
+          }
+        >
           {t("settings.about.viewLicense")}
         </Button>
       </Box>

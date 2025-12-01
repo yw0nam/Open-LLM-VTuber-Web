@@ -5,7 +5,7 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismVector2 } from './cubismvector2';
+import { CubismVector2 } from "./cubismvector2";
 
 /**
  * 数値計算などに使用するユーティリティクラス
@@ -250,7 +250,7 @@ export class CubismMath {
     a: number,
     b: number,
     c: number,
-    d: number
+    d: number,
   ): number {
     if (this.sqrt(a) < CubismMath.Epsilon) {
       return this.range(this.quadraticEquation(b, c, d), 0.0, 1.0);
@@ -334,7 +334,7 @@ export class CubismMath {
       isNaN(divisor)
     ) {
       console.warn(
-        `divided: ${dividend}, divisor: ${divisor} mod() returns 'NaN'.`
+        `divided: ${dividend}, divisor: ${divisor} mod() returns 'NaN'.`,
       );
       return NaN;
     }
@@ -359,7 +359,7 @@ export class CubismMath {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmath';
+import * as $ from "./cubismmath";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismMath = $.CubismMath;

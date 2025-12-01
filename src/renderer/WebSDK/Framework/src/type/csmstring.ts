@@ -39,7 +39,7 @@ export class csmString {
    * 文字列の長さをバイト数で取得する
    */
   public getBytes(): number {
-    return encodeURIComponent(this.s).replace(/%../g, 'x').length;
+    return encodeURIComponent(this.s).replace(/%../g, "x").length;
   }
 
   /**
@@ -99,7 +99,7 @@ export class csmString {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './csmstring';
+import * as $ from "./csmstring";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const csmString = $.csmString;

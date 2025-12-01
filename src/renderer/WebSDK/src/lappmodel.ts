@@ -89,7 +89,7 @@ export class LAppModel extends CubismUserModel {
       .then((arrayBuffer) => {
         const setting: ICubismModelSetting = new CubismModelSettingJson(
           arrayBuffer,
-          arrayBuffer.byteLength
+          arrayBuffer.byteLength,
         );
 
         // ステートを更新
@@ -130,13 +130,17 @@ export class LAppModel extends CubismUserModel {
             return response.arrayBuffer();
           } else if (response.status >= 400) {
             CubismLogError(
-              `Failed to load file ${this._modelHomeDir}${modelFileName}`
+              `Failed to load file ${this._modelHomeDir}${modelFileName}`,
             );
             return new ArrayBuffer(0);
           }
         })
         .then((arrayBuffer) => {
-          this.loadModel(arrayBuffer, this._mocConsistency, LAppDefine.CurrentKScale);
+          this.loadModel(
+            arrayBuffer,
+            this._mocConsistency,
+            LAppDefine.CurrentKScale,
+          );
           this._state = LoadStep.LoadExpression;
 
           // callback
@@ -164,7 +168,7 @@ export class LAppModel extends CubismUserModel {
                 return response.arrayBuffer();
               } else if (response.status >= 400) {
                 CubismLogError(
-                  `Failed to load file ${this._modelHomeDir}${expressionFileName}`
+                  `Failed to load file ${this._modelHomeDir}${expressionFileName}`,
                 );
                 // ファイルが存在しなくてもresponseはnullを返却しないため、空のArrayBufferで対応する
                 return new ArrayBuffer(0);
@@ -174,12 +178,12 @@ export class LAppModel extends CubismUserModel {
               const motion: ACubismMotion = this.loadExpression(
                 arrayBuffer,
                 arrayBuffer.byteLength,
-                expressionName
+                expressionName,
               );
 
               if (this._expressions.getValue(expressionName) != null) {
                 ACubismMotion.delete(
-                  this._expressions.getValue(expressionName)
+                  this._expressions.getValue(expressionName),
                 );
                 this._expressions.setValue(expressionName, null);
               }
@@ -216,7 +220,7 @@ export class LAppModel extends CubismUserModel {
               return response.arrayBuffer();
             } else if (response.status >= 400) {
               CubismLogError(
-                `Failed to load file ${this._modelHomeDir}${physicsFileName}`
+                `Failed to load file ${this._modelHomeDir}${physicsFileName}`,
               );
               return new ArrayBuffer(0);
             }
@@ -249,7 +253,7 @@ export class LAppModel extends CubismUserModel {
               return response.arrayBuffer();
             } else if (response.status >= 400) {
               CubismLogError(
-                `Failed to load file ${this._modelHomeDir}${poseFileName}`
+                `Failed to load file ${this._modelHomeDir}${poseFileName}`,
               );
               return new ArrayBuffer(0);
             }
@@ -288,25 +292,33 @@ export class LAppModel extends CubismUserModel {
 
       const breathParameters: csmVector<BreathParameterData> = new csmVector();
       breathParameters.pushBack(
-        new BreathParameterData(this._idParamAngleX, 0.0, 15.0, 6.5345, 0.5)
+        new BreathParameterData(this._idParamAngleX, 0.0, 15.0, 6.5345, 0.5),
       );
       breathParameters.pushBack(
-        new BreathParameterData(this._idParamAngleY, 0.0, 8.0, 3.5345, 0.5)
+        new BreathParameterData(this._idParamAngleY, 0.0, 8.0, 3.5345, 0.5),
       );
       breathParameters.pushBack(
-        new BreathParameterData(this._idParamAngleZ, 0.0, 10.0, 5.5345, 0.5)
+        new BreathParameterData(this._idParamAngleZ, 0.0, 10.0, 5.5345, 0.5),
       );
       breathParameters.pushBack(
-        new BreathParameterData(this._idParamBodyAngleX, 0.0, 4.0, 15.5345, 0.5)
+        new BreathParameterData(
+          this._idParamBodyAngleX,
+          0.0,
+          4.0,
+          15.5345,
+          0.5,
+        ),
       );
 
       // Add null check for CubismFramework.getIdManager()
       const idManager = CubismFramework.getIdManager();
       if (idManager) {
-        const breathParameterId = idManager.getId(CubismDefaultParameterId.ParamBreath);
+        const breathParameterId = idManager.getId(
+          CubismDefaultParameterId.ParamBreath,
+        );
         if (breathParameterId) {
           breathParameters.pushBack(
-            new BreathParameterData(breathParameterId, 0.5, 0.5, 3.2345, 1)
+            new BreathParameterData(breathParameterId, 0.5, 0.5, 3.2345, 1),
           );
         }
       }
@@ -329,7 +341,7 @@ export class LAppModel extends CubismUserModel {
               return response.arrayBuffer();
             } else if (response.status >= 400) {
               CubismLogError(
-                `Failed to load file ${this._modelHomeDir}${userDataFile}`
+                `Failed to load file ${this._modelHomeDir}${userDataFile}`,
               );
               return new ArrayBuffer(0);
             }
@@ -354,13 +366,12 @@ export class LAppModel extends CubismUserModel {
 
     // EyeBlinkIds
     const setupEyeBlinkIds = (): void => {
-
       const eyeBlinkIdCount: number =
         this._modelSetting.getEyeBlinkParameterCount();
 
       for (let i = 0; i < eyeBlinkIdCount; ++i) {
         this._eyeBlinkIds.pushBack(
-          this._modelSetting.getEyeBlinkParameterId(i)
+          this._modelSetting.getEyeBlinkParameterId(i),
         );
       }
 
@@ -372,7 +383,6 @@ export class LAppModel extends CubismUserModel {
 
     // LipSyncIds
     const setupLipSyncIds = (): void => {
-
       const lipSyncIdCount = this._modelSetting.getLipSyncParameterCount();
 
       for (let i = 0; i < lipSyncIdCount; ++i) {
@@ -381,21 +391,35 @@ export class LAppModel extends CubismUserModel {
 
       // Fallback if no LipSync IDs are defined in the model setting
       if (this._lipSyncIds.getSize() === 0) {
-        console.warn('[Fallback] No LipSync IDs defined in model setting. Attempting fallback to "ParamMouthOpenY".');
-        
+        console.warn(
+          '[Fallback] No LipSync IDs defined in model setting. Attempting fallback to "ParamMouthOpenY".',
+        );
+
         const idManager = CubismFramework.getIdManager();
         if (idManager) {
-          const fallbackId: CubismIdHandle = idManager.getId(CubismDefaultParameterId.ParamMouthOpenY);
+          const fallbackId: CubismIdHandle = idManager.getId(
+            CubismDefaultParameterId.ParamMouthOpenY,
+          );
 
           // Check if the model actually has this parameter before adding it
-          if (this._model && fallbackId && this._model.getParameterIndex(fallbackId) !== -1) {
+          if (
+            this._model &&
+            fallbackId &&
+            this._model.getParameterIndex(fallbackId) !== -1
+          ) {
             this._lipSyncIds.pushBack(fallbackId);
-            console.log('[Fallback] Successfully added "ParamMouthOpenY" as LipSync ID.');
+            console.log(
+              '[Fallback] Successfully added "ParamMouthOpenY" as LipSync ID.',
+            );
           } else {
-            console.warn('[Fallback] Fallback ID "ParamMouthOpenY" not found in the current model or model not loaded.');
+            console.warn(
+              '[Fallback] Fallback ID "ParamMouthOpenY" not found in the current model or model not loaded.',
+            );
           }
         } else {
-          console.warn('[Fallback] Could not access IdManager. LipSync fallback unavailable.');
+          console.warn(
+            "[Fallback] Could not access IdManager. LipSync fallback unavailable.",
+          );
         }
       }
 
@@ -480,7 +504,7 @@ export class LAppModel extends CubismUserModel {
    * テクスチャのセットアップ
    */
   private setupTextures(): void {
-    console.log('Setting up textures for model:', this._modelHomeDir);
+    console.log("Setting up textures for model:", this._modelHomeDir);
 
     // iPhoneでのアルファ品質向上のためTypescriptではpremultipliedAlphaを採用 (Reverted to likely original)
     const usePremultiply = true;
@@ -559,12 +583,12 @@ export class LAppModel extends CubismUserModel {
       // モーションの再生がない場合、待機モーションの中からランダムで再生する
       this.startRandomMotion(
         LAppDefine.MotionGroupIdle,
-        LAppDefine.PriorityIdle
+        LAppDefine.PriorityIdle,
       );
     } else {
       motionUpdated = this._motionManager.updateMotion(
         this._model,
-        deltaTimeSeconds
+        deltaTimeSeconds,
       ); // モーションを更新
     }
     this._model.saveParameters(); // 状態を保存
@@ -588,13 +612,13 @@ export class LAppModel extends CubismUserModel {
     this._model.addParameterValueById(this._idParamAngleY, this._dragY * 30);
     this._model.addParameterValueById(
       this._idParamAngleZ,
-      this._dragX * this._dragY * -30
+      this._dragX * this._dragY * -30,
     );
 
     // ドラッグによる体の向きの調整
     this._model.addParameterValueById(
       this._idParamBodyAngleX,
-      this._dragX * 10
+      this._dragX * 10,
     ); // -10から10の値を加える
 
     // ドラッグによる目の向きの調整
@@ -624,7 +648,7 @@ export class LAppModel extends CubismUserModel {
         this._model.addParameterValueById(
           this._lipSyncIds.at(i),
           value,
-          lipSyncWeight
+          lipSyncWeight,
         );
       }
     }
@@ -649,11 +673,13 @@ export class LAppModel extends CubismUserModel {
     group: string,
     no: number,
     priority: number,
-    onFinishedMotionHandler?: FinishedMotionCallback
+    onFinishedMotionHandler?: FinishedMotionCallback,
   ): CubismMotionQueueEntryHandle {
     // Add a log specifically when trying to start a tap motion (which uses priority 3)
     if (priority === 3 && LAppDefine.DebugLogEnable) {
-      console.log(`[APP] startMotion: Attempting to start tap motion. Group: '${group}', Index: ${no}`);
+      console.log(
+        `[APP] startMotion: Attempting to start tap motion. Group: '${group}', Index: ${no}`,
+      );
     }
 
     if (priority == LAppDefine.PriorityForce) {
@@ -674,7 +700,9 @@ export class LAppModel extends CubismUserModel {
 
     if (motion == null) {
       if (LAppDefine.DebugLogEnable) {
-        console.log(`[APP] startMotion: Motion '${name}' not found in cache, fetching: ${motionFileName}`);
+        console.log(
+          `[APP] startMotion: Motion '${name}' not found in cache, fetching: ${motionFileName}`,
+        );
       }
       fetch(`${this._modelHomeDir}${motionFileName}`)
         .then((response) => {
@@ -682,7 +710,7 @@ export class LAppModel extends CubismUserModel {
             return response.arrayBuffer();
           } else if (response.status >= 400) {
             CubismLogError(
-              `Failed to load file ${this._modelHomeDir}${motionFileName}`
+              `Failed to load file ${this._modelHomeDir}${motionFileName}`,
             );
             return new ArrayBuffer(0);
           }
@@ -692,19 +720,21 @@ export class LAppModel extends CubismUserModel {
             arrayBuffer,
             arrayBuffer.byteLength,
             null, // Pass null for name here? Original code did. Let's keep it for now.
-            onFinishedMotionHandler
+            onFinishedMotionHandler,
           );
 
           if (motion == null) {
-             if (LAppDefine.DebugLogEnable) {
-                console.error(`[APP] startMotion: Failed to load motion from fetched data for '${name}'`);
-             }
+            if (LAppDefine.DebugLogEnable) {
+              console.error(
+                `[APP] startMotion: Failed to load motion from fetched data for '${name}'`,
+              );
+            }
             return;
           }
 
           let fadeTime: number = this._modelSetting.getMotionFadeInTimeValue(
             group,
-            no
+            no,
           );
 
           if (fadeTime >= 0.0) {
@@ -723,26 +753,24 @@ export class LAppModel extends CubismUserModel {
           if (LAppDefine.DebugLogEnable) {
             console.log(`[APP] startMotion: Starting fetched motion '${name}'`);
           }
-          this._motionManager.startMotionPriority(
-            motion,
-            autoDelete,
-            priority
-          );
+          this._motionManager.startMotionPriority(motion, autoDelete, priority);
         });
       // Return InvalidHandle immediately because the motion starts asynchronously
       // This might be an issue if the caller expects a valid handle right away.
       // Let's reconsider this. Maybe startMotion should return a Promise? For now, keep original logic.
-       return InvalidMotionQueueEntryHandleValue; 
+      return InvalidMotionQueueEntryHandleValue;
     } else {
       if (LAppDefine.DebugLogEnable) {
-        console.log(`[APP] startMotion: Motion '${name}' found in cache. Starting.`);
+        console.log(
+          `[APP] startMotion: Motion '${name}' found in cache. Starting.`,
+        );
       }
       motion.setFinishedMotionHandler(onFinishedMotionHandler);
       // Start the motion if found in cache
       return this._motionManager.startMotionPriority(
-          motion,
-          autoDelete, // Should be false for cached motions? Let's assume true based on original code.
-          priority
+        motion,
+        autoDelete, // Should be false for cached motions? Let's assume true based on original code.
+        priority,
       );
     }
 
@@ -759,24 +787,30 @@ export class LAppModel extends CubismUserModel {
   public startRandomMotion(
     group: string,
     priority: number,
-    onFinishedMotionHandler?: FinishedMotionCallback
+    onFinishedMotionHandler?: FinishedMotionCallback,
   ): CubismMotionQueueEntryHandle {
     if (LAppDefine.DebugLogEnable) {
-      console.log(`[APP] startRandomMotion called. Group: '${group}', Priority: ${priority}`);
+      console.log(
+        `[APP] startRandomMotion called. Group: '${group}', Priority: ${priority}`,
+      );
     }
     if (this._modelSetting.getMotionCount(group) == 0) {
       if (LAppDefine.DebugLogEnable) {
-         console.warn(`[APP] startRandomMotion: No motions found in group '${group}'`);
+        console.warn(
+          `[APP] startRandomMotion: No motions found in group '${group}'`,
+        );
       }
       return InvalidMotionQueueEntryHandleValue;
     }
 
     const no: number = Math.floor(
-      Math.random() * this._modelSetting.getMotionCount(group)
+      Math.random() * this._modelSetting.getMotionCount(group),
     );
 
     if (LAppDefine.DebugLogEnable) {
-      console.log(`[APP] startRandomMotion: Selected random index ${no} from group '${group}'`);
+      console.log(
+        `[APP] startRandomMotion: Selected random index ${no} from group '${group}'`,
+      );
     }
 
     return this.startMotion(group, no, priority, onFinishedMotionHandler);
@@ -798,7 +832,7 @@ export class LAppModel extends CubismUserModel {
       this._expressionManager.startMotionPriority(
         motion,
         false,
-        LAppDefine.PriorityForce
+        LAppDefine.PriorityForce,
       );
     } else {
       if (this._debugMode) {
@@ -879,14 +913,18 @@ export class LAppModel extends CubismUserModel {
       if (hit) {
         // Get the CubismIdHandle for the hit area
         const hitAreaIdHandle = this._modelSetting.getHitAreaId(i);
-        
+
         // Attempt to access the string via the internal _id.s structure
         // Accessing private members like this is generally discouraged but necessary if no public API exists
         const idString = (hitAreaIdHandle as any)?._id?.s; // Cast to any to bypass potential type errors
 
         // Debug log for hit area detection
         if (LAppDefine.DebugLogEnable) {
-          console.log(`[APP] anyhitTest: Hit detected. ID Handle:`, hitAreaIdHandle, ` Extracted ID String: ${idString}`);
+          console.log(
+            `[APP] anyhitTest: Hit detected. ID Handle:`,
+            hitAreaIdHandle,
+            ` Extracted ID String: ${idString}`,
+          );
         }
         // Return the ID string which should match the tapMotions keys
         return idString || null; // Return the extracted string, or null if it failed
@@ -894,7 +932,7 @@ export class LAppModel extends CubismUserModel {
     }
     // Debug log if no hit area detected
     if (LAppDefine.DebugLogEnable) {
-       // console.log(`[APP] anyhitTest: No specific hit area detected.`);
+      // console.log(`[APP] anyhitTest: No specific hit area detected.`);
     }
     return null; // No hit area was hit
   }
@@ -911,7 +949,7 @@ export class LAppModel extends CubismUserModel {
       const name = `${group}_${i}`;
       if (this._debugMode) {
         LAppPal.printMessage(
-          `[APP]load motion: ${motionFileName} => [${name}]`
+          `[APP]load motion: ${motionFileName} => [${name}]`,
         );
       }
 
@@ -921,7 +959,7 @@ export class LAppModel extends CubismUserModel {
             return response.arrayBuffer();
           } else if (response.status >= 400) {
             CubismLogError(
-              `Failed to load file ${this._modelHomeDir}${motionFileName}`
+              `Failed to load file ${this._modelHomeDir}${motionFileName}`,
             );
             return null; // Return null instead of empty ArrayBuffer
           }
@@ -937,13 +975,13 @@ export class LAppModel extends CubismUserModel {
           const tmpMotion: CubismMotion = this.loadMotion(
             arrayBuffer,
             arrayBuffer.byteLength,
-            name
+            name,
           );
 
           if (tmpMotion != null) {
             let fadeTime = this._modelSetting.getMotionFadeInTimeValue(
               group,
-              i
+              i,
             );
             if (fadeTime >= 0.0) {
               tmpMotion.setFadeInTime(fadeTime);
@@ -1071,15 +1109,13 @@ export class LAppModel extends CubismUserModel {
 
     // Get drawable count
     const drawableCount = this._model.getDrawableCount();
-    
+
     // Get model matrix
     const matrix = this._modelMatrix.getArray();
-    
+
     // Calculate determinant
-    const det = 
-      matrix[0] * matrix[5] - 
-      matrix[1] * matrix[4];
-    
+    const det = matrix[0] * matrix[5] - matrix[1] * matrix[4];
+
     if (Math.abs(det) < 0.0001) {
       return false; // Matrix is not invertible
     }
@@ -1092,13 +1128,13 @@ export class LAppModel extends CubismUserModel {
       c: -matrix[4] * invDet,
       d: matrix[0] * invDet,
       tx: (matrix[4] * matrix[13] - matrix[5] * matrix[12]) * invDet,
-      ty: (matrix[1] * matrix[12] - matrix[0] * matrix[13]) * invDet
+      ty: (matrix[1] * matrix[12] - matrix[0] * matrix[13]) * invDet,
     };
-    
+
     // Transform point
     const transformedPoint = {
       x: x * invMatrix.a + y * invMatrix.c + invMatrix.tx,
-      y: x * invMatrix.b + y * invMatrix.d + invMatrix.ty
+      y: x * invMatrix.b + y * invMatrix.d + invMatrix.ty,
     };
 
     // Check each drawable area
@@ -1110,7 +1146,7 @@ export class LAppModel extends CubismUserModel {
 
       // Get drawable vertex positions
       const vertices = this._model.getDrawableVertices(i);
-      
+
       // Calculate bounds
       let minX = vertices[0];
       let minY = vertices[1];
@@ -1142,7 +1178,7 @@ export class LAppModel extends CubismUserModel {
 
   /**
    * Performs a hit test with fallback if the first one fails.
-   * 
+   *
    * @param x - X coordinate to test
    * @param y - Y coordinate to test
    * @returns boolean indicating if any hit was detected
@@ -1150,7 +1186,7 @@ export class LAppModel extends CubismUserModel {
   public anyHitTestWithFallback(x: number, y: number): boolean {
     // First check named hit areas
     const hitAreaName = this.anyhitTest(x, y);
-    
+
     // If a hit area was found, return true, otherwise fall back to general hit test
     return hitAreaName !== null || this.isHitOnModel(x, y);
   }
@@ -1160,14 +1196,17 @@ export class LAppModel extends CubismUserModel {
    * @param hitAreaName The name of the hit area that was tapped, or null if no specific area was hit
    * @param tapMotionsConfig The tap motion configuration from modelInfo
    */
-  public startTapMotion(hitAreaName: string | null, tapMotionsConfig: any): void {
+  public startTapMotion(
+    hitAreaName: string | null,
+    tapMotionsConfig: any,
+  ): void {
     if (LAppDefine.DebugLogEnable) {
       console.log(`[APP] startTapMotion called. Hit area: ${hitAreaName}`);
     }
 
     if (!tapMotionsConfig || Object.keys(tapMotionsConfig).length === 0) {
       if (LAppDefine.DebugLogEnable) {
-        console.log('[APP] No tap motions configured.');
+        console.log("[APP] No tap motions configured.");
       }
       return;
     }
@@ -1180,7 +1219,10 @@ export class LAppModel extends CubismUserModel {
       motionsToConsider = tapMotionsConfig[hitAreaName];
       areaSpecificHit = true;
       if (LAppDefine.DebugLogEnable) {
-        console.log(`[APP] startTapMotion: Using motions for specific area: ${hitAreaName}`, motionsToConsider);
+        console.log(
+          `[APP] startTapMotion: Using motions for specific area: ${hitAreaName}`,
+          motionsToConsider,
+        );
       }
     }
 
@@ -1197,14 +1239,17 @@ export class LAppModel extends CubismUserModel {
         }
       });
       if (LAppDefine.DebugLogEnable) {
-        console.log('[APP] startTapMotion: Using combined motions:', motionsToConsider);
+        console.log(
+          "[APP] startTapMotion: Using combined motions:",
+          motionsToConsider,
+        );
       }
     }
 
     // 3. Check if there are any motions to play
     if (Object.keys(motionsToConsider).length === 0) {
       if (LAppDefine.DebugLogEnable) {
-        console.log('[APP] startTapMotion: No motions found to consider.');
+        console.log("[APP] startTapMotion: No motions found to consider.");
       }
       return;
     }
@@ -1215,12 +1260,14 @@ export class LAppModel extends CubismUserModel {
     const totalWeight = weights.reduce((sum, w) => sum + (isNaN(w) ? 0 : w), 0);
 
     if (LAppDefine.DebugLogEnable) {
-      console.log(`[APP] startTapMotion: Motion groups: ${motionGroups}, Weights: ${weights}, Total weight: ${totalWeight}`);
+      console.log(
+        `[APP] startTapMotion: Motion groups: ${motionGroups}, Weights: ${weights}, Total weight: ${totalWeight}`,
+      );
     }
 
     if (totalWeight <= 0) {
       if (LAppDefine.DebugLogEnable) {
-        console.log('[APP] startTapMotion: Total weight is zero or invalid.');
+        console.log("[APP] startTapMotion: Total weight is zero or invalid.");
       }
       return;
     }
@@ -1247,7 +1294,7 @@ export class LAppModel extends CubismUserModel {
       this.startRandomMotion(selectedGroupName, 3);
     } else {
       if (LAppDefine.DebugLogEnable) {
-        console.log('[APP] startTapMotion: Could not select a motion group.');
+        console.log("[APP] startTapMotion: Could not select a motion group.");
       }
     }
   }
@@ -1272,25 +1319,25 @@ export class LAppModel extends CubismUserModel {
     this._userArea = new csmVector<csmRect>();
 
     const idManager = CubismFramework.getIdManager();
-    
+
     if (idManager) {
       this._idParamAngleX = idManager.getId(
-        CubismDefaultParameterId.ParamAngleX
+        CubismDefaultParameterId.ParamAngleX,
       );
       this._idParamAngleY = idManager.getId(
-        CubismDefaultParameterId.ParamAngleY
+        CubismDefaultParameterId.ParamAngleY,
       );
       this._idParamAngleZ = idManager.getId(
-        CubismDefaultParameterId.ParamAngleZ
+        CubismDefaultParameterId.ParamAngleZ,
       );
       this._idParamEyeBallX = idManager.getId(
-        CubismDefaultParameterId.ParamEyeBallX
+        CubismDefaultParameterId.ParamEyeBallX,
       );
       this._idParamEyeBallY = idManager.getId(
-        CubismDefaultParameterId.ParamEyeBallY
+        CubismDefaultParameterId.ParamEyeBallY,
       );
       this._idParamBodyAngleX = idManager.getId(
-        CubismDefaultParameterId.ParamBodyAngleX
+        CubismDefaultParameterId.ParamBodyAngleX,
       );
     } else {
       // Initialize handles with null to avoid undefined errors

@@ -28,9 +28,13 @@ export class TaskQueue {
 
   private async runNextTask() {
     if (this.running || this.queue.length === 0) {
-      if (this.queue.length === 0 && this.activeTasks.size === 0 && this.pendingComplete) {
+      if (
+        this.queue.length === 0 &&
+        this.activeTasks.size === 0 &&
+        this.pendingComplete
+      ) {
         this.pendingComplete = false;
-        await new Promise(resolve => setTimeout(resolve, this.taskInterval));
+        await new Promise((resolve) => setTimeout(resolve, this.taskInterval));
       }
       return;
     }
@@ -43,9 +47,9 @@ export class TaskQueue {
 
       try {
         await taskPromise;
-        await new Promise(resolve => setTimeout(resolve, this.taskInterval));
+        await new Promise((resolve) => setTimeout(resolve, this.taskInterval));
       } catch (error) {
-        console.error('Task Queue Error', error);
+        console.error("Task Queue Error", error);
       } finally {
         this.activeTasks.delete(taskPromise);
         this.running = false;

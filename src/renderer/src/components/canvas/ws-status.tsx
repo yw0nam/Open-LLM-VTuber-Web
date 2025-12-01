@@ -1,12 +1,12 @@
-import { Box } from '@chakra-ui/react';
-import React, { memo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { canvasStyles } from './canvas-styles';
-import { useWSStatus } from '@/hooks/canvas/use-ws-status';
+import { Box } from "@chakra-ui/react";
+import React, { memo } from "react";
+import { useTranslation } from "react-i18next";
+import { canvasStyles } from "./canvas-styles";
+import { useWSStatus } from "@/hooks/canvas/use-ws-status";
 
 // Type definitions
 interface StatusContentProps {
-  textKey: string
+  textKey: string;
 }
 
 // Reusable components
@@ -18,16 +18,14 @@ const MemoizedStatusContent = memo(StatusContent);
 
 // Main component
 const WebSocketStatus = memo((): JSX.Element => {
-  const {
-    color, textKey, handleClick, isDisconnected,
-  } = useWSStatus();
+  const { color, textKey, handleClick, isDisconnected } = useWSStatus();
 
   return (
     <Box
       {...canvasStyles.wsStatus.container}
       backgroundColor={color}
       onClick={handleClick}
-      cursor={isDisconnected ? 'pointer' : 'default'}
+      cursor={isDisconnected ? "pointer" : "default"}
       _hover={{
         opacity: isDisconnected ? 0.8 : 1,
       }}
@@ -37,6 +35,6 @@ const WebSocketStatus = memo((): JSX.Element => {
   );
 });
 
-WebSocketStatus.displayName = 'WebSocketStatus';
+WebSocketStatus.displayName = "WebSocketStatus";
 
 export default WebSocketStatus;

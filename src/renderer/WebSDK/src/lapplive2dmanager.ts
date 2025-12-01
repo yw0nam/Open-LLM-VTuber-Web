@@ -6,21 +6,21 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismMatrix44 } from '@framework/math/cubismmatrix44';
-import { ACubismMotion } from '@framework/motion/acubismmotion';
-import { csmVector } from '@framework/type/csmvector';
+import { CubismMatrix44 } from "@framework/math/cubismmatrix44";
+import { ACubismMotion } from "@framework/motion/acubismmotion";
+import { csmVector } from "@framework/type/csmvector";
 
-import * as LAppDefine from './lappdefine';
-import { canvas } from './lappglmanager';
-import { LAppModel } from './lappmodel';
-import { LAppPal } from './lapppal';
+import * as LAppDefine from "./lappdefine";
+import { canvas } from "./lappglmanager";
+import { LAppModel } from "./lappmodel";
+import { LAppPal } from "./lapppal";
 
 export let s_instance: LAppLive2DManager | null | undefined = null;
 
 /**
  * サンプルアプリケーションにおいてCubismModelを管理するクラス
  * モデル生成と破棄、タップイベントの処理、モデル切り替えを行う。
- * 
+ *
  * 在示例应用程序中管理CubismModel的类
  * 执行模型生成和销毁、触摸事件处理、模型切换。
  */
@@ -28,7 +28,7 @@ export class LAppLive2DManager {
   /**
    * クラスのインスタンス（シングルトン）を返す。
    * インスタンスが生成されていない場合は内部でインスタンスを生成する。
-   * 
+   *
    * 返回类的实例（单例）。
    * 如果尚未创建实例，则在内部创建实例。
    *
@@ -44,7 +44,7 @@ export class LAppLive2DManager {
 
   /**
    * クラスのインスタンス（シングルトン）を解放する。
-   * 
+   *
    * 释放类的实例（单例）。
    */
   public static releaseInstance(): void {
@@ -83,7 +83,7 @@ export class LAppLive2DManager {
 
   /**
    * 画面をドラッグした時の処理
-   * 
+   *
    * 当拖动屏幕时的处理
    *
    * @param x 画面のX座標
@@ -108,7 +108,7 @@ export class LAppLive2DManager {
   public onTap(x: number, y: number): void {
     if (LAppDefine.DebugLogEnable) {
       LAppPal.printMessage(
-        `[APP]tap point: {x: ${x.toFixed(2)} y: ${y.toFixed(2)}}`
+        `[APP]tap point: {x: ${x.toFixed(2)} y: ${y.toFixed(2)}}`,
       );
     }
 
@@ -116,14 +116,14 @@ export class LAppLive2DManager {
       if (this._models.at(i).hitTest(LAppDefine.HitAreaNameHead, x, y)) {
         if (LAppDefine.DebugLogEnable) {
           LAppPal.printMessage(
-            `[APP]hit area: [${LAppDefine.HitAreaNameHead}]`
+            `[APP]hit area: [${LAppDefine.HitAreaNameHead}]`,
           );
         }
         this._models.at(i).setRandomExpression();
       } else if (this._models.at(i).hitTest(LAppDefine.HitAreaNameBody, x, y)) {
         if (LAppDefine.DebugLogEnable) {
           LAppPal.printMessage(
-            `[APP]hit area: [${LAppDefine.HitAreaNameBody}]`
+            `[APP]hit area: [${LAppDefine.HitAreaNameBody}]`,
           );
         }
         this._models
@@ -131,7 +131,7 @@ export class LAppLive2DManager {
           .startRandomMotion(
             LAppDefine.MotionGroupTapBody,
             LAppDefine.PriorityNormal,
-            this._finishedMotion
+            this._finishedMotion,
           );
       }
     }
@@ -191,15 +191,15 @@ export class LAppLive2DManager {
 
     // Use the directory name and file name from our configuration
     const model: string = LAppDefine.ModelDir[index];
-    const modelPath: string = LAppDefine.ResourcesPath + model + '/';
-    
+    const modelPath: string = LAppDefine.ResourcesPath + model + "/";
+
     // Use ModelFileNames if available, otherwise fall back to ModelDir
-    let modelJsonName: string = LAppDefine.ModelFileNames && 
-                                LAppDefine.ModelFileNames[index] ? 
-                                LAppDefine.ModelFileNames[index] : 
-                                LAppDefine.ModelDir[index];
-                                
-    modelJsonName += '.model3.json';
+    let modelJsonName: string =
+      LAppDefine.ModelFileNames && LAppDefine.ModelFileNames[index]
+        ? LAppDefine.ModelFileNames[index]
+        : LAppDefine.ModelDir[index];
+
+    modelJsonName += ".model3.json";
 
     if (LAppDefine.DebugLogEnable) {
       LAppPal.printMessage(`[APP]model path: ${modelPath}${modelJsonName}`);
@@ -231,7 +231,7 @@ export class LAppLive2DManager {
   _sceneIndex: number; // 表示するシーンのインデックス値
   // モーション再生終了のコールバック関数
   _finishedMotion = (self: ACubismMotion): void => {
-    LAppPal.printMessage('Motion Finished:');
+    LAppPal.printMessage("Motion Finished:");
     console.log(self);
   };
 }

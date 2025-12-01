@@ -5,13 +5,13 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismIdHandle } from '../id/cubismid';
-import { CubismFramework } from '../live2dcubismframework';
-import { csmString } from '../type/csmstring';
-import { csmVector } from '../type/csmvector';
-import { CubismModelUserDataJson } from './cubismmodeluserdatajson';
+import { CubismIdHandle } from "../id/cubismid";
+import { CubismFramework } from "../live2dcubismframework";
+import { csmString } from "../type/csmstring";
+import { csmVector } from "../type/csmvector";
+import { CubismModelUserDataJson } from "./cubismmodeluserdatajson";
 
-const ArtMesh = 'ArtMesh';
+const ArtMesh = "ArtMesh";
 
 /**
  * ユーザーデータインターフェース
@@ -75,7 +75,7 @@ export class CubismModelUserData {
   public parseUserData(buffer: ArrayBuffer, size: number): void {
     let json: CubismModelUserDataJson = new CubismModelUserDataJson(
       buffer,
-      size
+      size,
     );
     if (!json) {
       json.release();
@@ -91,7 +91,7 @@ export class CubismModelUserData {
 
       addNode.targetId = json.getUserDataId(i);
       addNode.targetType = CubismFramework.getIdManager().getId(
-        json.getUserDataTargetType(i)
+        json.getUserDataTargetType(i),
       );
       addNode.value = new csmString(json.getUserDataValue(i));
       this._userDataNodes.pushBack(addNode);
@@ -131,7 +131,7 @@ export class CubismModelUserData {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmodeluserdata';
+import * as $ from "./cubismmodeluserdata";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismModelUserData = $.CubismModelUserData;

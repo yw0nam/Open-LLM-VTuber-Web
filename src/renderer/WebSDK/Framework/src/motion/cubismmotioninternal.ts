@@ -5,9 +5,9 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismIdHandle } from '../id/cubismid';
-import { csmString } from '../type/csmstring';
-import { csmVector } from '../type/csmvector';
+import { CubismIdHandle } from "../id/cubismid";
+import { csmString } from "../type/csmstring";
+import { csmVector } from "../type/csmvector";
 
 /**
  * @brief モーションカーブの種類
@@ -17,7 +17,7 @@ import { csmVector } from '../type/csmvector';
 export enum CubismMotionCurveTarget {
   CubismMotionCurveTarget_Model, // モデルに対して
   CubismMotionCurveTarget_Parameter, // パラメータに対して
-  CubismMotionCurveTarget_PartOpacity // パーツの不透明度に対して
+  CubismMotionCurveTarget_PartOpacity, // パーツの不透明度に対して
 }
 
 /**
@@ -29,7 +29,7 @@ export enum CubismMotionSegmentType {
   CubismMotionSegmentType_Linear = 0, // リニア
   CubismMotionSegmentType_Bezier = 1, // ベジェ曲線
   CubismMotionSegmentType_Stepped = 2, // ステップ
-  CubismMotionSegmentType_InverseStepped = 3 // インバースステップ
+  CubismMotionSegmentType_InverseStepped = 3, // インバースステップ
 }
 
 /**
@@ -135,7 +135,7 @@ export class CubismMotionData {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmotioninternal';
+import * as $ from "./cubismmotioninternal";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismMotionCurve = $.CubismMotionCurve;

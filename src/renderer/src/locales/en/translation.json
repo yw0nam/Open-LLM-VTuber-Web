@@ -76,11 +76,8 @@
   "sidebar": {
     "camera": "Camera",
     "screen": "Screen",
-    "browser": "Browser",
     "live": "Live",
-    "noMessages": "No messages yet. Start a conversation!",
-    "noBrowserSession": "No active browser session",
-    "browserSession": "Browser Session"
+    "noMessages": "No messages yet. Start a conversation!"
   },
   "group": {
     "management": "Group Management",
@@ -96,7 +93,9 @@
   },
   "history": {
     "chatHistoryList": "Chat History List",
-    "noMessages": "No messages"
+    "noMessages": "No messages",
+    "newChat": "New Chat",
+    "noSessions": "No sessions yet. Start a conversation!"
   },
   "notification": {
     "characterLoaded": "New Character Loaded",
@@ -136,4 +135,4 @@
     "connecting": "Connecting",
     "clickToReconnect": "Click to Reconnect"
   }
-} 
+}

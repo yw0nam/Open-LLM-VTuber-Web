@@ -5,7 +5,7 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismMatrix44 } from './cubismmatrix44';
+import { CubismMatrix44 } from "./cubismmatrix44";
 
 /**
  * カメラの位置変更に使うと便利な4x4行列
@@ -72,7 +72,7 @@ export class CubismViewMatrix extends CubismMatrix44 {
       x,
       y,
       0.0,
-      1.0
+      1.0,
     ]);
 
     CubismMatrix44.multiply(tr1, this._tr, this._tr);
@@ -117,7 +117,7 @@ export class CubismViewMatrix extends CubismMatrix44 {
       cx,
       cy,
       0.0,
-      1.0
+      1.0,
     ]);
 
     const tr2: Float32Array = new Float32Array([
@@ -136,7 +136,7 @@ export class CubismViewMatrix extends CubismMatrix44 {
       0.0,
       0.0,
       0.0,
-      1.0
+      1.0,
     ]);
 
     const tr3: Float32Array = new Float32Array([
@@ -155,7 +155,7 @@ export class CubismViewMatrix extends CubismMatrix44 {
       -cx,
       -cy,
       0.0,
-      1.0
+      1.0,
     ]);
 
     CubismMatrix44.multiply(tr3, this._tr, this._tr);
@@ -175,7 +175,7 @@ export class CubismViewMatrix extends CubismMatrix44 {
     left: number,
     right: number,
     bottom: number,
-    top: number
+    top: number,
   ): void {
     this._screenLeft = left;
     this._screenRight = right;
@@ -194,7 +194,7 @@ export class CubismViewMatrix extends CubismMatrix44 {
     left: number,
     right: number,
     bottom: number,
-    top: number
+    top: number,
   ): void {
     this._maxLeft = left;
     this._maxRight = right;
@@ -331,7 +331,7 @@ export class CubismViewMatrix extends CubismMatrix44 {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismviewmatrix';
+import * as $ from "./cubismviewmatrix";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismViewMatrix = $.CubismViewMatrix;

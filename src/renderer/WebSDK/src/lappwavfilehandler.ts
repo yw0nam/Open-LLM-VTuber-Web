@@ -54,7 +54,7 @@ export class LAppWavFileHandler {
     // 経過時間後の状態を保持
     this._userTimeSeconds += deltaTimeSeconds;
     goalOffset = Math.floor(
-      this._userTimeSeconds * this._wavFileInfo._samplingRate
+      this._userTimeSeconds * this._wavFileInfo._samplingRate,
     );
     if (goalOffset > this._wavFileInfo._samplesPerChannel) {
       goalOffset = this._wavFileInfo._samplesPerChannel;
@@ -79,7 +79,7 @@ export class LAppWavFileHandler {
     rms = Math.sqrt(
       rms /
         (this._wavFileInfo._numberOfChannels *
-          (goalOffset - this._sampleOffset))
+          (goalOffset - this._sampleOffset)),
     );
 
     this._lastRms = rms;
@@ -120,7 +120,7 @@ export class LAppWavFileHandler {
       const asyncWavFileManager = (async () => {
         this._byteReader._fileByte = await asyncFileLoad();
         this._byteReader._fileDataView = new DataView(
-          this._byteReader._fileByte
+          this._byteReader._fileByte,
         );
         this._byteReader._fileSize = this._byteReader._fileByte.byteLength;
         this._byteReader._readOffset = 0;
@@ -208,7 +208,7 @@ export class LAppWavFileHandler {
             channelCount++
           ) {
             this._pcmData[channelCount] = new Float32Array(
-              this._wavFileInfo._samplesPerChannel
+              this._wavFileInfo._samplesPerChannel,
             );
           }
           // 波形データ取得

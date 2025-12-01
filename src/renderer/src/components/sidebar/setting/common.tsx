@@ -1,20 +1,26 @@
 /* eslint-disable react/require-default-props */
-import { useState } from 'react';
+// src/renderer/src/components/sidebar/setting/common.tsx
+import { useState } from "react";
 import {
-  Text, Input, NumberInput, createListCollection, Flex, Box,
-} from '@chakra-ui/react';
-import { HiQuestionMarkCircle } from 'react-icons/hi';
-import { Field } from '@/components/ui/field';
-import { Switch } from '@/components/ui/switch';
-import { Tooltip } from '@/components/ui/tooltip';
+  Text,
+  Input,
+  NumberInput,
+  createListCollection,
+  Flex,
+  Box,
+} from "@chakra-ui/react";
+import { HiQuestionMarkCircle } from "react-icons/hi";
+import { Field } from "@/components/ui/field";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   SelectContent,
   SelectItem,
   SelectRoot,
   SelectTrigger,
   SelectValueText,
-} from '@/components/ui/select';
-import { settingStyles } from './setting-styles';
+} from "@/components/ui/select";
+import { settingStyles } from "./setting-styles";
 
 // Help Icon Component
 interface HelpIconProps {
@@ -40,7 +46,7 @@ function HelpIcon({ content }: HelpIconProps): JSX.Element {
       <Box
         as={HiQuestionMarkCircle}
         color="gray.400"
-        _hover={{ color: 'gray.600' }}
+        _hover={{ color: "gray.600" }}
         cursor="help"
         w="16px"
         h="16px"
@@ -55,37 +61,39 @@ function HelpIcon({ content }: HelpIconProps): JSX.Element {
 
 // Common Props Types
 interface SelectFieldProps {
-  label: string
-  value: string[]
-  onChange: (value: string[]) => void
-  collection: ReturnType<typeof createListCollection<{ label: string; value: string }>>
-  placeholder: string
+  label: string;
+  value: string[];
+  onChange: (value: string[]) => void;
+  collection: ReturnType<
+    typeof createListCollection<{ label: string; value: string }>
+  >;
+  placeholder: string;
 }
 
 interface NumberFieldProps {
-  label: string
-  value: number | string
-  onChange: (value: string) => void
-  min?: number
-  max?: number
-  step?: number
-  allowMouseWheel?: boolean
-  help?: string
+  label: string;
+  value: number | string;
+  onChange: (value: string) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+  allowMouseWheel?: boolean;
+  help?: string;
 }
 
 interface SwitchFieldProps {
-  label: string
-  checked: boolean
-  onChange: (checked: boolean) => void
-  help?: string
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  help?: string;
 }
 
 interface InputFieldProps {
-  label: string
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
-  help?: string
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  help?: string;
 }
 
 // Reusable Components
@@ -161,7 +169,12 @@ export function NumberField({
   );
 }
 
-export function SwitchField({ label, checked, onChange, help }: SwitchFieldProps): JSX.Element {
+export function SwitchField({
+  label,
+  checked,
+  onChange,
+  help,
+}: SwitchFieldProps): JSX.Element {
   return (
     <Field
       {...settingStyles.common.field}

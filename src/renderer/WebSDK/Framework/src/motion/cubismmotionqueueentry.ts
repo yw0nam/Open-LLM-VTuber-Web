@@ -5,8 +5,8 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { ACubismMotion } from './acubismmotion';
-import { CubismMotionQueueEntryHandle } from './cubismmotionqueuemanager';
+import { ACubismMotion } from "./acubismmotion";
+import { CubismMotionQueueEntryHandle } from "./cubismmotionqueuemanager";
 
 /**
  * CubismMotionQueueManagerで再生している各モーションの管理クラス。
@@ -254,7 +254,7 @@ export class CubismMotionQueueEntry {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmotionqueueentry';
+import * as $ from "./cubismmotionqueueentry";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismMotionQueueEntry = $.CubismMotionQueueEntry;

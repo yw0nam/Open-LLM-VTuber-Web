@@ -5,8 +5,8 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismIdHandle } from './id/cubismid';
-import { csmMap } from './type/csmmap';
+import { CubismIdHandle } from "./id/cubismid";
+import { csmMap } from "./type/csmmap";
 
 /**
  * モデル設定情報を取り扱う関数を宣言した純粋仮想クラス。
@@ -128,7 +128,7 @@ export abstract class ICubismModelSetting {
    */
   public abstract getMotionSoundFileName(
     groupName: string,
-    index: number
+    index: number,
   ): string;
 
   /**
@@ -139,7 +139,7 @@ export abstract class ICubismModelSetting {
    */
   public abstract getMotionFadeInTimeValue(
     groupName: string,
-    index: number
+    index: number,
   ): number;
 
   /**
@@ -150,7 +150,7 @@ export abstract class ICubismModelSetting {
    */
   public abstract getMotionFadeOutTimeValue(
     groupName: string,
-    index: number
+    index: number,
   ): number;
 
   /**
@@ -195,7 +195,7 @@ export abstract class ICubismModelSetting {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './icubismmodelsetting';
+import * as $ from "./icubismmodelsetting";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const ICubismModelSetting = $.ICubismModelSetting;

@@ -5,10 +5,10 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismMath } from '../math/cubismmath';
-import { CubismVector2 } from '../math/cubismvector2';
-import { csmVector } from '../type/csmvector';
-import { CubismModel } from '../model/cubismmodel';
+import { CubismMath } from "../math/cubismmath";
+import { CubismVector2 } from "../math/cubismvector2";
+import { csmVector } from "../type/csmvector";
+import { CubismModel } from "../model/cubismmodel";
 import {
   CubismPhysicsInput,
   CubismPhysicsNormalization,
@@ -17,14 +17,14 @@ import {
   CubismPhysicsRig,
   CubismPhysicsSource,
   CubismPhysicsSubRig,
-  CubismPhysicsTargetType
-} from './cubismphysicsinternal';
-import { CubismPhysicsJson } from './cubismphysicsjson';
+  CubismPhysicsTargetType,
+} from "./cubismphysicsinternal";
+import { CubismPhysicsJson } from "./cubismphysicsjson";
 
 // physics types tags.
-const PhysicsTypeTagX = 'X';
-const PhysicsTypeTagY = 'Y';
-const PhysicsTypeTagAngle = 'Angle';
+const PhysicsTypeTagX = "X";
+const PhysicsTypeTagY = "Y";
+const PhysicsTypeTagAngle = "Angle";
 
 // Constant of air resistance.
 const AirResistance = 5.0;
@@ -87,22 +87,22 @@ export class CubismPhysics {
     this._physicsRig.settings.updateSize(
       this._physicsRig.subRigCount,
       CubismPhysicsSubRig,
-      true
+      true,
     );
     this._physicsRig.inputs.updateSize(
       json.getTotalInputCount(),
       CubismPhysicsInput,
-      true
+      true,
     );
     this._physicsRig.outputs.updateSize(
       json.getTotalOutputCount(),
       CubismPhysicsOutput,
-      true
+      true,
     );
     this._physicsRig.particles.updateSize(
       json.getVertexCount(),
       CubismPhysicsParticle,
-      true
+      true,
     );
 
     this._currentRigOutputs.clear();
@@ -135,7 +135,7 @@ export class CubismPhysics {
         this._physicsRig.inputs.at(inputIndex + j).sourceParameterIndex = -1;
         this._physicsRig.inputs.at(inputIndex + j).weight = json.getInputWeight(
           i,
-          j
+          j,
         );
         this._physicsRig.inputs.at(inputIndex + j).reflect =
           json.getInputReflect(i, j);
@@ -144,21 +144,21 @@ export class CubismPhysics {
           this._physicsRig.inputs.at(inputIndex + j).type =
             CubismPhysicsSource.CubismPhysicsSource_X;
           this._physicsRig.inputs.at(
-            inputIndex + j
+            inputIndex + j,
           ).getNormalizedParameterValue =
             getInputTranslationXFromNormalizedParameterValue;
         } else if (json.getInputType(i, j) == PhysicsTypeTagY) {
           this._physicsRig.inputs.at(inputIndex + j).type =
             CubismPhysicsSource.CubismPhysicsSource_Y;
           this._physicsRig.inputs.at(
-            inputIndex + j
+            inputIndex + j,
           ).getNormalizedParameterValue =
             getInputTranslationYFromNormalizedParamterValue;
         } else if (json.getInputType(i, j) == PhysicsTypeTagAngle) {
           this._physicsRig.inputs.at(inputIndex + j).type =
             CubismPhysicsSource.CubismPhysicsSource_Angle;
           this._physicsRig.inputs.at(
-            inputIndex + j
+            inputIndex + j,
           ).getNormalizedParameterValue =
             getInputAngleFromNormalizedParameterValue;
         }
@@ -176,12 +176,12 @@ export class CubismPhysics {
 
       const currentRigOutput = new PhysicsOutput();
       currentRigOutput.outputs.resize(
-        this._physicsRig.settings.at(i).outputCount
+        this._physicsRig.settings.at(i).outputCount,
       );
 
       const previousRigOutput = new PhysicsOutput();
       previousRigOutput.outputs.resize(
-        this._physicsRig.settings.at(i).outputCount
+        this._physicsRig.settings.at(i).outputCount,
       );
 
       for (let j = 0; j < this._physicsRig.settings.at(i).outputCount; ++j) {
@@ -308,13 +308,13 @@ export class CubismPhysics {
       totalTranslation.y = 0.0;
       currentSetting = this._physicsRig.settings.at(settingIndex);
       currentInputs = this._physicsRig.inputs.get(
-        currentSetting.baseInputIndex
+        currentSetting.baseInputIndex,
       );
       currentOutputs = this._physicsRig.outputs.get(
-        currentSetting.baseOutputIndex
+        currentSetting.baseOutputIndex,
       );
       currentParticles = this._physicsRig.particles.get(
-        currentSetting.baseParticleIndex
+        currentSetting.baseParticleIndex,
       );
 
       // Load input parameters
@@ -323,7 +323,7 @@ export class CubismPhysics {
 
         if (currentInputs[i].sourceParameterIndex == -1) {
           currentInputs[i].sourceParameterIndex = model.getParameterIndex(
-            currentInputs[i].source.id
+            currentInputs[i].source.id,
           );
         }
 
@@ -337,7 +337,7 @@ export class CubismPhysics {
           currentSetting.normalizationPosition,
           currentSetting.normalizationAngle,
           currentInputs[i].reflect,
-          weight
+          weight,
         );
 
         this._parameterCaches[currentInputs[i].sourceParameterIndex] =
@@ -360,7 +360,7 @@ export class CubismPhysics {
         totalTranslation,
         totalAngle.angle,
         this._options.wind,
-        MovementThreshold * currentSetting.normalizationPosition.maximum
+        MovementThreshold * currentSetting.normalizationPosition.maximum,
       );
 
       // Update output parameters.
@@ -369,7 +369,7 @@ export class CubismPhysics {
 
         if (currentOutputs[i].destinationParameterIndex == -1) {
           currentOutputs[i].destinationParameterIndex = model.getParameterIndex(
-            currentOutputs[i].destination.id
+            currentOutputs[i].destination.id,
           );
         }
 
@@ -382,7 +382,7 @@ export class CubismPhysics {
 
         let translation: CubismVector2 = new CubismVector2();
         translation = currentParticles[particleIndex].position.substract(
-          currentParticles[particleIndex - 1].position
+          currentParticles[particleIndex - 1].position,
         );
 
         outputValue = currentOutputs[i].getValue(
@@ -390,7 +390,7 @@ export class CubismPhysics {
           currentParticles,
           particleIndex,
           currentOutputs[i].reflect,
-          this._options.gravity
+          this._options.gravity,
         );
 
         this._currentRigOutputs.at(settingIndex).outputs.set(i, outputValue);
@@ -400,11 +400,11 @@ export class CubismPhysics {
           currentOutputs[i].destinationParameterIndex;
 
         const outParameterCaches: Float32Array =
-          !Float32Array.prototype.slice && 'subarray' in Float32Array.prototype
+          !Float32Array.prototype.slice && "subarray" in Float32Array.prototype
             ? JSON.parse(
                 JSON.stringify(
-                  parameterValues.subarray(destinationParameterIndex)
-                )
+                  parameterValues.subarray(destinationParameterIndex),
+                ),
               ) // 値渡しするため、JSON.parse, JSON.stringify
             : parameterValues.slice(destinationParameterIndex);
 
@@ -413,7 +413,7 @@ export class CubismPhysics {
           parameterMinimumValues[destinationParameterIndex],
           parameterMaximumValues[destinationParameterIndex],
           outputValue,
-          currentOutputs[i]
+          currentOutputs[i],
         );
 
         // 値を反映
@@ -525,14 +525,14 @@ export class CubismPhysics {
       ) {
         currentSetting = this._physicsRig.settings.at(settingIndex);
         currentOutputs = this._physicsRig.outputs.get(
-          currentSetting.baseOutputIndex
+          currentSetting.baseOutputIndex,
         );
         for (let i = 0; i < currentSetting.outputCount; ++i) {
           this._previousRigOutputs
             .at(settingIndex)
             .outputs.set(
               i,
-              this._currentRigOutputs.at(settingIndex).outputs.at(i)
+              this._currentRigOutputs.at(settingIndex).outputs.at(i),
             );
         }
       }
@@ -559,13 +559,13 @@ export class CubismPhysics {
         totalTranslation.y = 0.0;
         currentSetting = this._physicsRig.settings.at(settingIndex);
         currentInputs = this._physicsRig.inputs.get(
-          currentSetting.baseInputIndex
+          currentSetting.baseInputIndex,
         );
         currentOutputs = this._physicsRig.outputs.get(
-          currentSetting.baseOutputIndex
+          currentSetting.baseOutputIndex,
         );
         currentParticles = this._physicsRig.particles.get(
-          currentSetting.baseParticleIndex
+          currentSetting.baseParticleIndex,
         );
 
         // Load input parameters
@@ -574,7 +574,7 @@ export class CubismPhysics {
 
           if (currentInputs[i].sourceParameterIndex == -1) {
             currentInputs[i].sourceParameterIndex = model.getParameterIndex(
-              currentInputs[i].source.id
+              currentInputs[i].source.id,
             );
           }
 
@@ -588,7 +588,7 @@ export class CubismPhysics {
             currentSetting.normalizationPosition,
             currentSetting.normalizationAngle,
             currentInputs[i].reflect,
-            weight
+            weight,
           );
         }
 
@@ -610,7 +610,7 @@ export class CubismPhysics {
           this._options.wind,
           MovementThreshold * currentSetting.normalizationPosition.maximum,
           physicsDeltaTime,
-          AirResistance
+          AirResistance,
         );
 
         // Update output parameters.
@@ -642,7 +642,7 @@ export class CubismPhysics {
             currentParticles,
             particleIndex,
             currentOutputs[i].reflect,
-            this._options.gravity
+            this._options.gravity,
           );
 
           this._currentRigOutputs.at(settingIndex).outputs.set(i, outputValue);
@@ -651,11 +651,11 @@ export class CubismPhysics {
             currentOutputs[i].destinationParameterIndex;
           const outParameterCaches: Float32Array =
             !Float32Array.prototype.slice &&
-            'subarray' in Float32Array.prototype
+            "subarray" in Float32Array.prototype
               ? JSON.parse(
                   JSON.stringify(
-                    this._parameterCaches.subarray(destinationParameterIndex)
-                  )
+                    this._parameterCaches.subarray(destinationParameterIndex),
+                  ),
                 ) // 値渡しするため、JSON.parse, JSON.stringify
               : this._parameterCaches.slice(destinationParameterIndex);
 
@@ -664,7 +664,7 @@ export class CubismPhysics {
             parameterMinimumValues[destinationParameterIndex],
             parameterMaximumValues[destinationParameterIndex],
             outputValue,
-            currentOutputs[i]
+            currentOutputs[i],
           );
 
           // 値を反映
@@ -706,7 +706,7 @@ export class CubismPhysics {
     ) {
       currentSetting = this._physicsRig.settings.at(settingIndex);
       currentOutputs = this._physicsRig.outputs.get(
-        currentSetting.baseOutputIndex
+        currentSetting.baseOutputIndex,
       );
 
       // Load input parameters.
@@ -718,11 +718,11 @@ export class CubismPhysics {
         const destinationParameterIndex: number =
           currentOutputs[i].destinationParameterIndex;
         const outParameterValues: Float32Array =
-          !Float32Array.prototype.slice && 'subarray' in Float32Array.prototype
+          !Float32Array.prototype.slice && "subarray" in Float32Array.prototype
             ? JSON.parse(
                 JSON.stringify(
-                  parameterValues.subarray(destinationParameterIndex)
-                )
+                  parameterValues.subarray(destinationParameterIndex),
+                ),
               ) // 値渡しするため、JSON.parse, JSON.stringify
             : parameterValues.slice(destinationParameterIndex);
 
@@ -733,7 +733,7 @@ export class CubismPhysics {
           this._previousRigOutputs.at(settingIndex).outputs.at(i) *
             (1 - weight) +
             this._currentRigOutputs.at(settingIndex).outputs.at(i) * weight,
-          currentOutputs[i]
+          currentOutputs[i],
         );
 
         // 値を反映
@@ -811,7 +811,7 @@ export class CubismPhysics {
       strand[0].initialPosition = new CubismVector2(0.0, 0.0);
       strand[0].lastPosition = new CubismVector2(
         strand[0].initialPosition.x,
-        strand[0].initialPosition.y
+        strand[0].initialPosition.y,
       );
       strand[0].lastGravity = new CubismVector2(0.0, -1.0);
       strand[0].lastGravity.y *= -1.0;
@@ -824,15 +824,15 @@ export class CubismPhysics {
         radius.y = strand[i].radius;
         strand[i].initialPosition = new CubismVector2(
           strand[i - 1].initialPosition.x + radius.x,
-          strand[i - 1].initialPosition.y + radius.y
+          strand[i - 1].initialPosition.y + radius.y,
         );
         strand[i].position = new CubismVector2(
           strand[i].initialPosition.x,
-          strand[i].initialPosition.y
+          strand[i].initialPosition.y,
         );
         strand[i].lastPosition = new CubismVector2(
           strand[i].initialPosition.x,
-          strand[i].initialPosition.y
+          strand[i].initialPosition.y,
         );
         strand[i].lastGravity = new CubismVector2(0.0, -1.0);
         strand[i].lastGravity.y *= -1.0;
@@ -907,7 +907,7 @@ function getInputTranslationXFromNormalizedParameterValue(
   normalizationPosition: CubismPhysicsNormalization,
   normalizationAngle: CubismPhysicsNormalization,
   isInverted: boolean,
-  weight: number
+  weight: number,
 ): void {
   targetTranslation.x +=
     normalizeParameterValue(
@@ -918,7 +918,7 @@ function getInputTranslationXFromNormalizedParameterValue(
       normalizationPosition.minimum,
       normalizationPosition.maximum,
       normalizationPosition.defalut,
-      isInverted
+      isInverted,
     ) * weight;
 }
 
@@ -932,7 +932,7 @@ function getInputTranslationYFromNormalizedParamterValue(
   normalizationPosition: CubismPhysicsNormalization,
   normalizationAngle: CubismPhysicsNormalization,
   isInverted: boolean,
-  weight: number
+  weight: number,
 ): void {
   targetTranslation.y +=
     normalizeParameterValue(
@@ -943,7 +943,7 @@ function getInputTranslationYFromNormalizedParamterValue(
       normalizationPosition.minimum,
       normalizationPosition.maximum,
       normalizationPosition.defalut,
-      isInverted
+      isInverted,
     ) * weight;
 }
 
@@ -957,7 +957,7 @@ function getInputAngleFromNormalizedParameterValue(
   normalizaitionPosition: CubismPhysicsNormalization,
   normalizationAngle: CubismPhysicsNormalization,
   isInverted: boolean,
-  weight: number
+  weight: number,
 ): void {
   targetAngle.angle +=
     normalizeParameterValue(
@@ -968,7 +968,7 @@ function getInputAngleFromNormalizedParameterValue(
       normalizationAngle.minimum,
       normalizationAngle.maximum,
       normalizationAngle.defalut,
-      isInverted
+      isInverted,
     ) * weight;
 }
 
@@ -977,7 +977,7 @@ function getOutputTranslationX(
   particles: CubismPhysicsParticle[],
   particleIndex: number,
   isInverted: boolean,
-  parentGravity: CubismVector2
+  parentGravity: CubismVector2,
 ): number {
   let outputValue: number = translation.x;
 
@@ -993,7 +993,7 @@ function getOutputTranslationY(
   particles: CubismPhysicsParticle[],
   particleIndex: number,
   isInverted: boolean,
-  parentGravity: CubismVector2
+  parentGravity: CubismVector2,
 ): number {
   let outputValue: number = translation.y;
 
@@ -1008,13 +1008,13 @@ function getOutputAngle(
   particles: CubismPhysicsParticle[],
   particleIndex: number,
   isInverted: boolean,
-  parentGravity: CubismVector2
+  parentGravity: CubismVector2,
 ): number {
   let outputValue: number;
 
   if (particleIndex >= 2) {
     parentGravity = particles[particleIndex - 1].position.substract(
-      particles[particleIndex - 2].position
+      particles[particleIndex - 2].position,
     );
   } else {
     parentGravity = parentGravity.multiplyByScaler(-1.0);
@@ -1043,21 +1043,21 @@ function getDefaultValue(min: number, max: number): number {
 
 function getOutputScaleTranslationX(
   translationScale: CubismVector2,
-  angleScale: number
+  angleScale: number,
 ): number {
   return JSON.parse(JSON.stringify(translationScale.x));
 }
 
 function getOutputScaleTranslationY(
   translationScale: CubismVector2,
-  angleScale: number
+  angleScale: number,
 ): number {
   return JSON.parse(JSON.stringify(translationScale.y));
 }
 
 function getOutputScaleAngle(
   translationScale: CubismVector2,
-  angleScale: number
+  angleScale: number,
 ): number {
   return JSON.parse(JSON.stringify(angleScale));
 }
@@ -1082,7 +1082,7 @@ function updateParticles(
   windDirection: CubismVector2,
   thresholdValue: number,
   deltaTimeSeconds: number,
-  airResistance: number
+  airResistance: number,
 ) {
   let delay: number;
   let radian: number;
@@ -1093,7 +1093,7 @@ function updateParticles(
 
   strand[0].position = new CubismVector2(
     totalTranslation.x,
-    totalTranslation.y
+    totalTranslation.y,
   );
 
   const totalRadian: number = CubismMath.degreesToRadian(totalAngle);
@@ -1108,7 +1108,7 @@ function updateParticles(
 
     strand[i].lastPosition = new CubismVector2(
       strand[i].position.x,
-      strand[i].position.y
+      strand[i].position.y,
     );
 
     delay = strand[i].delay * deltaTimeSeconds * 30.0;
@@ -1137,7 +1137,7 @@ function updateParticles(
     newDirection.normalize();
 
     strand[i].position = strand[i - 1].position.add(
-      newDirection.multiplyByScaler(strand[i].radius)
+      newDirection.multiplyByScaler(strand[i].radius),
     );
 
     if (CubismMath.abs(strand[i].position.x) < thresholdValue) {
@@ -1148,14 +1148,14 @@ function updateParticles(
       strand[i].velocity = strand[i].position.substract(strand[i].lastPosition);
       strand[i].velocity = strand[i].velocity.divisionByScalar(delay);
       strand[i].velocity = strand[i].velocity.multiplyByScaler(
-        strand[i].mobility
+        strand[i].mobility,
       );
     }
 
     strand[i].force = new CubismVector2(0.0, 0.0);
     strand[i].lastGravity = new CubismVector2(
       currentGravity.x,
-      currentGravity.y
+      currentGravity.y,
     );
   }
 }
@@ -1176,13 +1176,13 @@ function updateParticlesForStabilization(
   totalTranslation: CubismVector2,
   totalAngle: number,
   windDirection: CubismVector2,
-  thresholdValue: number
+  thresholdValue: number,
 ) {
   let force: CubismVector2 = new CubismVector2(0.0, 0.0);
 
   strand[0].position = new CubismVector2(
     totalTranslation.x,
-    totalTranslation.y
+    totalTranslation.y,
   );
 
   const totalRadian: number = CubismMath.degreesToRadian(totalAngle);
@@ -1197,7 +1197,7 @@ function updateParticlesForStabilization(
 
     strand[i].lastPosition = new CubismVector2(
       strand[i].position.x,
-      strand[i].position.y
+      strand[i].position.y,
     );
 
     strand[i].velocity = new CubismVector2(0.0, 0.0);
@@ -1214,7 +1214,7 @@ function updateParticlesForStabilization(
     strand[i].force = new CubismVector2(0.0, 0.0);
     strand[i].lastGravity = new CubismVector2(
       currentGravity.x,
-      currentGravity.y
+      currentGravity.y,
     );
   }
 }
@@ -1231,12 +1231,12 @@ function updateOutputParameterValue(
   parameterValueMinimum: number,
   parameterValueMaximum: number,
   translation: number,
-  output: CubismPhysicsOutput
+  output: CubismPhysicsOutput,
 ): void {
   let value: number;
   const outputScale: number = output.getScale(
     output.translationScale,
-    output.angleScale
+    output.angleScale,
   );
 
   value = translation * outputScale;
@@ -1273,7 +1273,7 @@ function normalizeParameterValue(
   normalizedMinimum: number,
   normalizedMaximum: number,
   normalizedDefault: number,
-  isInverted: boolean
+  isInverted: boolean,
 ) {
   let result = 0.0;
 
@@ -1291,11 +1291,11 @@ function normalizeParameterValue(
 
   const minNormValue: number = CubismMath.min(
     normalizedMinimum,
-    normalizedMaximum
+    normalizedMaximum,
   );
   const maxNormValue: number = CubismMath.max(
     normalizedMinimum,
-    normalizedMaximum
+    normalizedMaximum,
   );
   const middleNormValue: number = normalizedDefault;
 
@@ -1339,7 +1339,7 @@ function normalizeParameterValue(
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismphysics';
+import * as $ from "./cubismphysics";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismPhysics = $.CubismPhysics;

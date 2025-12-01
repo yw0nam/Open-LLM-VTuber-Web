@@ -5,19 +5,19 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismIdHandle } from '../id/cubismid';
-import { CubismFramework } from '../live2dcubismframework';
-import { CubismMath } from '../math/cubismmath';
-import { CubismModel } from '../model/cubismmodel';
-import { csmString } from '../type/csmstring';
-import { csmVector } from '../type/csmvector';
+import { CubismIdHandle } from "../id/cubismid";
+import { CubismFramework } from "../live2dcubismframework";
+import { CubismMath } from "../math/cubismmath";
+import { CubismModel } from "../model/cubismmodel";
+import { csmString } from "../type/csmstring";
+import { csmVector } from "../type/csmvector";
 import {
   CSM_ASSERT,
   CubismLogDebug,
   CubismLogError,
-  CubismLogWarning
-} from '../utils/cubismdebug';
-import { ACubismMotion, FinishedMotionCallback } from './acubismmotion';
+  CubismLogWarning,
+} from "../utils/cubismdebug";
+import { ACubismMotion, FinishedMotionCallback } from "./acubismmotion";
 import {
   CubismMotionCurve,
   CubismMotionCurveTarget,
@@ -25,19 +25,19 @@ import {
   CubismMotionEvent,
   CubismMotionPoint,
   CubismMotionSegment,
-  CubismMotionSegmentType
-} from './cubismmotioninternal';
-import { CubismMotionJson, EvaluationOptionFlag } from './cubismmotionjson';
-import { CubismMotionQueueEntry } from './cubismmotionqueueentry';
+  CubismMotionSegmentType,
+} from "./cubismmotioninternal";
+import { CubismMotionJson, EvaluationOptionFlag } from "./cubismmotionjson";
+import { CubismMotionQueueEntry } from "./cubismmotionqueueentry";
 
-const EffectNameEyeBlink = 'EyeBlink';
-const EffectNameLipSync = 'LipSync';
-const TargetNameModel = 'Model';
-const TargetNameParameter = 'Parameter';
-const TargetNamePartOpacity = 'PartOpacity';
+const EffectNameEyeBlink = "EyeBlink";
+const EffectNameLipSync = "LipSync";
+const TargetNameModel = "Model";
+const TargetNameParameter = "Parameter";
+const TargetNamePartOpacity = "PartOpacity";
 
 // Id
-const IdNameOpacity = 'Opacity';
+const IdNameOpacity = "Opacity";
 
 /**
  * Cubism SDK R2 以前のモーションを再現させるなら true 、アニメータのモーションを正しく再現するなら false 。
@@ -47,7 +47,7 @@ const UseOldBeziersCurveMotion = false;
 function lerpPoints(
   a: CubismMotionPoint,
   b: CubismMotionPoint,
-  t: number
+  t: number,
 ): CubismMotionPoint {
   const result: CubismMotionPoint = new CubismMotionPoint();
 
@@ -86,7 +86,7 @@ function bezierEvaluate(points: CubismMotionPoint[], time: number): number {
 
 function bezierEvaluateBinarySearch(
   points: CubismMotionPoint[],
-  time: number
+  time: number,
 ): number {
   const xError = 0.01;
 
@@ -162,7 +162,7 @@ function bezierEvaluateBinarySearch(
 
 function bezierEvaluateCardanoInterpretation(
   points: CubismMotionPoint[],
-  time: number
+  time: number,
 ): number {
   const x: number = time;
   const x1: number = points[0].time;
@@ -193,7 +193,7 @@ function steppedEvaluate(points: CubismMotionPoint[], time: number): number {
 
 function inverseSteppedEvaluate(
   points: CubismMotionPoint[],
-  time: number
+  time: number,
 ): number {
   return points[1].value;
 }
@@ -201,7 +201,7 @@ function inverseSteppedEvaluate(
 function evaluateCurve(
   motionData: CubismMotionData,
   index: number,
-  time: number
+  time: number,
 ): number {
   // Find segment to evaluate.
   const curve: CubismMotionCurve = motionData.curves.at(index);
@@ -251,7 +251,7 @@ export class CubismMotion extends ACubismMotion {
   public static create(
     buffer: ArrayBuffer,
     size: number,
-    onFinishedMotionHandler?: FinishedMotionCallback
+    onFinishedMotionHandler?: FinishedMotionCallback,
   ): CubismMotion {
     const ret = new CubismMotion();
 
@@ -260,7 +260,7 @@ export class CubismMotion extends ACubismMotion {
 
       // Check if motion data was successfully parsed
       if (!ret._motionData) {
-        CubismLogError('Failed to parse motion data - motion data is null');
+        CubismLogError("Failed to parse motion data - motion data is null");
         return null;
       }
 
@@ -288,7 +288,7 @@ export class CubismMotion extends ACubismMotion {
     model: CubismModel,
     userTimeSeconds: number,
     fadeWeight: number,
-    motionQueueEntry: CubismMotionQueueEntry
+    motionQueueEntry: CubismMotionQueueEntry,
   ): void {
     if (this._modelCurveIdEyeBlink == null) {
       this._modelCurveIdEyeBlink =
@@ -323,14 +323,14 @@ export class CubismMotion extends ACubismMotion {
     //瞬き、リップシンクのターゲット数が上限を超えている場合
     if (this._eyeBlinkParameterIds.getSize() > maxTargetSize) {
       CubismLogDebug(
-        'too many eye blink targets : {0}',
-        this._eyeBlinkParameterIds.getSize()
+        "too many eye blink targets : {0}",
+        this._eyeBlinkParameterIds.getSize(),
       );
     }
     if (this._lipSyncParameterIds.getSize() > maxTargetSize) {
       CubismLogDebug(
-        'too many lip sync targets : {0}',
-        this._lipSyncParameterIds.getSize()
+        "too many lip sync targets : {0}",
+        this._lipSyncParameterIds.getSize(),
       );
     }
 
@@ -339,7 +339,7 @@ export class CubismMotion extends ACubismMotion {
         ? 1.0
         : CubismMath.getEasingSine(
             (userTimeSeconds - motionQueueEntry.getFadeInStartTime()) /
-              this._fadeInSeconds
+              this._fadeInSeconds,
           );
 
     const tmpFadeOut: number =
@@ -347,7 +347,7 @@ export class CubismMotion extends ACubismMotion {
         ? 1.0
         : CubismMath.getEasingSine(
             (motionQueueEntry.getEndTime() - userTimeSeconds) /
-              this._fadeOutSeconds
+              this._fadeOutSeconds,
           );
     let value: number;
     let c: number, parameterIndex: number;
@@ -456,7 +456,7 @@ export class CubismMotion extends ACubismMotion {
               ? 1.0
               : CubismMath.getEasingSine(
                   (userTimeSeconds - motionQueueEntry.getFadeInStartTime()) /
-                    curves.at(c).fadeInTime
+                    curves.at(c).fadeInTime,
                 );
         }
 
@@ -469,7 +469,7 @@ export class CubismMotion extends ACubismMotion {
               ? 1.0
               : CubismMath.getEasingSine(
                   (motionQueueEntry.getEndTime() - userTimeSeconds) /
-                    curves.at(c).fadeOutTime
+                    curves.at(c).fadeOutTime,
                 );
         }
 
@@ -490,7 +490,7 @@ export class CubismMotion extends ACubismMotion {
           ++i
         ) {
           const sourceValue: number = model.getParameterValueById(
-            this._eyeBlinkParameterIds.at(i)
+            this._eyeBlinkParameterIds.at(i),
           );
 
           // モーションでの上書きがあった時にはまばたきは適用しない
@@ -512,7 +512,7 @@ export class CubismMotion extends ACubismMotion {
           ++i
         ) {
           const sourceValue: number = model.getParameterValueById(
-            this._lipSyncParameterIds.at(i)
+            this._lipSyncParameterIds.at(i),
           );
 
           // モーションでの上書きがあった時にはリップシンクは適用しない
@@ -628,7 +628,7 @@ export class CubismMotion extends ACubismMotion {
    */
   public setParameterFadeInTime(
     parameterId: CubismIdHandle,
-    value: number
+    value: number,
   ): void {
     const curves: csmVector<CubismMotionCurve> = this._motionData.curves;
 
@@ -647,7 +647,7 @@ export class CubismMotion extends ACubismMotion {
    */
   public setParameterFadeOutTime(
     parameterId: CubismIdHandle,
-    value: number
+    value: number,
   ): void {
     const curves: csmVector<CubismMotionCurve> = this._motionData.curves;
 
@@ -701,7 +701,7 @@ export class CubismMotion extends ACubismMotion {
    */
   public setEffectIds(
     eyeBlinkParameterIds: csmVector<CubismIdHandle>,
-    lipSyncParameterIds: csmVector<CubismIdHandle>
+    lipSyncParameterIds: csmVector<CubismIdHandle>,
   ): void {
     this._eyeBlinkParameterIds = eyeBlinkParameterIds;
     this._lipSyncParameterIds = lipSyncParameterIds;
@@ -758,7 +758,7 @@ export class CubismMotion extends ACubismMotion {
     this._motionData.eventCount = json.getEventCount();
 
     const areBeziersRestructed: boolean = json.getEvaluationOptionFlag(
-      EvaluationOptionFlag.EvaluationOptionFlag_AreBeziersRistricted
+      EvaluationOptionFlag.EvaluationOptionFlag_AreBeziersRistricted,
     );
 
     if (json.isExistMotionFadeInTime()) {
@@ -778,14 +778,18 @@ export class CubismMotion extends ACubismMotion {
     this._motionData.curves.updateSize(
       this._motionData.curveCount,
       CubismMotionCurve,
-      true
+      true,
     );
 
     // Pre-calculate actual required sizes by analyzing the motion data
     let totalRequiredSegments = 0;
     let totalRequiredPoints = 0;
 
-    for (let curveCount = 0; curveCount < this._motionData.curveCount; ++curveCount) {
+    for (
+      let curveCount = 0;
+      curveCount < this._motionData.curveCount;
+      ++curveCount
+    ) {
       const segmentCount = json.getMotionCurveSegmentCount(curveCount);
 
       for (let segmentPos = 0; segmentPos < segmentCount; ) {
@@ -795,7 +799,8 @@ export class CubismMotion extends ACubismMotion {
           totalRequiredPoints += 1; // First point
           segmentPos += 2;
         } else {
-          const segmentType: CubismMotionSegmentType = json.getMotionCurveSegment(curveCount, segmentPos);
+          const segmentType: CubismMotionSegmentType =
+            json.getMotionCurveSegment(curveCount, segmentPos);
 
           switch (segmentType) {
             case CubismMotionSegmentType.CubismMotionSegmentType_Linear:
@@ -821,17 +826,17 @@ export class CubismMotion extends ACubismMotion {
     this._motionData.segments.updateSize(
       totalRequiredSegments,
       CubismMotionSegment,
-      true
+      true,
     );
     this._motionData.points.updateSize(
       totalRequiredPoints,
       CubismMotionPoint,
-      true
+      true,
     );
     this._motionData.events.updateSize(
       this._motionData.eventCount,
       CubismMotionEvent,
-      true
+      true,
     );
 
     let totalPointCount = 0;
@@ -856,7 +861,7 @@ export class CubismMotion extends ACubismMotion {
           CubismMotionCurveTarget.CubismMotionCurveTarget_PartOpacity;
       } else {
         CubismLogWarning(
-          'Warning : Unable to get segment type from Curve! The number of "CurveCount" may be incorrect!'
+          'Warning : Unable to get segment type from Curve! The number of "CurveCount" may be incorrect!',
         );
       }
 
@@ -899,7 +904,7 @@ export class CubismMotion extends ACubismMotion {
 
         const segment: number = json.getMotionCurveSegment(
           curveCount,
-          segmentPosition
+          segmentPosition,
         );
 
         const segmentType: CubismMotionSegmentType = segment;
@@ -912,9 +917,18 @@ export class CubismMotion extends ACubismMotion {
 
             // Check if we have enough points in the array, expand if needed
             if (totalPointCount >= this._motionData.points.getSize()) {
-              const newSize = Math.max(totalPointCount + 1, this._motionData.points.getSize() * 2);
-              CubismLogWarning(`Expanding motion points array from ${this._motionData.points.getSize()} to ${newSize} for Linear segment`);
-              this._motionData.points.updateSize(newSize, CubismMotionPoint, true);
+              const newSize = Math.max(
+                totalPointCount + 1,
+                this._motionData.points.getSize() * 2,
+              );
+              CubismLogWarning(
+                `Expanding motion points array from ${this._motionData.points.getSize()} to ${newSize} for Linear segment`,
+              );
+              this._motionData.points.updateSize(
+                newSize,
+                CubismMotionPoint,
+                true,
+              );
             }
 
             this._motionData.points.at(totalPointCount).time =
@@ -1031,7 +1045,7 @@ export class CubismMotion extends ACubismMotion {
    */
   public getFiredEvent(
     beforeCheckTimeSeconds: number,
-    motionTimeSeconds: number
+    motionTimeSeconds: number,
   ): csmVector<csmString> {
     this._firedEventValues.updateSize(0);
 
@@ -1042,7 +1056,7 @@ export class CubismMotion extends ACubismMotion {
         this._motionData.events.at(u).fireTime <= motionTimeSeconds
       ) {
         this._firedEventValues.pushBack(
-          new csmString(this._motionData.events.at(u).value.s)
+          new csmString(this._motionData.events.at(u).value.s),
         );
       }
     }
@@ -1144,7 +1158,7 @@ export class CubismMotion extends ACubismMotion {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmotion';
+import * as $ from "./cubismmotion";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismMotion = $.CubismMotion;

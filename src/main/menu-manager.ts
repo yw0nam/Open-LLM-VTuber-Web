@@ -1,9 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
-  Tray, nativeImage, Menu, BrowserWindow, ipcMain, screen, MenuItemConstructorOptions, app,
-} from 'electron';
+  Tray,
+  nativeImage,
+  Menu,
+  BrowserWindow,
+  ipcMain,
+  screen,
+  MenuItemConstructorOptions,
+  app,
+} from "electron";
 // @ts-expect-error
-import trayIcon from '../../resources/icon.png?asset';
+import trayIcon from "../../resources/icon.png?asset";
 
 export interface ConfigFile {
   filename: string;
@@ -13,19 +20,19 @@ export interface ConfigFile {
 export class MenuManager {
   private tray: Tray | null = null;
 
-  private currentMode: 'window' | 'pet' = 'window';
+  private currentMode: "window" | "pet" = "window";
 
   private configFiles: ConfigFile[] = [];
 
-  constructor(private onModeChange: (mode: 'window' | 'pet') => void) {
+  constructor(private onModeChange: (mode: "window" | "pet") => void) {
     this.setupContextMenu();
   }
 
   createTray(): void {
     const icon = nativeImage.createFromPath(trayIcon);
     const trayIconResized = icon.resize({
-      width: process.platform === 'win32' ? 16 : 18,
-      height: process.platform === 'win32' ? 16 : 18,
+      width: process.platform === "win32" ? 16 : 18,
+      height: process.platform === "win32" ? 16 : 18,
     });
 
     this.tray = new Tray(trayIconResized);
@@ -36,19 +43,19 @@ export class MenuManager {
     // console.log('Getting mode menu items, current mode:', this.currentMode)
     return [
       {
-        label: 'Window Mode',
-        type: 'radio' as const,
-        checked: this.currentMode === 'window',
+        label: "Window Mode",
+        type: "radio" as const,
+        checked: this.currentMode === "window",
         click: () => {
-          this.setMode('window');
+          this.setMode("window");
         },
       },
       {
-        label: 'Pet Mode',
-        type: 'radio' as const,
-        checked: this.currentMode === 'pet',
+        label: "Pet Mode",
+        type: "radio" as const,
+        checked: this.currentMode === "pet",
         click: () => {
-          this.setMode('pet');
+          this.setMode("pet");
         },
       },
     ];
@@ -60,24 +67,24 @@ export class MenuManager {
 
     const contextMenu = Menu.buildFromTemplate([
       ...this.getModeMenuItems(),
-      { type: 'separator' as const },
+      { type: "separator" as const },
       // Only show toggle mouse ignore in pet mode
-      ...(this.currentMode === 'pet'
+      ...(this.currentMode === "pet"
         ? [
-          {
-            label: 'Toggle Mouse Passthrough',
-            click: () => {
-              const windows = BrowserWindow.getAllWindows();
-              windows.forEach((window) => {
-                window.webContents.send('toggle-force-ignore-mouse');
-              });
+            {
+              label: "Toggle Mouse Passthrough",
+              click: () => {
+                const windows = BrowserWindow.getAllWindows();
+                windows.forEach((window) => {
+                  window.webContents.send("toggle-force-ignore-mouse");
+                });
+              },
             },
-          },
-          { type: 'separator' as const },
-        ]
+            { type: "separator" as const },
+          ]
         : []),
       {
-        label: 'Show',
+        label: "Show",
         click: () => {
           const windows = BrowserWindow.getAllWindows();
           windows.forEach((window) => {
@@ -86,7 +93,7 @@ export class MenuManager {
         },
       },
       {
-        label: 'Hide',
+        label: "Hide",
         click: () => {
           const windows = BrowserWindow.getAllWindows();
           windows.forEach((window) => {
@@ -95,76 +102,78 @@ export class MenuManager {
         },
       },
       {
-        label: 'Exit',
+        label: "Exit",
         click: () => {
           app.quit();
         },
       },
     ]);
 
-    this.tray.setToolTip('Open LLM VTuber');
+    this.tray.setToolTip("Open LLM VTuber");
     this.tray.setContextMenu(contextMenu);
   }
 
-  private getContextMenuItems(event: Electron.IpcMainEvent): MenuItemConstructorOptions[] {
+  private getContextMenuItems(
+    event: Electron.IpcMainEvent,
+  ): MenuItemConstructorOptions[] {
     const template: MenuItemConstructorOptions[] = [
       {
-        label: 'Toggle Microphone',
+        label: "Toggle Microphone",
         click: () => {
-          event.sender.send('mic-toggle');
+          event.sender.send("mic-toggle");
         },
       },
       {
-        label: 'Interrupt',
+        label: "Interrupt",
         click: () => {
-          event.sender.send('interrupt');
+          event.sender.send("interrupt");
         },
       },
-      { type: 'separator' as const },
+      { type: "separator" as const },
       // Only show in pet mode
-      ...(this.currentMode === 'pet'
+      ...(this.currentMode === "pet"
         ? [
-          {
-            label: 'Toggle Mouse Passthrough',
-            click: () => {
-              event.sender.send('toggle-force-ignore-mouse');
+            {
+              label: "Toggle Mouse Passthrough",
+              click: () => {
+                event.sender.send("toggle-force-ignore-mouse");
+              },
             },
-          },
-        ]
+          ]
         : []),
       {
-        label: 'Toggle Scrolling to Resize',
+        label: "Toggle Scrolling to Resize",
         click: () => {
-          event.sender.send('toggle-scroll-to-resize');
+          event.sender.send("toggle-scroll-to-resize");
         },
       },
       // Only show this item in pet mode
-      ...(this.currentMode === 'pet'
+      ...(this.currentMode === "pet"
         ? [
-          {
-            label: 'Toggle InputBox and Subtitle',
-            click: () => {
-              event.sender.send('toggle-input-subtitle');
+            {
+              label: "Toggle InputBox and Subtitle",
+              click: () => {
+                event.sender.send("toggle-input-subtitle");
+              },
             },
-          },
-        ]
+          ]
         : []),
-      { type: 'separator' as const },
+      { type: "separator" as const },
       ...this.getModeMenuItems(),
-      { type: 'separator' as const },
+      { type: "separator" as const },
       {
-        label: 'Switch Character',
-        visible: this.currentMode === 'pet',
+        label: "Switch Character",
+        visible: this.currentMode === "pet",
         submenu: this.configFiles.map((config) => ({
           label: config.name,
           click: () => {
-            event.sender.send('switch-character', config.filename);
+            event.sender.send("switch-character", config.filename);
           },
         })),
       },
-      { type: 'separator' as const },
+      { type: "separator" as const },
       {
-        label: 'Hide',
+        label: "Hide",
         click: () => {
           const windows = BrowserWindow.getAllWindows();
           windows.forEach((window) => {
@@ -173,7 +182,7 @@ export class MenuManager {
         },
       },
       {
-        label: 'Exit',
+        label: "Exit",
         click: () => {
           app.quit();
         },
@@ -183,7 +192,7 @@ export class MenuManager {
   }
 
   private setupContextMenu(): void {
-    ipcMain.on('show-context-menu', (event) => {
+    ipcMain.on("show-context-menu", (event) => {
       const win = BrowserWindow.fromWebContents(event.sender);
       if (win) {
         const screenPoint = screen.getCursorScreenPoint();
@@ -197,7 +206,7 @@ export class MenuManager {
     });
   }
 
-  setMode(mode: 'window' | 'pet'): void {
+  setMode(mode: "window" | "pet"): void {
     // console.log('Setting mode from', this.currentMode, 'to', mode)
     this.currentMode = mode;
     this.updateTrayMenu();

@@ -5,7 +5,7 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismLogDebug } from '../utils/cubismdebug';
+import { CubismLogDebug } from "../utils/cubismdebug";
 
 /**
  * Key-Valueのペアを定義するクラス
@@ -185,7 +185,7 @@ export class csmMap<_KeyT, _ValT> {
   public end(): iterator<_KeyT, _ValT> {
     const ite: iterator<_KeyT, _ValT> = new iterator<_KeyT, _ValT>(
       this,
-      this._size
+      this._size,
     ); // 終了
     return ite;
   }
@@ -207,7 +207,7 @@ export class csmMap<_KeyT, _ValT> {
 
     const ite2: iterator<_KeyT, _ValT> = new iterator<_KeyT, _ValT>(
       this,
-      index
+      index,
     ); // 終了
     return ite2;
   }
@@ -217,8 +217,8 @@ export class csmMap<_KeyT, _ValT> {
    */
   public dumpAsInt() {
     for (let i = 0; i < this._size; i++) {
-      CubismLogDebug('{0} ,', this._keyValues[i]);
-      CubismLogDebug('\n');
+      CubismLogDebug("{0} ,", this._keyValues[i]);
+      CubismLogDebug("\n");
     }
   }
 
@@ -303,7 +303,7 @@ export class iterator<_KeyT, _ValT> {
 }
 
 // Namespace definition for compatibility.
-import * as $ from './csmmap';
+import * as $ from "./csmmap";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const csmMap = $.csmMap;

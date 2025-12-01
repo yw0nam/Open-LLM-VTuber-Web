@@ -11,12 +11,12 @@ on:
     branches:
       - main
     paths-ignore:
-      - '**.md'
-      - '**.spec.js'
-      - '.idea'
-      - '.gitignore'
-      - '.github/**'
-      - '!.github/workflows/release.yml'
+      - "**.md"
+      - "**.spec.js"
+      - ".idea"
+      - ".gitignore"
+      - ".github/**"
+      - "!.github/workflows/release.yml"
 
 concurrency:
   group: release-${{ github.ref }}
@@ -24,7 +24,7 @@ concurrency:
 
 defaults:
   run:
-    shell: 'bash'
+    shell: "bash"
 
 env:
   NODE_NO_WARNINGS: 1
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Get last git tag
         id: tag
@@ -72,7 +72,7 @@ jobs:
         with:
           ref: ${{ github.ref }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          running-workflow-name: 'draft'
+          running-workflow-name: "draft"
 
       - name: Delete outdated drafts
         uses: hugo19941994/delete-draft-releases@v1.0.0
@@ -93,7 +93,7 @@ jobs:
   upload_artifacts:
     needs: [draft]
     if: ${{ !contains(github.event.head_commit.message, '[skip]') }}
-    
+
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
@@ -106,7 +106,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm install
@@ -160,7 +160,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm install

@@ -1,12 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useProactiveSpeak } from '@/context/proactive-speak-context';
+import { useCallback, useEffect, useState } from "react";
+import { useProactiveSpeak } from "@/context/proactive-speak-context";
 
 interface UseAgentSettingsProps {
-  onSave?: (callback: () => void) => () => void
-  onCancel?: (callback: () => void) => () => void
+  onSave?: (callback: () => void) => () => void;
+  onCancel?: (callback: () => void) => () => void;
 }
 
-export function useAgentSettings({ onSave, onCancel }: UseAgentSettingsProps = {}) {
+export function useAgentSettings({
+  onSave,
+  onCancel,
+}: UseAgentSettingsProps = {}) {
   const { settings: persistedSettings, updateSettings } = useProactiveSpeak();
 
   const [tempSettings, setTempSettings] = useState({
@@ -54,8 +57,7 @@ export function useAgentSettings({ onSave, onCancel }: UseAgentSettingsProps = {
 
   const handleCancel = useCallback(() => {
     setTempSettings(originalSettings);
-    updateSettings(originalSettings);
-  }, [originalSettings, updateSettings]);
+  }, [originalSettings]);
 
   useEffect(() => {
     if (!onSave || !onCancel) return;

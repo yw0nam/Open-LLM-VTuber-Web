@@ -5,31 +5,31 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { CubismIdHandle } from '../id/cubismid';
-import { CubismFramework } from '../live2dcubismframework';
-import { csmString } from '../type/csmstring';
-import { CubismJson, JsonMap } from '../utils/cubismjson';
+import { CubismIdHandle } from "../id/cubismid";
+import { CubismFramework } from "../live2dcubismframework";
+import { csmString } from "../type/csmstring";
+import { CubismJson, JsonMap } from "../utils/cubismjson";
 
 // JSON keys
-const Meta = 'Meta';
-const Duration = 'Duration';
-const Loop = 'Loop';
-const AreBeziersRestricted = 'AreBeziersRestricted';
-const CurveCount = 'CurveCount';
-const Fps = 'Fps';
-const TotalSegmentCount = 'TotalSegmentCount';
-const TotalPointCount = 'TotalPointCount';
-const Curves = 'Curves';
-const Target = 'Target';
-const Id = 'Id';
-const FadeInTime = 'FadeInTime';
-const FadeOutTime = 'FadeOutTime';
-const Segments = 'Segments';
-const UserData = 'UserData';
-const UserDataCount = 'UserDataCount';
-const TotalUserDataSize = 'TotalUserDataSize';
-const Time = 'Time';
-const Value = 'Value';
+const Meta = "Meta";
+const Duration = "Duration";
+const Loop = "Loop";
+const AreBeziersRestricted = "AreBeziersRestricted";
+const CurveCount = "CurveCount";
+const Fps = "Fps";
+const TotalSegmentCount = "TotalSegmentCount";
+const TotalPointCount = "TotalPointCount";
+const Curves = "Curves";
+const Target = "Target";
+const Id = "Id";
+const FadeInTime = "FadeInTime";
+const FadeOutTime = "FadeOutTime";
+const Segments = "Segments";
+const UserData = "UserData";
+const UserDataCount = "UserDataCount";
+const TotalUserDataSize = "TotalUserDataSize";
+const Time = "Time";
+const Value = "Value";
 
 /**
  * motion3.jsonのコンテナ。
@@ -214,7 +214,7 @@ export class CubismMotionJson {
         .getValueByString(Curves)
         .getValueByIndex(curveIndex)
         .getValueByString(Id)
-        .getRawString()
+        .getRawString(),
     );
   }
 
@@ -299,7 +299,7 @@ export class CubismMotionJson {
    */
   public getMotionCurveSegment(
     curveIndex: number,
-    segmentIndex: number
+    segmentIndex: number,
   ): number {
     return this._json
       .getRoot()
@@ -360,7 +360,7 @@ export class CubismMotionJson {
         .getValueByString(UserData)
         .getValueByIndex(userDataIndex)
         .getValueByString(Value)
-        .getRawString()
+        .getRawString(),
     );
   }
 
@@ -371,11 +371,11 @@ export class CubismMotionJson {
  * @brief ベジェカーブの解釈方法のフラグタイプ
  */
 export enum EvaluationOptionFlag {
-  EvaluationOptionFlag_AreBeziersRistricted = 0 ///< ベジェハンドルの規制状態
+  EvaluationOptionFlag_AreBeziersRistricted = 0, ///< ベジェハンドルの規制状態
 }
 
 // Namespace definition for compatibility.
-import * as $ from './cubismmotionjson';
+import * as $ from "./cubismmotionjson";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismMotionJson = $.CubismMotionJson;

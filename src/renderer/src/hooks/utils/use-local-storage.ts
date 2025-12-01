@@ -1,28 +1,44 @@
-import { useState } from 'react';
+// src/renderer/src/hooks/utils/use-local-storage.ts
+import { useState } from "react";
 
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,
   options?: {
-    filter?: (value: T) => T
+    filter?: (value: T) => T;
   },
 ) {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
       const item = window.localStorage.getItem(key);
-      const parsedValue = item ? JSON.parse(item) : initialValue;
-      return parsedValue;
+
+      if (item === null || item === "undefined") {
+        return initialValue;
+      }
+
+      return JSON.parse(item);
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
+      // Remove the corrupted value so we do not repeatedly parse it
+      window.localStorage.removeItem(key);
       return initialValue;
     }
   });
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      const filteredValue = options?.filter ? options.filter(valueToStore) : valueToStore;
+      const valueToStore =
+        value instanceof Function ? value(storedValue) : value;
+      const filteredValue = options?.filter
+        ? options.filter(valueToStore)
+        : valueToStore;
       setStoredValue(valueToStore);
+
+      if (filteredValue === undefined) {
+        window.localStorage.removeItem(key);
+        return;
+      }
+
       window.localStorage.setItem(key, JSON.stringify(filteredValue));
     } catch (error) {
       console.error(`Error setting localStorage key "${key}":`, error);

@@ -1,5 +1,5 @@
-import { useRef, useCallback } from 'react';
-import { useChatHistory } from '@/context/chat-history-context';
+import { useRef, useCallback } from "react";
+import { useChatHistory } from "@/context/chat-history-context";
 
 export function useChatHistoryPanel() {
   const { messages } = useChatHistory();

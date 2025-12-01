@@ -5,7 +5,7 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
-import { csmString } from '../type/csmstring';
+import { csmString } from "../type/csmstring";
 
 /**
  * パラメータ名・パーツ名・Drawable名を保持
@@ -41,7 +41,7 @@ export class CubismId {
    * @return 同じならばtrue,異なっていればfalseを返す
    */
   public isEqual(c: string | csmString | CubismId): boolean {
-    if (typeof c === 'string') {
+    if (typeof c === "string") {
       return this._id.isEqual(c);
     } else if (c instanceof csmString) {
       return this._id.isEqual(c.s);
@@ -57,7 +57,7 @@ export class CubismId {
    * @return 同じならばtrue,異なっていればfalseを返す
    */
   public isNotEqual(c: string | csmString | CubismId): boolean {
-    if (typeof c == 'string') {
+    if (typeof c == "string") {
       return !this._id.isEqual(c);
     } else if (c instanceof csmString) {
       return !this._id.isEqual(c.s);
@@ -73,7 +73,7 @@ export class CubismId {
    * @note ユーザーによる生成は許可しません
    */
   private constructor(id: string | csmString) {
-    if (typeof id === 'string') {
+    if (typeof id === "string") {
       this._id = new csmString(id);
       return;
     }
@@ -87,7 +87,7 @@ export class CubismId {
 export declare type CubismIdHandle = CubismId;
 
 // Namespace definition for compatibility.
-import * as $ from './cubismid';
+import * as $ from "./cubismid";
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Live2DCubismFramework {
   export const CubismId = $.CubismId;

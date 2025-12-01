@@ -15,7 +15,7 @@ interface GeneralProps {
 
 // Data collection definition
 const useCollections = () => {
-  const { backgroundFiles } = useBgUrl() || {};
+  const { backgroundFiles } = useBgUrl();
   const { configFiles } = useConfig();
 
   const languages = createListCollection({
@@ -26,11 +26,10 @@ const useCollections = () => {
   });
 
   const backgrounds = createListCollection({
-    items:
-      backgroundFiles?.map((filename) => ({
-        label: String(filename),
-        value: `/bg/${filename}`,
-      })) || [],
+    items: backgroundFiles.map((file) => ({
+      label: file.name,
+      value: file.path,
+    })),
   });
 
   const characterPresets = createListCollection({
@@ -79,6 +78,26 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
 
   return (
     <Stack {...settingStyles.common.container}>
+      <InputField
+        label="User ID"
+        value={settings.userId}
+        onChange={(value) => handleSettingChange("userId", value)}
+        placeholder="Enter User ID"
+      />
+      <InputField
+        label="Agent ID"
+        value={settings.agentId}
+        onChange={(value) => handleSettingChange("agentId", value)}
+        placeholder="Enter Agent ID"
+      />
+
+      <InputField
+        label="Auth Token"
+        value={settings.authToken}
+        onChange={(value) => handleSettingChange("authToken", value)}
+        placeholder="Enter WebSocket Auth Token"
+      />
+
       <SelectField
         label={t("settings.general.language")}
         value={settings.language}
@@ -148,7 +167,10 @@ function General({ onSave, onCancel }: GeneralProps): JSX.Element {
           if (!Number.isNaN(quality) && quality >= 0.1 && quality <= 1.0) {
             handleSettingChange("imageCompressionQuality", quality);
           } else if (value === "") {
-            handleSettingChange("imageCompressionQuality", settings.imageCompressionQuality);
+            handleSettingChange(
+              "imageCompressionQuality",
+              settings.imageCompressionQuality,
+            );
           }
         }}
         help={t("settings.general.imageCompressionQualityHelp")}

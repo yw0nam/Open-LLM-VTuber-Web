@@ -9,7 +9,7 @@ import { useCaptureScreen } from "@/hooks/sidebar/use-capture-screen";
 // Reusable components
 function ScreenIndicator() {
   const { t } = useTranslation();
-  
+
   return (
     <Box color="red.500" display="flex" alignItems="center" gap={2}>
       <Box
@@ -19,14 +19,14 @@ function ScreenIndicator() {
         bg="red.500"
         animation="pulse 2s infinite"
       />
-      <Text fontSize="sm">{t('sidebar.screen')}</Text>
+      <Text fontSize="sm">{t("sidebar.screen")}</Text>
     </Box>
   );
 }
 
 function ScreenPlaceholder() {
   const { t } = useTranslation();
-  
+
   return (
     <Box
       position="absolute"
@@ -37,7 +37,7 @@ function ScreenPlaceholder() {
     >
       <FiMonitor size={24} />
       <Text color="whiteAlpha.600" fontSize="sm" textAlign="center">
-        {t('footer.screenControl')}
+        {t("footer.screenControl")}
       </Text>
     </Box>
   );
@@ -83,9 +83,7 @@ function ScreenPanel(): JSX.Element {
       <Tooltip
         showArrow
         content={
-          isStreaming
-            ? t('footer.screenStopping')
-            : t('footer.screenControl')
+          isStreaming ? t("footer.screenStopping") : t("footer.screenControl")
         }
         open={isHovering && !error}
       >
