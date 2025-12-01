@@ -93,7 +93,9 @@
   },
   "history": {
     "chatHistoryList": "Chat History List",
-    "noMessages": "No messages"
+    "noMessages": "No messages",
+    "newChat": "New Chat",
+    "noSessions": "No sessions yet. Start a conversation!"
   },
   "notification": {
     "characterLoaded": "New Character Loaded",

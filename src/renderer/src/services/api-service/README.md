@@ -30,7 +30,7 @@ api-service/
 import { setBaseURL } from "@/services/api-service";
 
 // Set the base URL for all API requests (optional, defaults to http://127.0.0.1:5500/api/v1)
-setBaseURL("http://localhost:5500/api/v1");
+setBaseURL("http://localhost:5500/v1");
 ```
 
 ### Short-Term Memory (STM) API

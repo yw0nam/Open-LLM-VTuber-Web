@@ -1,4 +1,4 @@
-# SWITCH_SESSION 데이터 플로우
+# DELETE_SESSION 데이터 플로우
 
 ## DATA FLOW DIAGRAM
 
@@ -28,6 +28,7 @@ sequenceDiagram
         
         Note over FE, User: UI Update
         FE->>FE: Sidebar 목록 상태(State) 업데이트
+        FE-->>FE: (If active session deleted) Reset to New Chat
         FE-->>User: 세션이 삭제된 최신 목록 표시
     else 삭제 실패 시
         FE-->>User: 삭제 실패 알림 (Toast/Alert)
@@ -38,5 +39,5 @@ sequenceDiagram
 
 - [DeleteSession API](../../../../backend//docs/api/STM_DeleteSession.md)
 - [ListChatHistory API](../../../../backend//docs/api/STM_ListChatHistory.md)
-- [Session List 데이터 플로우](./LIST_SESSIONS.md)
+- [Session List 데이터 플로우](./LIST_SESSION.md)
 - [API Service](../../feature/service/api-service.md)
