@@ -5,6 +5,7 @@ import { useInterrupt } from "@/components/canvas/live2d";
 import { useChatHistory } from "@/context/chat-history-context";
 import { useVAD } from "@/context/vad-context";
 import { useMediaCapture } from "@/hooks/utils/use-media-capture";
+import { useConfig } from "@/context/character-config-context";
 
 export function useTextInput() {
   const [inputText, setInputText] = useState("");
@@ -15,6 +16,7 @@ export function useTextInput() {
   const { addUserMessageToUI } = useChatHistory();
   const { stopMic, autoStopMic } = useVAD();
   const { captureAllMedia } = useMediaCapture();
+  const { personaPrompt } = useConfig();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputText(e.target.value);
@@ -39,6 +41,7 @@ export function useTextInput() {
       user_id: localStorage.getItem("user_id") || "default-user",
       images,
       limit: 10,
+      persona: personaPrompt || undefined,
     });
 
     if (autoStopMic) stopMic();
