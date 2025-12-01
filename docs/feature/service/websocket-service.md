@@ -1,6 +1,6 @@
 # WebSocket Service
 
-Updated: 2025-11-28
+Updated: 2025-12-01
 
 ## 1. Synopsis
 
@@ -169,13 +169,16 @@ interface WebSocketHandlerDeps {
   setAiState: (state: AiState) => void
   addAudioTask: (task: AudioTask) => void
   chatHistory: { appendAIMessage, appendToolCallRequest, appendToolResult, setForceNewMessage }
-  config: CharacterConfig
+  config: CharacterConfig  // includes setPersonaPrompt for persona_prompt handling
   bgUrl: BgUrlContext
   live2d: Live2DConfig
   baseUrl: string
   t: (key: string) => string
   toaster: ToasterAPI
 }
+```
+
+**Note:** The `set_model_and_conf` handler extracts `persona_prompt` from the server message and stores it via `config.setPersonaPrompt()`. This value is then used by `useTextInput` to include in `chat_message` WebSocket payloads.
 ```
 
 ### B. Auto-Reconnection

@@ -1,6 +1,6 @@
 # Schemas
 
-Updated: 2025-11-28
+Updated: 2025-12-01
 
 ## 1. Synopsis
 
@@ -137,7 +137,7 @@ if (message.type === 'stream_token') {
 |------|---------|
 | `authorize` | Authenticate connection |
 | `pong` | Heartbeat response |
-| `chat_message` | Send user message |
+| `chat_message` | Send user message (with optional `persona`) |
 | `interrupt_stream` | Cancel active stream |
 | `fetch_backgrounds` | Request background list |
 | `fetch_avatar_configs` | Request avatar config list |
@@ -146,7 +146,7 @@ if (message.type === 'stream_token') {
 **Server → Client:**
 
 | Type | Purpose |
-|------|---------|
+|------|--------|
 | `authorize_success` | Auth confirmed |
 | `authorize_error` | Auth failed |
 | `ping` | Heartbeat |
@@ -156,6 +156,7 @@ if (message.type === 'stream_token') {
 | `tts_ready_chunk` | Audio-ready text |
 | `tool_call` | Tool invocation |
 | `tool_result` | Tool response |
+| `set_model_and_conf` | Character config with model info and persona_prompt |
 | `error` | Server error |
 
 ### B. Chat Message Roles

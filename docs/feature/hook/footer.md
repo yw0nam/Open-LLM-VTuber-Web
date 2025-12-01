@@ -1,6 +1,6 @@
 # Footer Hooks
 
-Updated: 2025-11-28
+Updated: 2025-12-01
 
 ## 1. Synopsis
 
@@ -135,6 +135,9 @@ src/renderer/src/hooks/footer/
 | Hook | Required Contexts |
 |------|-------------------|
 | `useFooter` | `AiStateContext`, `VADContext`, `WebSocketContext`, `ChatHistoryContext` |
+| `useTextInput` | `WebSocketContext`, `AiStateContext`, `ChatHistoryContext`, `VADContext`, `CharacterConfigContext` |
+
+**Note:** `useTextInput` uses `personaPrompt` from `CharacterConfigContext` to inject persona into `chat_message` WebSocket messages.
 
 ### C. Related Documents
 
