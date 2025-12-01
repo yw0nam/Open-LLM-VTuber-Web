@@ -77,7 +77,11 @@ function buildURL(
   path: string,
   params?: Record<string, string | number | boolean | undefined>,
 ): string {
-  const url = new URL(path, baseURL);
+  // Ensure proper URL concatenation: remove leading slash from path
+  // to prevent it from overwriting the base URL path (e.g., /v1)
+  const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+  const normalizedBase = baseURL.endsWith("/") ? baseURL : `${baseURL}/`;
+  const url = new URL(normalizedPath, normalizedBase);
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {

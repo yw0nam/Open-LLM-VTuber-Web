@@ -15,7 +15,7 @@ import { setBaseURL, stmAPI, ttsAPI, vlmAPI, APIError } from "../api-service";
  * Initialize API service with base URL
  */
 export function initializeAPIService(
-  baseUrl: string = "http://127.0.0.1:5500/api/v1",
+  baseUrl: string = "http://127.0.0.1:5500/v1",
 ): void {
   setBaseURL(baseUrl);
   console.log("API service initialized with base URL:", baseUrl);

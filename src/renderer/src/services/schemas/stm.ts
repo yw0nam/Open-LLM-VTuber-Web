@@ -13,8 +13,11 @@ import {
 
 export const SessionMetadataSchema = z.object({
   user_id: z.string().optional(),
+  agent_id: z.string().optional(),
   created_at: z.string().optional(),
+  updated_at: z.string().optional(),
   title: z.string().optional(),
+  metadata: z.record(z.unknown()).optional(),
 });
 
 export type SessionMetadata = z.infer<typeof SessionMetadataSchema>;
@@ -24,8 +27,12 @@ export type SessionMetadata = z.infer<typeof SessionMetadataSchema>;
 // ============================================================================
 
 export const SessionSchema = z.object({
-  session_id: z.string().uuid(),
-  metadata: SessionMetadataSchema,
+  session_id: z.string(),
+  user_id: z.string().optional(),
+  agent_id: z.string().optional(),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional(),
+  metadata: z.record(z.unknown()).optional(),
 });
 
 export type Session = z.infer<typeof SessionSchema>;
@@ -34,7 +41,10 @@ export type Session = z.infer<typeof SessionSchema>;
 // List Sessions Response Schema
 // ============================================================================
 
-export const ListSessionsResponseSchema = z.array(SessionSchema);
+// Backend returns { sessions: [...] } not a direct array
+export const ListSessionsResponseSchema = z.object({
+  sessions: z.array(SessionSchema),
+});
 
 export type ListSessionsResponse = z.infer<typeof ListSessionsResponseSchema>;
 
@@ -80,7 +90,7 @@ const BackendSystemMessageSchema = BaseMessageSchema.extend({
 const BackendAssistantMessageSchema = BaseMessageSchema.extend({
   role: z.literal("assistant"),
   content: z.string(),
-  tool_calls: z.array(ToolCallSchema).optional(),
+  tool_calls: z.array(ToolCallSchema).nullable().optional(),
 });
 
 // Tool message

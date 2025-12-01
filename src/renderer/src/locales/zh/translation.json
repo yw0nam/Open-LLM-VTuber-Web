@@ -90,7 +90,9 @@
   },
   "history": {
     "chatHistoryList": "聊天历史列表",
-    "noMessages": "暂无消息"
+    "noMessages": "暂无消息",
+    "newChat": "新建对话",
+    "noSessions": "暂无会话记录。开始对话吧！"
   },
   "notification": {
     "characterLoaded": "新角色已加载",

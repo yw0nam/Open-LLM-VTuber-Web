@@ -21,7 +21,7 @@ import {
 } from "@/services/api-service/stm";
 import {
   // stm.ts의 스키마에서 응답 *타입* 임포트
-  type ListSessionsResponse,
+  type Session,
   type ChatHistory,
 } from "@/services/schemas/stm";
 
@@ -30,13 +30,14 @@ import {
  */
 interface ChatHistoryState {
   messages: Message[];
-  historyList: ListSessionsResponse; // stm.ts의 ListSessionsResponse 타입 사용
+  historyList: Session[]; // Array of sessions
   currentSessionId: string | null; // 'uid'에서 'session_id'로 명칭 변경
   isLoading: boolean;
 
   // 세션 선택 및 생성
   selectSession: (sessionId: string | null) => void;
   createNewSession: () => void;
+  refreshSessions: () => Promise<void>;
 
   // UI 메시지 업데이트 (optimistic updates)
   addUserMessageToUI: (content: string) => Promise<void>;
@@ -72,7 +73,7 @@ export function ChatHistoryProvider({
 }: ChatHistoryProviderProps) {
   // State management
   const [messages, setMessages] = useState<Message[]>([]);
-  const [historyList, setHistoryList] = useState<ListSessionsResponse>([]);
+  const [historyList, setHistoryList] = useState<Session[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [forceNewMessage, setForceNewMessage] = useState<boolean>(false);
@@ -83,28 +84,29 @@ export function ChatHistoryProvider({
 
   // --- API 연동 로직 (useEffect) ---
 
-  // Provider 로드 시 (또는 user/agent 변경 시) 세션 목록 불러오기
-  
-  useEffect(() => {
+  // Reusable function to load/refresh sessions
+  const refreshSessions = useCallback(async () => {
     if (!userId || !agentId) return;
 
-    const loadSessions = async () => {
-      setIsLoading(true);
-      try {
-        const sessions = await listSessions({
-          user_id: userId,
-          agent_id: agentId,
-        });
-        setHistoryList(sessions);
-      } catch (error) {
-        console.error("Failed to list sessions:", error);
-        setHistoryList([]); // 에러 시 초기화
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadSessions();
+    setIsLoading(true);
+    try {
+      const response = await listSessions({
+        user_id: userId,
+        agent_id: agentId,
+      });
+      setHistoryList(response.sessions);
+    } catch (error) {
+      console.error("Failed to list sessions:", error);
+      setHistoryList([]); // 에러 시 초기화
+    } finally {
+      setIsLoading(false);
+    }
   }, [userId, agentId]);
+
+  // Provider 로드 시 (또는 user/agent 변경 시) 세션 목록 불러오기
+  useEffect(() => {
+    refreshSessions();
+  }, [refreshSessions]);
 
   /**
    * (신규) 2. 현재 세션 ID(currentSessionId)가 변경되면 해당 세션의 메시지 불러오기
@@ -283,6 +285,7 @@ export function ChatHistoryProvider({
       isLoading,
       selectSession,
       createNewSession,
+      refreshSessions,
       addUserMessageToUI,
       // 스트리밍 UI 업데이트 함수들
       appendAIMessage,
@@ -297,6 +300,7 @@ export function ChatHistoryProvider({
       isLoading,
       selectSession,
       createNewSession,
+      refreshSessions,
       addUserMessageToUI,
       appendAIMessage,
       appendToolCallRequest,

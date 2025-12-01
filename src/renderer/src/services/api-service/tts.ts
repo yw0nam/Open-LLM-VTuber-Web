@@ -45,7 +45,7 @@ export async function synthesizeSpeech(
   const validatedRequest = TTSSynthesizeRequestSchema.parse(request);
 
   return post(
-    "v1/tts/synthesize",
+    "tts/synthesize",
     validatedRequest,
     undefined,
     TTSSynthesizeResponseSchema,

@@ -1,5 +1,5 @@
-import { Box, Button } from "@chakra-ui/react";
-import { FiTrash2 } from "react-icons/fi";
+import { Box, Button, Text } from "@chakra-ui/react";
+import { FiTrash2, FiPlus } from "react-icons/fi";
 import { formatDistanceToNow } from "date-fns";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,20 +26,22 @@ interface HistoryDrawerProps {
 
 interface HistoryItemProps {
   isSelected: boolean;
-  latestMessage: { content: string; timestamp: string | null };
+  title: string;
+  preview: string;
+  timestamp: string | null;
   onSelect: () => void;
   onDelete: (e: React.MouseEvent) => void;
-  isDeleteDisabled: boolean;
 }
 
 // Reusable components
 const HistoryItem = memo(
   ({
     isSelected,
-    latestMessage,
+    title,
+    preview,
+    timestamp,
     onSelect,
     onDelete,
-    isDeleteDisabled,
   }: HistoryItemProps): JSX.Element => {
     const { t } = useTranslation();
     return (
@@ -49,24 +51,32 @@ const HistoryItem = memo(
         onClick={onSelect}
       >
         <Box {...sidebarStyles.historyDrawer.historyHeader}>
-          <Box {...sidebarStyles.historyDrawer.timestamp}>
-            {latestMessage.timestamp
-              ? formatDistanceToNow(new Date(latestMessage.timestamp), {
-                  addSuffix: true,
-                })
-              : t("history.noMessages")}
-          </Box>
+          <Text 
+            fontWeight="medium" 
+            fontSize="sm" 
+            color="white"
+            noOfLines={1}
+            flex={1}
+          >
+            {title}
+          </Text>
           <Button
             onClick={onDelete}
-            disabled={isDeleteDisabled}
             {...sidebarStyles.historyDrawer.deleteButton}
           >
             <FiTrash2 />
           </Button>
         </Box>
-        {latestMessage.content && (
+        <Box {...sidebarStyles.historyDrawer.timestamp}>
+          {timestamp
+            ? formatDistanceToNow(new Date(timestamp), {
+                addSuffix: true,
+              })
+            : t("history.noMessages")}
+        </Box>
+        {preview && (
           <Box {...sidebarStyles.historyDrawer.messagePreview}>
-            {latestMessage.content}
+            {preview}
           </Box>
         )}
       </Box>
@@ -85,8 +95,9 @@ function HistoryDrawer({ children }: HistoryDrawerProps): JSX.Element {
     historyList,
     currentSessionId,
     fetchAndSetHistory,
+    handleNewChat,
     deleteHistory,
-    getLatestMessageContent,
+    getSessionDisplayInfo,
   } = useHistoryDrawer();
 
   return (
@@ -108,20 +119,45 @@ function HistoryDrawer({ children }: HistoryDrawerProps): JSX.Element {
         </DrawerHeader>
 
         <DrawerBody>
+          {/* New Chat Button */}
+          <Box px={4} py={2}>
+            <Button
+              onClick={handleNewChat}
+              width="100%"
+              colorScheme="blue"
+              variant="outline"
+              size="md"
+            >
+              <FiPlus style={{ marginRight: "8px" }} />
+              {t("history.newChat")}
+            </Button>
+          </Box>
+
+          {/* Session List */}
           <Box {...sidebarStyles.historyDrawer.listContainer}>
-            {historyList.map((session: Session) => (
-              <HistoryItem
-                key={session.session_id}
-                isSelected={currentSessionId === session.session_id}
-                latestMessage={getLatestMessageContent(session)}
-                onSelect={() => fetchAndSetHistory(session.session_id)}
-                onDelete={(e) => {
-                  e.stopPropagation();
-                  deleteHistory(session.session_id);
-                }}
-                isDeleteDisabled={currentSessionId === session.session_id}
-              />
-            ))}
+            {historyList.length === 0 ? (
+              <Box textAlign="center" py={8} color="whiteAlpha.600">
+                <Text>{t("history.noSessions")}</Text>
+              </Box>
+            ) : (
+              historyList.map((session: Session) => {
+                const displayInfo = getSessionDisplayInfo(session);
+                return (
+                  <HistoryItem
+                    key={session.session_id}
+                    isSelected={currentSessionId === session.session_id}
+                    title={displayInfo.title}
+                    preview={displayInfo.preview}
+                    timestamp={displayInfo.timestamp}
+                    onSelect={() => fetchAndSetHistory(session.session_id)}
+                    onDelete={(e) => {
+                      e.stopPropagation();
+                      deleteHistory(session.session_id);
+                    }}
+                  />
+                );
+              })
+            )}
           </Box>
         </DrawerBody>
 
