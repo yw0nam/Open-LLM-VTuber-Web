@@ -14,13 +14,14 @@ Updated: 2025-11-28
 ```typescript
 interface ChatHistoryState {
   messages: Message[];
-  historyList: ListSessionsResponse;
+  historyList: Session[];
   currentSessionId: string | null;
   isLoading: boolean;
 
   // Session management
   selectSession: (sessionId: string | null) => void;
   createNewSession: () => void;
+  refreshSessions: () => Promise<void>;
 
   // UI message updates
   addUserMessageToUI: (content: string) => Promise<void>;

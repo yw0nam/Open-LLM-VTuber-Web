@@ -54,6 +54,7 @@ Session history list in a drawer.
 
 **Features:**
 - Session list with timestamps
+- New chat creation button
 - Session selection
 - Delete session option
 
