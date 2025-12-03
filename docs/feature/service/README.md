@@ -1,6 +1,6 @@
 # Services
 
-Updated: 2025-11-28
+Updated: 2025-12-03
 
 ## 1. Synopsis
 
@@ -24,9 +24,16 @@ services/
 
 ## 3. Module Documentation
 
+### Core
+
 - [API Service](./api-service.md) - REST API client implementation
-- [Schemas](./schemas.md) - Zod schemas and TypeScript types
 - [WebSocket Service](./websocket-service.md) - WebSocket client and handlers
+
+### Schemas
+
+- [Schemas (Index)](./schemas.md) - Overview and barrel exports
+- [API Schemas](./schemas-api.md) - STM/TTS/VLM request/response specs
+- [WebSocket Schemas](./schemas-websocket.md) - Client/Server message specs
 
 ## 4. Quick Start
 
