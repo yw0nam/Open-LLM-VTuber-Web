@@ -29,6 +29,8 @@ export function useTextInput() {
     }
 
     const images = await captureAllMedia();
+    // Transform ImageData[] to string[] for WebSocket payload
+    const imagePayload = images.map((img) => img.data);
 
     // Optimistically add user message to UI
     addUserMessageToUI(inputText.trim());
@@ -39,7 +41,7 @@ export function useTextInput() {
       content: inputText.trim(),
       agent_id: localStorage.getItem("agent_id") || "default-agent",
       user_id: localStorage.getItem("user_id") || "default-user",
-      images,
+      images: imagePayload.length > 0 ? imagePayload : undefined,
       limit: 10,
       persona: personaPrompt || undefined,
     });

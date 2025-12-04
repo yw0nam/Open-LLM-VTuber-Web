@@ -14,6 +14,7 @@ import {
   type WebSocketConnectionState,
 } from "@/services/websocket-service/client";
 import { useLocalStorage } from '@/hooks/utils/use-local-storage';
+import { setBaseURL } from '@/services/api-service';
 
 const DEFAULT_WS_URL = "ws://127.0.0.1:5500/v1/chat/stream";
 const DEFAULT_BASE_URL = "http://127.0.0.1:5500/v1";
@@ -92,6 +93,11 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       wsService.disconnect({ suppressReconnect: true });
     };
   }, [wsUrl]); // wsUrl이 변경되면 effect가 다시 실행되어 재연결합니다.
+
+  // Sync baseUrl with API service whenever it changes
+  useEffect(() => {
+    setBaseURL(baseUrl);
+  }, [baseUrl]);
 
   // URL 변경 핸들러
   const handleSetWsUrl = useCallback((url: string) => {

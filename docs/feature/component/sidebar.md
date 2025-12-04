@@ -1,11 +1,12 @@
 # Sidebar Components
 
-Updated: 2025-11-28
+Updated: 2025-12-03
 
 ## 1. Synopsis
 
 - **Purpose**: Left panel with chat history, settings, camera/screen controls, and navigation
 - **I/O**: User interactions → State updates, API calls, settings changes
+- **Location**: `src/renderer/src/components/sidebar/`
 
 ## 2. Core Logic
 
@@ -26,6 +27,7 @@ Updated: 2025-11-28
 Main container with collapsible behavior.
 
 **Props:**
+
 ```typescript
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -34,6 +36,7 @@ interface SidebarProps {
 ```
 
 **Features:**
+
 - Collapsible with toggle button
 - Mode switching menu (Window/Pet)
 - New session creation button
@@ -44,6 +47,7 @@ interface SidebarProps {
 Message list using @chatscope/chat-ui-kit.
 
 **Features:**
+
 - User/Assistant/Tool message rendering
 - Auto-scroll to latest message
 - Tool call display with collapsible arguments
@@ -53,6 +57,7 @@ Message list using @chatscope/chat-ui-kit.
 Session history list in a drawer.
 
 **Features:**
+
 - Session list with timestamps
 - New chat creation button
 - Session selection
@@ -62,12 +67,25 @@ Session history list in a drawer.
 
 | Panel | File | Purpose |
 |-------|------|---------|
-| `GeneralPanel` | `general-panel.tsx` | Language, theme settings |
+| `GeneralPanel` | `general-panel.tsx` | Language, theme, URL settings |
 | `AgentPanel` | `agent-panel.tsx` | Agent ID, user ID configuration |
 | `AsrPanel` | `asr-panel.tsx` | Speech recognition settings |
 | `TtsPanel` | `tts-panel.tsx` | Text-to-speech settings |
 | `Live2dPanel` | `live2d-panel.tsx` | Model selection, expression settings |
 | `AboutPanel` | `about-panel.tsx` | Version info, links |
+
+### General Settings Fields
+
+| Field | Storage | Description |
+|-------|---------|-------------|
+| User ID | localStorage (`user_id`) | User identifier |
+| Agent ID | localStorage (`agent_id`) | Agent identifier |
+| Auth Token | localStorage (`authToken`) | WebSocket auth token |
+| WebSocket URL | localStorage (`wsUrl`) | Real-time streaming endpoint |
+| Base URL | localStorage (`baseUrl`) | REST API base URL |
+| Language | i18n | UI language |
+| Background | Context | Background image/camera |
+| Character Preset | Context | Active character config |
 
 ### Constraints
 
