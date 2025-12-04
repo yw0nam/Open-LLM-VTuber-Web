@@ -231,6 +231,7 @@ export const WSSetModelAndConfMessageSchema = z.object({
   conf_name: z.string(),
   conf_uid: z.string(),
   client_uid: z.string(),
+  persona_prompt: z.string().optional(),
 });
 
 export type WSSetModelAndConfMessage = z.infer<

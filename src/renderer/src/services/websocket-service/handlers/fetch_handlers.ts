@@ -40,6 +40,8 @@ export const fetchHandlers: Partial<{
     if (message.conf_uid) {
       deps.config.setConfUid(message.conf_uid);
     }
+    // Set persona prompt from character config
+    deps.config.setPersonaPrompt(message.persona_prompt || "");
 
     const incomingModelInfo = (message.model_info || {}) as Partial<ModelInfo>;
     console.log("[fetch_handlers] Incoming model info:", incomingModelInfo);

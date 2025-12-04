@@ -23,9 +23,11 @@ export interface ConfigFile {
 interface CharacterConfigState {
   confName: string;
   confUid: string;
+  personaPrompt: string;
   configFiles: ConfigFile[];
   setConfName: (name: string) => void;
   setConfUid: (uid: string) => void;
+  setPersonaPrompt: (prompt: string) => void;
   setConfigFiles: (files: ConfigFile[]) => void;
   getFilenameByName: (name: string) => string | undefined;
 }
@@ -36,6 +38,7 @@ interface CharacterConfigState {
 const DEFAULT_CONFIG = {
   confName: "",
   confUid: "",
+  personaPrompt: "",
   configFiles: [] as ConfigFile[],
 };
 
@@ -56,6 +59,7 @@ export function CharacterConfigProvider({
 }) {
   const [confName, setConfName] = useState<string>(DEFAULT_CONFIG.confName);
   const [confUid, setConfUid] = useState<string>(DEFAULT_CONFIG.confUid);
+  const [personaPrompt, setPersonaPrompt] = useState<string>(DEFAULT_CONFIG.personaPrompt);
   const [configFiles, setConfigFiles] = useState<ConfigFile[]>(
     DEFAULT_CONFIG.configFiles,
   );
@@ -71,13 +75,15 @@ export function CharacterConfigProvider({
     () => ({
       confName,
       confUid,
+      personaPrompt,
       configFiles,
       setConfName,
       setConfUid,
+      setPersonaPrompt,
       setConfigFiles,
       getFilenameByName,
     }),
-    [confName, confUid, configFiles, getFilenameByName],
+    [confName, confUid, personaPrompt, configFiles, getFilenameByName],
   );
 
   useEffect(() => {

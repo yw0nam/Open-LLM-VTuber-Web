@@ -65,6 +65,14 @@ export function useMediaCapture() {
         return null;
       }
 
+      // Safety check: ImageCapture API is experimental and may not be available
+      if (!("ImageCapture" in window)) {
+        console.warn(
+          "ImageCapture API is not available in this browser. Image capture skipped.",
+        );
+        return null;
+      }
+
       const imageCapture = new ImageCapture(videoTrack);
       try {
         const bitmap = await imageCapture.grabFrame();

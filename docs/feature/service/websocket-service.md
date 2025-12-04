@@ -1,17 +1,18 @@
 # WebSocket Service
 
-Updated: 2025-11-28
+Updated: 2025-12-03
 
 ## 1. Synopsis
 
 - **Purpose**: Real-time bidirectional communication with backend for streaming chat
 - **I/O**: User messages → WebSocket → Server responses (tokens, audio, tool calls)
+- **Location**: `src/renderer/src/services/websocket-service/`
 
 ## 2. Core Logic
 
 ### File Structure
 
-```
+```text
 websocket-service/
 ├── client.ts              # WebSocketService singleton class
 ├── websocket-handler.tsx  # React context provider for WS state
@@ -23,11 +24,22 @@ websocket-service/
     └── handleTTSReadyChunk.ts  # TTS audio processing
 ```
 
+### URL Configuration
+
+| URL | Default | Storage | Purpose |
+|-----|---------|---------|---------|
+| WebSocket URL | `ws://127.0.0.1:5500/v1/chat/stream` | localStorage (`wsUrl`) | Real-time streaming |
+| Base URL | `http://127.0.0.1:5500/v1` | localStorage (`baseUrl`) | REST API & asset URLs |
+
+URLs are configured via:
+
+- **Settings UI**: Sidebar → General Settings → `wsUrl` / `baseUrl` fields
+- **Context**: `useWebSocket()` returns `{ wsUrl, setWsUrl, baseUrl, setBaseUrl }`
+
 ### WebSocketService (`client.ts`)
 
 | Method | Description |
 |--------|-------------|
-| `getInstance()` | Get singleton instance |
 | `connect(url, options?)` | Establish connection |
 | `disconnect(options?)` | Close connection |
 | `sendMessage(message, options?)` | Send generic message |
@@ -169,7 +181,7 @@ interface WebSocketHandlerDeps {
   setAiState: (state: AiState) => void
   addAudioTask: (task: AudioTask) => void
   chatHistory: { appendAIMessage, appendToolCallRequest, appendToolResult, setForceNewMessage }
-  config: CharacterConfig
+  config: CharacterConfig  // includes setPersonaPrompt for persona_prompt handling
   bgUrl: BgUrlContext
   live2d: Live2DConfig
   baseUrl: string
@@ -177,6 +189,8 @@ interface WebSocketHandlerDeps {
   toaster: ToasterAPI
 }
 ```
+
+**Note:** The `set_model_and_conf` handler extracts `persona_prompt` from the server message and stores it via `config.setPersonaPrompt()`. This value is then used by `useTextInput` to include in `chat_message` WebSocket payloads.
 
 ### B. Auto-Reconnection
 

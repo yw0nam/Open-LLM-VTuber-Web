@@ -1,17 +1,18 @@
 # API Service
 
-Updated: 2025-11-28
+Updated: 2025-12-03
 
 ## 1. Synopsis
 
 - **Purpose**: Type-safe HTTP client for REST API communication with backend
 - **I/O**: Request params/body → HTTP request → Validated response data
+- **Location**: `src/renderer/src/services/api-service/`
 
 ## 2. Core Logic
 
 ### File Structure
 
-```
+```text
 api-service/
 ├── core.ts      # HTTP client wrapper, error handling, base URL config
 ├── stm.ts       # Short-Term Memory (session/chat history) APIs
@@ -22,15 +23,15 @@ api-service/
 
 ### Core HTTP Client (`core.ts`)
 
-| Function | Description |
-|----------|-------------|
-| `setBaseURL(url)` | Configure API base URL |
-| `getBaseURL()` | Get current base URL |
-| `get<T>(path, options, schema)` | GET request with validation |
-| `post<T>(path, body, options, schema)` | POST request with validation |
-| `patch<T>(path, body, options, schema)` | PATCH request with validation |
-| `del<T>(path, options, schema)` | DELETE request with validation |
-| `postFormData<T>(path, formData, options, schema)` | Multipart form POST |
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `setBaseURL` | `(url: string) => void` | Set API base URL |
+| `getBaseURL` | `() => string` | Get current base URL |
+| `get` | `<T>(path, options?, schema?) => Promise<T>` | GET request |
+| `post` | `<T>(path, body?, options?, schema?) => Promise<T>` | POST request |
+| `patch` | `<T>(path, body?, options?, schema?) => Promise<T>` | PATCH request |
+| `del` | `<T>(path, options?, schema?) => Promise<T>` | DELETE request |
+| `postFormData` | `<T>(path, formData, options?, schema?) => Promise<T>` | Multipart POST |
 
 ### API Modules
 
@@ -39,6 +40,76 @@ api-service/
 | `stmAPI` | `/stm` | `listSessions`, `getChatHistory`, `addChatHistory`, `updateSessionMetadata`, `deleteSession` |
 | `ttsAPI` | `/tts` | `synthesizeSpeech` |
 | `vlmAPI` | `/vlm` | `analyzeImage` |
+
+### URL Configuration
+
+**Default**: `http://127.0.0.1:5500/v1`
+
+The base URL is managed via `WebSocketContext` and automatically synced to the API service:
+
+| Location | Storage | Purpose |
+|----------|---------|---------|
+| `WebSocketContext` | localStorage (`baseUrl`) | User-configured URL from Settings |
+| `core.ts` (module) | Memory | Actual URL used by HTTP client (auto-synced) |
+
+> **Note**: When `baseUrl` changes in Settings, `WebSocketProvider` automatically calls `setBaseURL()` to update the API client.
+
+## 3. Usage
+
+### Initialize with Custom URL
+
+```typescript
+import { setBaseURL, stmAPI } from '@/services/api-service'
+
+// Direct configuration (for programmatic use)
+setBaseURL('http://your-server:5500/v1')
+
+// For user configuration, use Settings UI
+// WebSocketProvider automatically syncs baseUrl to API service
+```
+
+### STM API
+
+```typescript
+// List sessions
+const { sessions } = await stmAPI.listSessions({
+  user_id: 'user-123',
+  agent_id: 'agent-456'
+})
+
+// Get chat history
+const history = await stmAPI.getChatHistory({
+  user_id: 'user-123',
+  agent_id: 'agent-456',
+  session_id: 'session-uuid'
+})
+
+// Add messages
+await stmAPI.addChatHistory(
+  { user_id, agent_id, session_id },
+  { messages: [{ role: 'user', content: 'Hello!' }] }
+)
+```
+
+### TTS API
+
+```typescript
+const result = await ttsAPI.synthesizeSpeech({
+  text: 'Hello, world!',
+  output_format: 'base64'
+})
+// result.audio_data: base64 encoded audio
+```
+
+### VLM API
+
+```typescript
+const result = await vlmAPI.analyzeImage({
+  image: imageFile,
+  prompt: 'What do you see?'
+})
+// result.analysis: description text
+```
 
 ### Error Handling
 
@@ -54,95 +125,24 @@ try {
 }
 ```
 
-## 3. Usage
-
-### STM API - Session Management
-
-```typescript
-import { stmAPI } from '@/services/api-service'
-
-// List sessions
-const sessions = await stmAPI.listSessions({
-  user_id: 'user-123',
-  agent_id: 'agent-456'
-})
-
-// Get chat history
-const history = await stmAPI.getChatHistory({
-  user_id: 'user-123',
-  agent_id: 'agent-456',
-  session_id: 'session-uuid',
-  limit: 50
-})
-
-// Add messages
-await stmAPI.addChatHistory(
-  { user_id: 'user-123', agent_id: 'agent-456', session_id: 'session-uuid' },
-  { messages: [{ role: 'user', content: 'Hello!' }] }
-)
-
-// Delete session
-await stmAPI.deleteSession('session-uuid', { user_id: 'user-123', agent_id: 'agent-456' })
-```
-
-### TTS API - Speech Synthesis
-
-```typescript
-import { ttsAPI } from '@/services/api-service'
-
-const result = await ttsAPI.synthesizeSpeech({
-  text: 'Hello, world!',
-  output_format: 'base64',
-  reference_id: 'voice-id-123' // optional voice cloning
-})
-// result.audio_data contains base64 encoded audio
-```
-
-### VLM API - Image Analysis
-
-```typescript
-import { vlmAPI } from '@/services/api-service'
-
-const result = await vlmAPI.analyzeImage({
-  image: imageFile, // File or Blob
-  prompt: 'What do you see in this image?'
-})
-// result.analysis contains the description
-```
-
 ---
 
 ## Appendix
 
-### A. Configuration
+### A. Settings Integration
 
-Default base URL: `http://127.0.0.1:5500/v1`
+The sidebar General Settings panel provides URL configuration:
 
-```typescript
-import { setBaseURL, getBaseURL } from '@/services/api-service'
+| Setting | Context Property | localStorage Key |
+|---------|------------------|------------------|
+| WebSocket URL | `wsUrl` | `wsUrl` |
+| Base URL | `baseUrl` | `baseUrl` |
 
-setBaseURL('http://your-server:5500/v1')
-console.log(getBaseURL()) // http://your-server:5500/v1
-```
+To ensure API service uses the configured URL, sync on app initialization or context change.
 
-### B. Type Exports
+### B. Related Documents
 
-All request/response types are re-exported from `index.ts`:
-
-```typescript
-import type {
-  ListSessionsResponse,
-  Session,
-  ChatHistory,
-  TTSSynthesizeRequest,
-  TTSSynthesizeResponse,
-  VLMAnalyzeRequest,
-  VLMAnalyzeResponse
-} from '@/services/api-service'
-```
-
-### C. Related Documents
-
-- [Schemas](./schemas.md) - Validation schemas for API types
-- Backend REST API: `backend/docs/api/REST_API_GUIDE.md`
+- [API Schemas](./schemas-api.md) - Request/Response type definitions
+- [WebSocket Service](./websocket-service.md) - Real-time communication
+- [Sidebar Settings](../component/sidebar.md) - URL configuration UI
 

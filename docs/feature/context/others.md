@@ -1,6 +1,6 @@
 # Other Contexts
 
-Updated: 2025-11-28
+Updated: 2025-12-01
 
 ## 1. Synopsis
 
@@ -62,16 +62,19 @@ interface ScreenCaptureContextType {
 
 ### CharacterConfigContext
 
-Agent and user configuration.
+Agent and user configuration with persona prompt support.
 
 ```typescript
 interface CharacterConfigContextType {
-  agentId: string;
-  setAgentId: (id: string) => void;
-  userId: string;
-  setUserId: (id: string) => void;
+  confName: string;
+  setConfName: (name: string) => void;
+  confUid: string;
+  setConfUid: (uid: string) => void;
+  personaPrompt: string;
+  setPersonaPrompt: (prompt: string) => void;
   configFiles: ConfigFile[];
   setConfigFiles: (files: ConfigFile[]) => void;
+  getFilenameByName: (name: string) => string | undefined;
 }
 ```
 
@@ -104,7 +107,7 @@ const { startCamera, stopCamera, isCameraActive } = useCamera();
 const { startCapture, stopCapture, isCapturing } = useScreenCapture();
 
 // Character config
-const { agentId, userId, setAgentId } = useCharacterConfig();
+const { confName, confUid, personaPrompt, configFiles } = useConfig();
 
 // Proactive speak
 const { enabled, interval, setEnabled } = useProactiveSpeak();
